@@ -1,0 +1,5 @@
+-I/home/wygos/sources/paal/include
+-I/home/wygos/sources/paal/test
+-DBOOST_TEST_DYN_LINK
+-Wall
+-std=c++0x

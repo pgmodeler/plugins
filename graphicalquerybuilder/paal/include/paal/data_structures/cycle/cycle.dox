@@ -1,0 +1,25 @@
+/*! \page cycle Cycle
+\section Concept
+Cycle need to fulfill the interface:
+<pre>
+    CycleArchetype {
+        void flip(VertexType,VertexType);
+        VertexIterator vbegin(VertexType v);
+        VertexIterator vbegin();
+        VertexIterator vend();
+    }
+</pre>
+<br>
+
+CycleElem and VertexIterator types are provided through
+paal::data_structures::CycleTraits and are detected automatically.
+
+\section implementation Implementation
+
+The library provide one very simple implementation of cycle that is
+paal::data_structures::SimpleCycle. Also cycle vesion  based on the splay tree
+is included (see paal::data_structures::SplayCycle). Note that SplayCycle is
+going to work better than SimpleCycle only for sufficiently big isntances. For
+instances of size 10000 smaller we recomend using SimpleCycle.
+
+*/

@@ -1,0 +1,40 @@
+/*! \page voronoi Voronoi
+\section Concept
+Voronoi is a concept  modeling division of the metric space in the voronoi regions.
+Space contains vertices and generators. Each vertex is assign to the nearest generator.
+Each generator has its voronoi region which contains all vertices assigned to the generator.
+Cost of the voronoi is the sum of the distances between the vertices and generators assign to this vertices. <br><br>
+
+We introduce two concepts WeakVoronoi and Voronoi.
+<pre>
+class WeakVoronoiArchetype {
+    const GeneratorsSet & getGenerators() const;
+
+    const Vertices & getVertices() const;
+
+    VerticesRange getVerticesForGenerator(VertexType g) const;
+}
+</pre>
+
+Each model of the Voronoi concept need to model also WeakVoronoi concept.
+Additionally, it gives possibility of adding and removing generators.
+
+<pre>
+class VoronoiArchetype : public WeakVoronoiArchetype {
+
+    // returns diff between new cost and old cost
+    Dist addGenerator(VertexType f);
+
+    // returns diff between new cost and old cost
+    Dist remGenerator(VertexType f);
+}
+</pre>
+
+\section Implementations
+
+There is one straightforward implementation of the Voronoi concept in the
+library, it is paal::data_structures::Voronoi. There is also an implementation
+of capacitated version of voronoi, it is
+paal::data_structures::CapacitatedVoronoi.
+
+*/

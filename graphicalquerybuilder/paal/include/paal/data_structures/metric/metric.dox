@@ -1,0 +1,29 @@
+/*! \page metric Metric
+\section m_concept Metric Concept
+Metric is a concept modeling distance function fulfilling triangle inequality.
+That is if \a m is a metric and \a x,y,z are some vertices then, \a m(x,y) + \a m(y,z) > \a m(x,z).<br><br>
+VertexType - denotes type of point from considered space i.e. argument of the metric.<br>
+DistanceType - denotes type of the distance between points.<br>
+Metric need to have fulfill the interface: <br>
+<pre>
+    MetricArchetype {
+        DistanceType operator()(VertexType,VertexType);
+    }
+</pre>
+
+ DistanceType and VertexType are provided through the paal::data_structures::MetricTraits class. <br>
+We have:
+<ul>
+<li> MetricTraits<Metric>::DistanceType
+<li> MetricTraits<Metric>::VertexType
+ </ul>
+
+ Default value of VertexType is int and the DistanceType is detected automatically.
+
+\section m_impl Metric implementations
+
+Paal provides several metrics implementation. The basic one is
+paal::data_structures::ArrayMetric which is actually 2 dimensional array.  The
+library contains paal::data_structures::GraphMetric which is the metric adapter
+for boost graph library.
+*/

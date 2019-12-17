@@ -1,0 +1,55 @@
+* use boost::sub_range
+* add example to metrics
+
+* euclidean metric shouldn't be parametrized
+
+* doxygen comment in code should start from big letter
+
+* check boost concepts
+
+* separate in/out, type, name, description in doxygen
+
+* disable typedefs warning in doxygen
+* knapsack unbounded fptas is not realy fptas
+  there is a problem with number of objects.
+  The number of objects is included in the multiplier.
+  In the current version we use incorrect number of items.
+  One of the solution could be to group the small eelements in the bigger bundles.
+* doxygen does not see some of the references
+    (http://siekiera.mimuw.edu.pl/~paal/stein.html -> paal::data_structures::Voronoi.)
+* alternative kanpsack algorithm (n*(1/epsilon)^2)
+* make better traits, maybe it supposed to look like std::iterator traits
+* function comparing 2 metrics
+
+* ITERATIVE ROUNDING
+** error checking for generalized assignment
+** move and copy constructor in glp class
+** glp.get_columns() returns columns in random order
+** LP formulation in separate dir
+** improve row generation ?
+** resolving solution by moving a point ?
+** cplex support ???
+
+* lp
+** (glpk) in the resolve we don't allways want to call
+   glp_adv_basis, but run it only when glp_simplex fails.
+   This is not done beacause of the bug in the glpk.
+   It should be done when the bug is fixed.
+   http://lists.gnu.org/archive/html/bug-glpk/2014-06/msg00000.html
+
+
+* GREEDY
+** steiner forest (conjecture)
+
+* make install
+
+* LSH regression
+** computation of params and using them by default:
+*** w_param and hash_functions_per_point: by optimizing probability of hash
+    collisions
+** stream version of algorithm
+*** correct computing max point dimensions in lsh_nearest_neighbors_regression
+    and all tests
+** classification version
+** multithreading
+** convenient binary

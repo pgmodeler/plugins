@@ -1,0 +1,19 @@
+To build only binaries please in the build directory run 'cmake <path to paal root directory>' and then run 'make'.
+In order to additionally build tests add '-DWITH_TESTS=1' parameter to cmake call.
+Similarly to additionally build examples add '-DWITH_EXAMPLES=1' parameter to cmake call.
+For more details about cmake please see:
+http://www.cmake.org/
+
+The project was tested with cmake version 2.8.9.
+The minimal version of g++ is 4.8.4.
+The minimal version of clang++ is 3.5.
+The minimal version of  Visual Studio is 2015 preview (only binaries are guarantied to compile here)
+The minimal version of boost is 1.58.
+
+In order to build automatic documentation run doxygen in the paal root directory.
+The minimal doxygen version is 1.8.3.
+
+In order to run automatic tests run from paal root directory:
+
+./<build directory>/test/all_small_tests
+./<build directory>/test/all_long_tests

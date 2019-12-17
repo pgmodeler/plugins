@@ -1,0 +1,10 @@
+*.swp
+*.tmp
+*~
+html
+latex
+const.cmake
+build*
+logos
+Doxyfile
+docs
