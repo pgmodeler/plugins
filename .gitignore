@@ -1,0 +1,13 @@
+*.[oa]
+*.so.*
+*.so
+ui_*.h
+moc_*.cpp
+obj/*
+moc/*
+Makefile
+build/*
+*.pro.user
+*.directory
+
+
