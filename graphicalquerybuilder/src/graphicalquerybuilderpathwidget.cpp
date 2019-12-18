@@ -290,10 +290,10 @@ QMultiMap<int,
 	for(const auto &req_vertex:gqb_c->required_vertices)
 		if(!gqb_c->disconnected_vertices.contains(req_vertex)) nb_required_vertices_connected+=1;
 
-	if(nb_required_vertices_connected<2)
-	{
-		qDebug() << "<2";
-	}
+//	if(nb_required_vertices_connected<2)
+//	{
+//		qDebug() << "<2";
+//	}
 
 	//Setup relationship weights
 	vector<int> weights;
@@ -429,7 +429,7 @@ QMultiMap<int,
 	//II. a) If only two tables to join...
 	if(nb_required_vertices_connected==2)
 	{
-		qDebug() << "=2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
+//		qDebug() << "=2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
 		int start, goal;
 
 		start=terminals[0];
@@ -483,7 +483,7 @@ QMultiMap<int,
 	//run Optimal-Dreyfus-Wagner algorithm, followed by Dijkstra to find edge detail.
 	else if(nb_required_vertices_connected>2)
 	{
-		qDebug() << ">2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
+//		qDebug() << ">2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
 		QMap< QPair< QVector<int>, QVector<Edge> >, int > dw_results;
 		QVector<int> dw_subresult1;
 		QVector<Edge> dw_subresult2;

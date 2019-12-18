@@ -164,22 +164,22 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	gqb_core_wgt->setFriendWidget(gqb_path_wgt);
 	gqb_path_wgt->setFriendWidget(gqb_core_wgt);
 
-	gqb_core_wgt->setModel(model_wgt);
-	gqb_path_wgt->setModel(model_wgt);
+	if(model_wgt)
+	{
+		gqb_core_wgt->setModel(model_wgt);
+		gqb_path_wgt->setModel(model_wgt);
+	}
 	connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 
 
 	connect(mw, &MainWindow::s_currentModelChanged, [&](ModelWidget *new_model){
+		disconnect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), nullptr,nullptr);
 		if(new_model)
 		{
-			disconnect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), nullptr,nullptr);
-
 			gqb_core_wgt->setModel(new_model);
 			gqb_path_wgt->setModel(new_model);
-
 			connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 		}
-
 	});
 
 	//Setup the two dock widgets

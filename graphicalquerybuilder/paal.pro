@@ -208,7 +208,7 @@ HEADERS += docs/namespaces.hpp \
            include/paal/utils/algorithms/suffix_array/suffix_array.hpp
 
 INCLUDEPATH += $$PWD/../paal/include \
-                           $$PWD/../../../../boost/build/include
+                           $$PWD/../paal/
 
 DEPENDPATH += $$PWD/../paal/include \
-                           $$PWD/../../../../boost/build/include
+                           $$PWD/../paal/
