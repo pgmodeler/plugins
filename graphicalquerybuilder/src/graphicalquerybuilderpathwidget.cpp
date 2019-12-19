@@ -99,7 +99,7 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 	});
 
 	connect(manual_path_tw, &QTableWidget::itemDoubleClicked, [&](QTableWidgetItem *item){
-		model_wgt->getObjectScene()->clearSelection();
+		model_wgt->getObjectsScene()->clearSelection();
 		QList<BaseObjectView *> obj;
 		obj.push_back(
 			dynamic_cast<BaseObjectView *>(
@@ -752,7 +752,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 				QList<BaseObjectView *> obj;
 				if(item==tw->topLevelItem(0))
 				{
-					model_wgt->getObjectScene()->clearSelection();
+					model_wgt->getObjectsScene()->clearSelection();
 					for(int i=0;i<item->childCount();i++)
 					{
 						obj.push_back(

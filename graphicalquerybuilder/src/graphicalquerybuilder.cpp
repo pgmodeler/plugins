@@ -120,7 +120,7 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	tb->setCheckable(true);
 	tb->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-	mw->horizontalLayout_3->addWidget(tb);
+	mw->horiz_wgts_btns_layout->addWidget(tb);
 	tb->setText("Query builder");
 
 	//Setup the graphicalquerybuilder_path_widget pushbutton
@@ -134,7 +134,7 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	tb2->setIconSize(QSize(22, 22));
 	tb2->setCheckable(true);
 	tb2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	mw->horizontalLayout_4->addWidget(tb2);
+	mw->vert_wgts_btns_layout->addWidget(tb2);
 	tb2->setText("GQB Path");
 
 

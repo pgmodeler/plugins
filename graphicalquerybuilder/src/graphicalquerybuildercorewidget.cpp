@@ -173,7 +173,7 @@ void GraphicalQueryBuilderCoreWidget::insertSelection(void)
 	//Get the selected scene items ordered in two containers : one for data, one for relations.
 	ord_query_data.clear();
 
-	for(const auto& item: model_wgt->getObjectScene()->selectedItems())
+	for(const auto& item: model_wgt->getObjectsScene()->selectedItems())
 	{
 		auto obj=dynamic_cast<BaseObjectView *>(item);
 		switch (obj->getUnderlyingObject()->getObjectType())
@@ -795,7 +795,7 @@ void GraphicalQueryBuilderCoreWidget::updateRelLabel(void)
 void GraphicalQueryBuilderCoreWidget::selectAllItemsFromQuery(void)
 {
 	QList<BaseObjectView *> query_items;
-	model_wgt->getObjectScene()->clearSelection();
+	model_wgt->getObjectsScene()->clearSelection();
 
 	for(int col=0; col<tab_wgt->columnCount();col++)
 	{
@@ -806,14 +806,14 @@ void GraphicalQueryBuilderCoreWidget::selectAllItemsFromQuery(void)
 			item->setSelected(true);
 			query_items.push_back(item);
 	}
-	model_wgt->getObjectScene()->adjustViewportToItems(query_items);
+	model_wgt->getObjectsScene()->adjustViewportToItems(query_items);
 }
 
 void GraphicalQueryBuilderCoreWidget::highlightQueryColumn(int col)
 {
 	BaseTableView * tab_v;
 
-	model_wgt->getObjectScene()->clearSelection();
+	model_wgt->getObjectsScene()->clearSelection();
 
 	tab_v = dynamic_cast<BaseTableView *>(
 			reinterpret_cast<BaseGraphicObject *>(tab_wgt->item(tW_Table,col)->data(Qt::UserRole).value<void *>())
