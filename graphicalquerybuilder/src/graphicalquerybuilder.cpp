@@ -62,17 +62,10 @@ void GraphicalQueryBuilder::showPluginInfo(void)
 	plugin_info_frm->show();
 }
 
-void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
+void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 {
-	if(is_plugin_active)
-	{
-		Messagebox msgbox;
-		msgbox.show(trUtf8("Plugin already loaded!"),
-								Messagebox::InfoIcon);
-		return;
-	}
+	PgModelerPlugin::initPlugin(main_window);
 
-	current_model=model_wgt;
 	MainWindow *mw = dynamic_cast<MainWindow *>(main_window);
 	QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -104,8 +97,6 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	hlayout->setContentsMargins(0,0,0,0);
 	hlayout->addWidget(gqb_core_wgt);
 	gqbc_parent->setLayout(hlayout);
-
-
 
 	//Setup the graphicalquerybuilder_core_widget pushbutton
 	QToolButton *tb = new QToolButton(mw->tool_btns_bar_wgt);
@@ -164,11 +155,6 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	gqb_core_wgt->setFriendWidget(gqb_path_wgt);
 	gqb_path_wgt->setFriendWidget(gqb_core_wgt);
 
-	if(model_wgt)
-	{
-		gqb_core_wgt->setModel(model_wgt);
-		gqb_path_wgt->setModel(model_wgt);
-	}
 	connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 
 
@@ -189,8 +175,6 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 	gqb_path_wgt->setVisible(false);
 
 
-
-
 #ifndef QT_NO_TOOLTIP
 		tb->setToolTip(QApplication::translate("MainWindow", "Toggle the graphical query builder", nullptr));
 #endif // QT_NO_TOOLTIP
@@ -198,8 +182,24 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 #ifndef QT_NO_SHORTCUT
 		tb->setShortcut(QApplication::translate("MainWindow", "Alt+R", nullptr));
 #endif // QT_NO_SHORTCUT
+}
 
+void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
+{
+	if(is_plugin_active)
+	{
+		Messagebox msgbox;
+		msgbox.show(trUtf8("Plugin already loaded!"),
+								Messagebox::InfoIcon);
+		return;
+	}
 
+	current_model=model_wgt;
+	if(model_wgt)
+	{
+		gqb_core_wgt->setModel(model_wgt);
+		gqb_path_wgt->setModel(model_wgt);
+	}
 
 	Messagebox msgbox;
 	msgbox.show(trUtf8("Plugin successfully loaded!"),
@@ -229,15 +229,14 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 		});
 	}
 	current_model->openEditingForm(querybuilder_sql_wgt, Messagebox::OkButton);
-
-}
-
-void GraphicalQueryBuilder::setMainWindow(QMainWindow *main_window)
-{
-	this->main_window = main_window;
 }
 
 QKeySequence GraphicalQueryBuilder::getPluginShortcut(void)
 {
 	return(QKeySequence(QString("Ctrl+J")));
+}
+
+bool GraphicalQueryBuilder::hasMenuAction(void)
+{
+	return(false);
 }

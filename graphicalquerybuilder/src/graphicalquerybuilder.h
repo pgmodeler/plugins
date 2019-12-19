@@ -52,9 +52,9 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 		QString getPluginAuthor(void);
 		QString getPluginDescription(void);
 		QKeySequence getPluginShortcut(void);
-		void executePlugin(ModelWidget *model_wgt);
-
-		virtual void setMainWindow(QMainWindow *main_window);
+		bool hasMenuAction(void);
+		void executePlugin(ModelWidget *model_wgt);		
+		void initPlugin(QMainWindow *main_window);
 
 	public slots:
 		void showPluginInfo(void);
