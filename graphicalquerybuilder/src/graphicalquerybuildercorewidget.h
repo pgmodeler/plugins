@@ -146,6 +146,7 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 		void s_visibilityChanged(bool);
 		void s_gqbSqlRequested(QString query_txt);
 		void s_joinPathToggled(bool);
+		void s_adjustViewportToItems(QList<BaseObjectView *>);
 
 	friend class GraphicalQueryBuilderPathWidget;
 };

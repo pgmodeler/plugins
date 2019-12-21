@@ -125,7 +125,7 @@ void GraphicalQueryBuilderCoreWidget::setModel(ModelWidget *model_wgt)
 {
 	bool enable=model_wgt!=nullptr;
 
-	if(this->model_wgt!=nullptr && enable)
+	if(enable)
 		this->resetQuery();
 
 	this->model_wgt=model_wgt;
@@ -298,7 +298,7 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 					for(col_itr=path_itr->second.begin(); col_itr!=path_itr->second.end(); col_itr++)
 					{
 						from_cl+=(col_itr==path_itr->second.begin() ? (compact_sql ? "ON " : "\t\tON ") :
-																	  (compact_sql ? "AND " : "\n\t\tAND "));
+																	  (compact_sql ? " AND " : "\n\t\tAND "));
 
 						if(col_itr->first->getName()!=col_itr->second->getName())
 							from_cl+=col_itr->first->getName() + "=" + col_itr->second->getName();
@@ -806,7 +806,16 @@ void GraphicalQueryBuilderCoreWidget::selectAllItemsFromQuery(void)
 			item->setSelected(true);
 			query_items.push_back(item);
 	}
-	model_wgt->getObjectsScene()->adjustViewportToItems(query_items);
+
+	auto rel_path=gqb_j->getRelPath();
+	for(const auto &rel:rel_path)
+	{
+		auto item = dynamic_cast<BaseObjectView *>(rel->getOverlyingObject());
+		item->setSelected(true);
+		query_items.push_back(item);
+	}
+
+	emit s_adjustViewportToItems(query_items);
 }
 
 void GraphicalQueryBuilderCoreWidget::highlightQueryColumn(int col)

@@ -23,9 +23,6 @@
 
 #include <boost/range/algorithm/copy.hpp>
 #include <iostream>
-//#include <typeinfo>
-//#include "boost/type_index.hpp"
-
 
 using EdgeProp = boost::property<boost::edge_weight_t, int>;
 typedef boost::adjacency_list<
@@ -91,9 +88,15 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 			path_mode_set=qMakePair<int,int>(Manual,0);
 			gqb_c->updateRelLabel();
 		}
-		if(path_sw->currentIndex()==Automatic && auto_path_tw->currentRow()!=-1)
+		else if(path_sw->currentIndex()==Automatic && auto_path_tw->currentRow()!=-1)
 		{
 			path_mode_set=qMakePair<int,int>(Automatic, auto_path_tw->currentRow());
+			gqb_c->updateRelLabel();
+		}
+		else if(path_sw->currentIndex()==Automatic && auto_path_tw->currentRow()==-1 &&
+					auto_path_tw->rowCount()>0)
+		{
+			path_mode_set=qMakePair<int,int>(Automatic, 0);
 			gqb_c->updateRelLabel();
 		}
 	});
@@ -147,7 +150,6 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 	});
 
 	connect(auto_path_tw, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(automaticPathSelected(int, int, int, int)));
-//	connect(this, SIGNAL(s_automaticPathSelected(int)),this, SLOT(automaticPathSelected(int)));
 }
 
 bool GraphicalQueryBuilderPathWidget::eventFilter(QObject *object, QEvent *event)
@@ -267,23 +269,6 @@ QMultiMap<int,
 		tables_r.insert(it.value(), it.key());
 	}
 
-//	auto uni=edges_hash.uniqueKeys();
-//	for(auto it=edges_hash.begin(); it!= edges_hash.end();it++)
-//	{
-//		if(uni.contains(it.key()))
-//			uni.removeOne(it.key());
-//		else
-//			uni.push_back(it.key());
-//	}
-//	for (const auto &un:uni)
-//	{
-//		auto a=tables_r.value(un.first)->getName();
-//		auto b=tables_r.value(un.second)->getName();
-//	}
-
-//	for (auto it=tables_r.begin();it!=tables_r.end();it++)
-//		qDebug() << it.key() << it.value()->getName();
-
 	gqb_c->updateRequiredVertices();
 
 	int nb_required_vertices_connected=0;
@@ -291,9 +276,7 @@ QMultiMap<int,
 		if(!gqb_c->disconnected_vertices.contains(req_vertex)) nb_required_vertices_connected+=1;
 
 //	if(nb_required_vertices_connected<2)
-//	{
 //		qDebug() << "<2";
-//	}
 
 	//Setup relationship weights
 	vector<int> weights;
@@ -400,19 +383,6 @@ QMultiMap<int,
 	Graph g(edges.begin(), edges.end(), weights.begin(), tables.size());
 	auto gm = GraphMT(g);
 
-//	auto boost_edges=boost::edges(g);
-
-//	std::pair<Graph::out_edge_iterator,
-//			Graph::out_edge_iterator>
-//			es=boost::out_edges(3, g);
-//	auto zeweight=boost::get(boost::edge_weight, g);
-
-//	for(auto it=es.first;it!=es.second;it++)
-//	{
-//		auto zesource=boost::source(*it, g);
-//		auto zeother=boost::get(zeweight, it);
-//		auto a=0;
-//	}
 
 	//II. Setup Dreyfus Wagner terminals and non-terminals
 	QVector<int> terminals, nonterminals;
@@ -866,14 +836,7 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 				for(int i=0;i<tables.size();i++)
 				{
 						Edge temp_edge=qMakePair<int,int>(source, i);
-//						qDebug() << cost_map(source,i) << " "<< cost_map(i,target)<< " "<< cost << " "<< consumed_cost;
-//						bool ba=i!=source;
-//						bool bb=cost_map(source,i)+cost_map(i,target)<=cost -consumed_cost;
-//						bool bc=edges_hash.contains(temp_edge);
-//						bool bd=cost_map(source, i) == edges_hash.value(temp_edge).second;
-//						auto bd1=cost_map(source, i);
-//						auto bd2=edges_hash.value(temp_edge).second;
-//						bool be=(!terminals.contains(i) || i==target);
+
 						if	(i!=source &&
 							 cost_map(source,i)+cost_map(i,target)<=cost -consumed_cost &&
 							 edges_hash.contains(temp_edge) &&
@@ -984,11 +947,6 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 		custom_costs_tw->setRowCount(0);
 
 	}
-}
-
-vector<int> GraphicalQueryBuilderPathWidget::setupWeights(void)
-{
-
 }
 
 void GraphicalQueryBuilderPathWidget::automaticPathSelected(int new_row, int new_column, int old_row, int old_column)

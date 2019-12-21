@@ -54,6 +54,17 @@ unix|windows: LIBS += -L$$OUT_PWD/../../libpgmodeler_ui/ -lpgmodeler_ui \
                     -L$$OUT_PWD/../../libparsers/ -lparsers \
                     -L$$OUT_PWD/../../libutils/ -lutils
 
+!exists(paal) {
+PKG_ERROR = "Make sure to run the setup script, or to configure the plugin dependencies (paal & boost)!"
+VARIABLE = "$$PWD/paal"
+}
+
+!isEmpty(PKG_ERROR) {
+warning("$$PKG_ERROR Paal files were not found at \"$$VARIABLE\"!")
+error("pgModeler compilation aborted : graphical query builder plugin errorred out.")
+
+}
+
 INCLUDEPATH += $$PWD/../../libpgmodeler_ui \
                $$PWD/../../libpgmodeler_ui/src \
                $$PWD/../../libobjrenderer/src \
