@@ -221,15 +221,15 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 			gqb_core_wgt->reloadSQL(gqbs, schema_qualified, compact_sql);
 		});
 
-	QPair <bool, SQLToolWidget *> sql_tw_pair=mw->isAnyManageDbOpened();
-	if (sql_tw_pair.first)
+	if(mw->hasDbsListedInSQLTool())
 	{
 		querybuilder_sql_wgt->enableManageBtn();
-		connect(querybuilder_sql_wgt, &GraphicalQueryBuilderSQLWidget::s_sendToManage ,this, [&, sql_tw_pair, mw](QString query_text){
-			sql_tw_pair.second->insertQuery(query_text);
+		connect(querybuilder_sql_wgt, &GraphicalQueryBuilderSQLWidget::s_sendToManage ,this, [&, mw](QString query_text){
+			mw->addExecTabInSQLTool(query_text);
 			mw->switchView(2);
 		});
 	}
+
 	current_model->openEditingForm(querybuilder_sql_wgt, Messagebox::OkButton);
 }
 
