@@ -74,8 +74,6 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 		//! \brief Captures the ENTER press to execute search
 		bool eventFilter(QObject *object, QEvent *event) override;
 
-		vector<int> setupWeights(void);
-
 	public:
 		GraphicalQueryBuilderPathWidget(QWidget *parent = nullptr);
 

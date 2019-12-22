@@ -54,7 +54,9 @@ QString GraphicalQueryBuilder::getPluginAuthor(void)
 
 QString GraphicalQueryBuilder::getPluginDescription(void)
 {
-	return(trUtf8("A graphical-query-builder plugin, to create long \"select\" queries rapidly."));
+	return(trUtf8("Check documentation, source code and report bugs at : \
+				\n https://www.github.com/pgmodeler/plugins/graphicalquerybuilder \
+				\n https://www.gitlab.com/maxzor/pgmodeler_gqb"));
 }
 
 void GraphicalQueryBuilder::showPluginInfo(void)
@@ -67,9 +69,11 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	PgModelerPlugin::initPlugin(main_window);
 
 	MainWindow *mw = dynamic_cast<MainWindow *>(main_window);
+
 	QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
+	//Setup dock widgets
 	gqbc_parent = new QWidget(mw->h_splitter2);
 	gqbc_parent->setObjectName(QString::fromUtf8("gqbc_parent"));
 	sizePolicy1.setHeightForWidth(gqbc_parent->sizePolicy().hasHeightForWidth());
@@ -129,6 +133,7 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	tb2->setText("GQB Path");
 
 
+	//The following signals deal with the visibility states.
 	connect(tb, SIGNAL(toggled(bool)), gqbc_parent, SLOT(setVisible(bool)));
 	connect(tb, SIGNAL(toggled(bool)), gqb_core_wgt, SLOT(setVisible(bool)));
 	connect(tb, SIGNAL(toggled(bool)), mw, SLOT(showBottomWidgetsBar(void)));
@@ -145,35 +150,32 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	/*
 	 * There _seems_ to not exist bidirectional binding, even with the Qt property system
 	 * https://bugreports.qt.io/browse/QTBUG-19892
-	 * These three signals synchronize the visibility states between widgets of the query-builder "module".
+	 * These two signals synchronize the visibility states between widgets and button.
 	 */
 	connect(gqb_core_wgt, &GraphicalQueryBuilderCoreWidget::s_joinPathToggled, [&, tb2](bool checked){
 		tb2->setChecked(checked);
 	});
 	connect(gqb_path_wgt, SIGNAL(s_visibilityChanged(bool)), gqb_core_wgt, SLOT(gqbPathWidgetToggled(bool)));
 
+	//Set to each gqb widget a pointer to its sibling.
 	gqb_core_wgt->setFriendWidget(gqb_path_wgt);
 	gqb_path_wgt->setFriendWidget(gqb_core_wgt);
 
+	//The "SQL mode"
 	connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 
 
 	connect(mw, &MainWindow::s_currentModelChanged, [&](ModelWidget *new_model){
+		this->current_model=new_model;
+		gqb_core_wgt->setModel(new_model);
+		gqb_path_wgt->setModel(new_model);
 		disconnect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), nullptr,nullptr);
 		if(new_model)
-		{
-			gqb_core_wgt->setModel(new_model);
-			gqb_path_wgt->setModel(new_model);
 			connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
-		}
 	});
 
-	//Setup the two dock widgets
-	gqbc_parent->setVisible(false);
-	gqbj_parent->setVisible(false);
-	gqb_core_wgt->setVisible(false);
-	gqb_path_wgt->setVisible(false);
-
+	connect(gqb_core_wgt, SIGNAL(s_adjustViewportToItems(QList<BaseObjectView *>)),
+				this, SLOT(adjustViewportToItems(QList<BaseObjectView *>)));
 
 #ifndef QT_NO_TOOLTIP
 		tb->setToolTip(QApplication::translate("MainWindow", "Toggle the graphical query builder", nullptr));
@@ -182,6 +184,13 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 #ifndef QT_NO_SHORTCUT
 		tb->setShortcut(QApplication::translate("MainWindow", "Alt+R", nullptr));
 #endif // QT_NO_SHORTCUT
+
+	//Setup of the two dock widgets finished
+	gqbc_parent->setVisible(false);
+	gqbj_parent->setVisible(false);
+	gqb_core_wgt->setVisible(false);
+	gqb_path_wgt->setVisible(false);
+
 }
 
 void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
@@ -192,13 +201,6 @@ void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
 		msgbox.show(trUtf8("Plugin already loaded!"),
 								Messagebox::InfoIcon);
 		return;
-	}
-
-	current_model=model_wgt;
-	if(model_wgt)
-	{
-		gqb_core_wgt->setModel(model_wgt);
-		gqb_path_wgt->setModel(model_wgt);
 	}
 
 	Messagebox msgbox;
@@ -230,6 +232,15 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 	}
 	current_model->openEditingForm(querybuilder_sql_wgt, Messagebox::OkButton);
 }
+
+void GraphicalQueryBuilder::adjustViewportToItems(QList<BaseObjectView *> items)
+{
+	QRectF new_pov=items.front()->sceneBoundingRect();
+	for(const auto &item:items)
+		new_pov=new_pov.united(item->sceneBoundingRect());
+	current_model->getViewport()->fitInView(new_pov,Qt::KeepAspectRatio);
+}
+
 
 QKeySequence GraphicalQueryBuilder::getPluginShortcut(void)
 {

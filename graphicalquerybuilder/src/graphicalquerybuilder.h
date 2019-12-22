@@ -37,12 +37,19 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerPlugin)
+
 	ModelWidget *current_model;
+
 	bool is_plugin_active;
+
+	/*
+	 *  The two widgets gqbc_parent and gqbj_parent are dock widgets,
+	 * they hold the actual query builder widgets, respectively gqb_core_widget and
+	 * gqb_path_widget.
+	 */
+	QWidget *gqbc_parent, *gqbj_parent;
 	GraphicalQueryBuilderCoreWidget *gqb_core_wgt;
 	GraphicalQueryBuilderPathWidget *gqb_path_wgt;
-	QWidget *gqbc_parent;
-	QWidget *gqbj_parent;
 
 	public:
 		GraphicalQueryBuilder(void);
@@ -58,7 +65,12 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 
 	public slots:
 		void showPluginInfo(void);
+
+		//! \brief "SQL mode"
 		void showGqbSql(QString query_txt);
+
+		//! \brief Zoom and scroll the GraphicsView to match the bounding rect of the items
+		void adjustViewportToItems(QList<BaseObjectView *> items);
 };
 
 #endif
