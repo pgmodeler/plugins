@@ -1,4 +1,4 @@
-A plugin for [Pgmodeler](https://www.pgmodeler.io), the ERD tool for Postgresql.
+A plugin for [pgModeler](https://www.pgmodeler.io), the ERD tool for PostgreSQL.
 
 This is still alpha, expect bugs, and please help fix them reporting at [github](https://github.com/pgmodeler/plugins/issues).
 
@@ -55,7 +55,8 @@ Move then the graphicalquerybuilder directory in the pgmodeler source tree, in i
 Finally compile pgmodeler, referring to the [installation documentation](https://www.pgmodeler.io/support/installation).
 
 Building the whole pgModeler project from scratch, on a GNU/Linux station, should work with :
-```git clone https://www.github.com/pgmodeler/pgmodeler
+```
+git clone https://www.github.com/pgmodeler/pgmodeler
 cd pgmodeler
 INSTALLATION_ROOT=$PWD "or wherever out-of-tree you want to"
 git clone https://www.github.com/pgmodeler/plugins
