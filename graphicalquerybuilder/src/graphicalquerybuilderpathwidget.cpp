@@ -229,19 +229,47 @@ QMap<int, BaseRelationship *> GraphicalQueryBuilderPathWidget::getRelPath(void)
 	return rel_path_res;
 }
 
+/*
+ * The point of this gigantic function is to explore
+ * the search space of how to join input tables. We play on both Dreyfus Wagner variations,
+ * and shortest-paths variations.
+ *		result = [k+1 Dreyfus-Wagner] x [k+1 shortest paths]
+ *
+ * The result container is as follows :
+ * a QMultimap can have various keys with the same value,
+ * it is useful since we can have many paths that have a same total weight.
+ * So each entry is a unique path, and the key is the total path weight.
+ * The multimap value is a pair :
+ *   - a pair of vectors of basetables part of the path -
+ *			1 steiner points, and 2 non-terminal non-steiner points,
+ *   - a vector of paths (1 object 2 relation weight).
+ */
 QMultiMap<int,
 		  QPair<
-					QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-					QVector<QPair<BaseRelationship*, int>
+				QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
+				QVector<QPair<BaseRelationship*, int>
 		>>> GraphicalQueryBuilderPathWidget::findPath(void)
 {
 
+	//-------------------------------------------------------------------------------------------------
+	/*
+	 * Summary :
+	 * I.	Initialization
+	 * II.	Run the graph search
+	 * III.	Post-treatment and return the result
+	 */
+
+	//-------------------------------------------------------------------------------------------------
+	//I.	Initialize the algorithm input
+	//I.1	Initialize the containers
+	//The final result
 	QMultiMap<int,
 			QPair<
-						QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-						QVector<QPair<BaseRelationship*, int>
+					QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
+					QVector<QPair<BaseRelationship*, int>
 			>>> super_res;
 
+	//The "final-1" result
 	QVector<QPair<
 				QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
 				QVector<QPair<BaseRelationship*, int>>
@@ -251,23 +279,25 @@ QMultiMap<int,
 		{qMakePair<QVector<BaseTable*>, QVector<BaseTable*>>({nullptr}, {nullptr})},
 		{qMakePair<BaseRelationship*, int>(nullptr,0)})};
 
+	//Two containers that are the reverse of each other,
+	//dual-mapping table  object + table number in boost format
 	QHash<BaseTable*, int> tables;
 	QHash<int, BaseTable*> tables_r;
+
 	vector<Edge> edges;
+
 	//Hash table that binds an edge (a pair of integers) representation to a pair :
 	// 1 its BaseRelationship and 2 its weight
 	QHash<Edge, QPair<BaseRelationship*, int>> edges_hash;
 
-	// I. Detect connected components
+	//I.2.	Detect connected components
 	auto return_tuple=gqb_c->getConnectedComponents();
 	tables=std::move(get<0>(return_tuple));
 	edges=std::move(get<1>(return_tuple));
 	edges_hash=std::move(get<2>(return_tuple));
 
 	for (auto it=tables.begin();it!=tables.end();it++)
-	{
 		tables_r.insert(it.value(), it.key());
-	}
 
 	gqb_c->updateRequiredVertices();
 
@@ -275,10 +305,10 @@ QMultiMap<int,
 	for(const auto &req_vertex:gqb_c->required_vertices)
 		if(!gqb_c->disconnected_vertices.contains(req_vertex)) nb_required_vertices_connected+=1;
 
-//	if(nb_required_vertices_connected<2)
-//		qDebug() << "<2";
+	//if(nb_required_vertices_connected<2)
+	//	qDebug() << "<2";
 
-	//Setup relationship weights
+	//I.3.	Set relation costs
 	vector<int> weights;
 
 	QList<std::tuple<QString, QString, QString, int>> cost_list;
@@ -377,14 +407,12 @@ QMultiMap<int,
 				it.value().second=weight;
 	}
 
-	//vector<int> weights(edges.size(), 1);
-
-	//Setup the boost graph and its paal metric
+	//I.4.	Setup the boost graph and its paal metric
 	Graph g(edges.begin(), edges.end(), weights.begin(), tables.size());
 	auto gm = GraphMT(g);
 
-
-	//II. Setup Dreyfus Wagner terminals and non-terminals
+	//-------------------------------------------------------------------------------------------------
+	//II.	Setup Dreyfus Wagner terminals and non-terminals
 	QVector<int> terminals, nonterminals;
 	for(const auto &req_vertex:gqb_c->getRequiredVertices())
 		if(!gqb_c->disconnected_vertices.contains(req_vertex)) terminals.push_back(tables.value(req_vertex));
@@ -395,11 +423,24 @@ QMultiMap<int,
 	auto dw = paal::make_dreyfus_wagner(gm, terminals, nonterminals);
 	auto cost_map = dw.get_cost_map();
 
+	//Compute the maximum path length (poor-man way)
+	int max_cost=0;
+	for(int cost_row=0;cost_row<tables.size();cost_row++)
+	{
+		for(int cost_col=0;cost_col<tables.size();cost_col++)
+		{
+			max_cost+=cost_map(cost_row, cost_col);
+		}
+	}
+	max_cost=max_cost/2;
+
 	//-------------------------------------------------------------------------------------------------
-	//II. a) If only two tables to join...
+	//II.1.	If only two tables to join...
 	if(nb_required_vertices_connected==2)
 	{
-//		qDebug() << "=2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
+		//qDebug() << "=2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size()
+		//	- nb_required_vertices_connected;
+
 		int start, goal;
 
 		start=terminals[0];
@@ -413,7 +454,8 @@ QMultiMap<int,
 		while(paths_found<sp_limit_sb->value())
 		{
 			auto paths=getDetailedPaths(edge, terminals, cost++, cost_map,tables,edges_hash);
-			if(paths.empty()) break;
+
+			if(paths.empty() && cost>max_cost) break;
 			for(int i=0;i<paths.size();i++)
 			{
 				QVector<BaseTable*> tables_res={nullptr};
@@ -448,30 +490,43 @@ QMultiMap<int,
 		}
 	}
 
-	//-------------------------------------------------------------------------------------------------
-	//II. b) ...if 3 or more tables to join,
-	//run Optimal-Dreyfus-Wagner algorithm, followed by Dijkstra to find edge detail.
+	/*-------------------------------------------------------------------------------------------------
+	 * II.2.	...if 3 or more tables to join,
+	 * 			run Optimal-Dreyfus-Wagner algorithm.
+	 * 			Each edge returned by the algorithm being a "super edge" (say, a path embryo),
+	 * 			we will reconstruct its possible sub-paths.
+	 */
 	else if(nb_required_vertices_connected>2)
 	{
-//		qDebug() << ">2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size() - nb_required_vertices_connected;
+		//qDebug() << ">2 co:" << nb_required_vertices_connected << " disco:" << \
+			//gqb_c->required_vertices.size() - nb_required_vertices_connected;
+
+		// II.2.a. Initialize containers and run Dreyfus-Wagner once
+		//A sub-result container, stores the two below + path weight.
+		//This will be a set of valid super edges, that will further grow into full paths.
 		QMap< QPair< QVector<int>, QVector<Edge> >, int > dw_results;
+		// A sub-sub-result container, stores steiner elements
 		QVector<int> dw_subresult1;
+		// A sub-sub-result container, stores "super edges"
 		QVector<Edge> dw_subresult2;
 
+		//Paal's optimal Dreyfus-Wagner algorithm, first call
 		dw.solve();
 
 		// print result
-//		std::cout << "Cost = " << dw.get_cost() << std::endl;
-		std::cout << "Steiner points:" << std::endl;
-		boost::copy(dw.get_steiner_elements(),
-				  std::ostream_iterator<int>(std::cout, "\n"));
-		std::cout << std::endl;
-//		std::cout << "Edges:" << std::endl;
+		//std::cout << "Cost = " << dw.get_cost() << std::endl;
+		//std::cout << "Steiner points:" << std::endl;
+		//boost::copy(dw.get_steiner_elements(),
+		//		  std::ostream_iterator<int>(std::cout, "\n"));
+		//std::cout << std::endl;
+		//std::cout << "Edges:" << std::endl;
+
+		// II.2.b k+1 steiner trees
 		for (auto edge : dw.get_edges())
 		{
 			dw_subresult2.push_back(qMakePair<int,int>(edge.first, edge.second));
-//			std::cout << "(" << edge.first << "," << edge.second << ")"
-//					  << std::endl;
+			//std::cout << "(" << edge.first << "," << edge.second << ")"
+			//		  << std::endl;
 		}
 		for (auto se:dw.get_steiner_elements())
 			dw_subresult1.push_back(se);
@@ -487,6 +542,15 @@ QMultiMap<int,
 		QVector<QVector<int>> removed_steiners;
 		bool is_done=false;
 		int c_a=0, c_b=0, c_c=0;
+
+		/*
+		 * TODO IMPROVE THIS
+		 * This loop is an ugly hack to exlore the search space
+		 * and make a "k+1 steiner trees algo" not found in academia :
+		 * we recursively run 'Dreyfus-Wagner over all combinations of
+		 * {non-terminals}-{steiner-elements-already-found}'.
+		 * This can become EXTREMELY expensive really quick.
+		 */
 		while(!is_done &&
 			(exact_cb->isChecked() || dw_results.size()<st_limit_sb->value()))
 		{
@@ -524,10 +588,10 @@ QMultiMap<int,
 
 				dw.solve();
 				c_c+=1;
-//				qDebug() << "st : " << c_c;
-				std::cout << "Steiner points:" << std::endl;
-				boost::copy(dw.get_steiner_elements(),
-						  std::ostream_iterator<int>(std::cout, "\n"));
+				//qDebug() << "st : " << c_c;
+				//std::cout << "Steiner points:" << std::endl;
+				//boost::copy(dw.get_steiner_elements(),
+				//		  std::ostream_iterator<int>(std::cout, "\n"));
 				//std::cout << std::endl;
 
 				dw_subresult1.clear();
@@ -549,19 +613,23 @@ QMultiMap<int,
 			}
 		}
 
+		// II.2.c grow k+1-steiner-tree embryos into real paths.
+		//Yet another subres container, a more transient clone of dw_subresults,
+		//total path weight + weight&edge
 		QMultiMap<int, QPair< QVector<int>, QVector<Edge> > > dw_results_2;
 		for(auto it=dw_results.begin();it!=dw_results.end();it++)
 			dw_results_2.insert(it.value(), it.key());
 
-//		qDebug() << "type info : " << typeid(cost_map).name();
-//		using boost::typeindex::type_id_with_cvr;
-//		std::cout << type_id_with_cvr<decltype(cost_map)>().pretty_name() << std::endl;
-//		std::cout << typeid(cost_map).name() << std::endl;
+		//qDebug() << "type info : " << typeid(cost_map).name();
+		//using boost::typeindex::type_id_with_cvr;
+		//std::cout << type_id_with_cvr<decltype(cost_map)>().pretty_name() << std::endl;
+		//std::cout << typeid(cost_map).name() << std::endl;
 
 		result.clear();
 		int st_limit=1;
 		for(auto it=dw_results_2.begin(); it!=dw_results_2.end();it++)
 		{
+			//Another subres (...bear with us...), sub_res2 feeds into result.
 			QVector<QPair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>> sub_res2=
 				{qMakePair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>(
 					qMakePair<QVector<BaseTable*>,QVector<BaseTable*>>({nullptr},{nullptr}),
@@ -573,8 +641,10 @@ QMultiMap<int,
 
 			
 			auto dw_edges=it.value().second;
+			//For each super-edge "in this k+1 DW branch", grow paths.
 			for (int i=0;i<dw_edges.size();i++)
 			{
+				//We reach the deepest subres containers, sub_res will feed into sub_res2
 				QVector<QPair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>> sub_res;
 				int paths_found=0;
 
@@ -586,7 +656,7 @@ QMultiMap<int,
 				{
 					auto paths=getDetailedPaths(edge, terminals+it.value().first, cost++, cost_map,tables,edges_hash);
 
-					if(paths.empty()) break;
+					if(paths.empty() && cost>max_cost) break;
 					for(int j=0;j<paths.size();j++)
 					{
 						if(!exact_cb->isChecked() && paths_found==sp_limit_sb->value()) break;
@@ -616,7 +686,6 @@ QMultiMap<int,
 							}
 
 							sub_res[sub_res.size()-1].second.push_back(edges_hash.value(sub_edge));
-
 						}
 
 						paths_found++;
@@ -655,8 +724,8 @@ QMultiMap<int,
 		}
 	}
 
-
-	//Finalize the result
+	//-------------------------------------------------------------------------------------------------
+	// III.	Finalize the result
 	//Add total cost per path and clean beginning
 	for(auto &sub_result:result)
 	{
@@ -673,9 +742,15 @@ QMultiMap<int,
 	auto it=super_res.begin();
 	while(it!=super_res.end())
 	{
-		auto it2=super_res.find(it.key()+1);
+		auto it2=super_res.begin();
 		while(it2!=super_res.end())
 		{
+			if(it2==it)
+			{
+				it2++;
+				continue;
+			}
+
 			bool is_subset=true;
 			for(int k=0;k<it.value().second.size();k++)
 			{
@@ -706,6 +781,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 		i+=1;
 		auto_path_tw->insertRow(auto_path_tw->rowCount());
 
+		//Insert path header : "Path n"
 		auto tw= new QTreeWidget;
 		tw->setColumnCount(2);
 		tw->setHeaderLabels({"Path " + QString::number(i+1),"Cost"});
@@ -714,6 +790,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 		tw->addTopLevelItem(tw_top_item);
 		auto_path_tw->setCellWidget(auto_path_tw->rowCount()-1,0,tw);
 
+		//Highlight the given path relations if shift modifier pressed.
 		connect(tw, &QTreeWidget::itemClicked, [&, tw](QTreeWidgetItem *item, int column){
 
 			auto k_modifiers = QGuiApplication::queryKeyboardModifiers();
@@ -746,6 +823,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 			}
 		});
 
+		//For this path insert the relations with their weight : "rel_n weight"
 		for (const auto &qrel : it.value().second)
 		{
 			auto tw_item=new QTreeWidgetItem;
@@ -754,14 +832,18 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 			tw_item->setData(0,Qt::UserRole, QVariant::fromValue<void *>(qrel.first));
 			tw_top_item->addChild(tw_item);
 		}
+		//Set the total weight of the current path
 		tw_top_item->setText(1,QString::number(it.key()));
+
 		tw_top_item->setExpanded(true);
 		tw->resizeColumnToContents(0);
 
+		//Set the second column headers
 		auto tw2= new QTreeWidget;
 		tw2->setColumnCount(1);
 		tw2->setHeaderLabels({"Tables"});
 		auto_path_tw->setCellWidget(auto_path_tw->rowCount()-1,1,tw2);
+		//Insert steiner points (non-terminals that are "central points") with underlined text.
 		for (const auto &tab : it.value().first.first)
 		{
 			auto twi=new QTreeWidgetItem;
@@ -771,6 +853,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 			twi->setFont(0,the_font);
 			tw2->addTopLevelItem(twi);
 		}
+		//Insert non-terminals non-steiner.
 		for (const auto &tab : it.value().first.second)
 		{
 			auto twi=new QTreeWidgetItem;
@@ -792,13 +875,13 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 {
 	QVector<Path> result;
 	QVector<Edge> branches;
+	QVector<QVector<int>> result_predecessors; //a predecessor "supermap"
 	int start, source, target;
 	int result_size;
 
 	start=edge.first;
 	target=edge.second;
 	source=start;
-
 
 	bool done=false;
 
@@ -807,11 +890,15 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 	{
 			Edge temp_edge=qMakePair<int,int>(source, i);
 			if(i!=source &&
-				cost_map(source,i)+cost_map(i,target)==cost &&
+				cost_map(source,i)+cost_map(i,target)<=cost &&
 				edges_hash.contains(temp_edge) &&
 				cost_map(source, i) == edges_hash.value(temp_edge).second &&
 				(!terminals.contains(i) || i==target))
+			{
 					result.push_back({temp_edge});
+					result_predecessors.push_back({source});
+			}
+
 	}
 	result_size=result.size();
 
@@ -825,11 +912,13 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 		{
 			branches.clear();
 			auto path_to_fill = result[r];
+			auto predecessors_to_fill = result_predecessors[r];
 			auto consumed_cost=0;
 			for(int c=0;c<result[r].size();c++)
 				consumed_cost+=cost_map(result[r][c].first,result[r][c].second);
 
-			if((source=result[r].last().second)!=target)
+			source=result[r].last().second;
+			if(source!=target)
 			{
 				//Step this path, the n candidate sub-edges will be put in the branches vector,
 				//and generate n-1 new paths.
@@ -837,7 +926,8 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 				{
 						Edge temp_edge=qMakePair<int,int>(source, i);
 
-						if	(i!=source &&
+						if	(source!=i &&
+							 !result_predecessors[r].contains(i) &&
 							 cost_map(source,i)+cost_map(i,target)<=cost -consumed_cost &&
 							 edges_hash.contains(temp_edge) &&
 							 cost_map(source, i) == edges_hash.value(temp_edge).second &&
@@ -849,6 +939,7 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 				if(branches.empty())
 				{
 					result.remove(r);
+					result_predecessors.remove(r);
 					r+=-1;
 					result_size+=-1;
 				}
@@ -858,16 +949,22 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 					//(a new path is inserted each time, from second branch and up)
 					for(const auto &branch:branches)
 					{
-						if(branch==branches[0])	result[r].push_back(branch);
+						if(branch==branches[0])
+						{
+							result[r].push_back(branch);
+							result_predecessors[r].push_back(branch.second);
+						}
 						else
 						{
 							//Clone the path into a new path...
 							result.insert(r+1,path_to_fill);
+							result_predecessors.insert(r+1,predecessors_to_fill);
 							//... slide counters...
 							r++;
 							result_size++;
 							//... and append the sub-edge
 							result[r].push_back(branch);
+							result_predecessors[r].push_back(branch.second);
 						}
 					}
 				}
@@ -886,13 +983,16 @@ QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
 	}
 
 	//Clean the result, remove paths which total cost is not the one asked
-	for(int i=0;i<result.size();i++)
+
+	auto it=result.begin();
+	while(it!=result.end())
 	{
 		int path_cost=0;
-		for(auto &edge:result[i])
+		for(auto &edge:*it)
 			path_cost+=cost_map(edge.first,edge.second);
 		if(path_cost!=cost)
-			result.remove(i);
+			result.erase(it);
+		else it++;
 	}
 	return result;
 }

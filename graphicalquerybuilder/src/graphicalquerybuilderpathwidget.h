@@ -102,8 +102,9 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 
 		int manualPathSize(void){return manual_path_tw->rowCount();};
 
-		//! \Intermediary between the output of the inference engine
-		//!  and the path formatted for the visualisation table
+		//! \k+1 shortest paths.
+		//! This will compute all the possible paths between two points
+		//! for a given cost. Used a lot in findPath().
 		QVector<Path> getDetailedPaths(Edge edge,
 										QVector<int> terminals,
 										int cost,
