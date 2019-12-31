@@ -73,7 +73,7 @@ INCLUDEPATH += $$PWD/../../libpgmodeler_ui \
                $$PWD/../../libparsers/src \
                $$PWD/../../libutils/src \
                $$PWD/paal/include \
-			   $$PWD/../../../boost/build/include
+			   $$PWD/paal/boost
 
 DEPENDPATH += $$PWD/../../libpgmodeler_ui \
               $$PWD/../../libobjrenderer \
@@ -82,7 +82,7 @@ DEPENDPATH += $$PWD/../../libpgmodeler_ui \
               $$PWD/../../libparsers \
               $$PWD/../../libutils \
               $$PWD/paal/include \
-			  $$PWD/../../../boost/build/include
+			  $$PWD/paal/boost
 
 target.path = $$PLUGINSDIR/$$TARGET
 
