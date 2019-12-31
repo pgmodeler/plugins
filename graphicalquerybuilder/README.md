@@ -58,15 +58,14 @@ Building the whole pgModeler project from scratch, on a GNU/Linux station, shoul
 ```
 git clone https://www.github.com/pgmodeler/pgmodeler
 cd pgmodeler
-INSTALLATION_ROOT=$PWD "or wherever out-of-tree you want to"
+INSTALLATION_ROOT=$PWD "_or wherever out-of-tree you want to_"
 git clone https://www.github.com/pgmodeler/plugins
 cd plugins/graphicalquerybuilder
 ./setup.sh
-cd ../..
-QT_ROOT= "type your Qt path here, where bin and include folders are"
+QT_ROOT= "_type your Qt path here, where bin and include folders are_"
 $QT_ROOT/bin/qmake -r CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
      PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
-make -j"enter CPU cores here" && make install
+make -j"_enter your CPU core nb here_" && make install
 ```
 
 # Contributing
