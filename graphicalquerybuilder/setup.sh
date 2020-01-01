@@ -1,14 +1,16 @@
 #!/bin/sh
 
+#The paal dependency
 git clone http://siekiera.mimuw.edu.pl:8082/paal
-mv paal.pro paal/.
-mv dreyfus_wagner.hpp paal/include/paal/steiner_tree/.
+cd paal
+cp ../paal.pro .
+cp ../dreyfus_wagner.hpp include/paal/steiner_tree/.
 
-rm -r paal/boost
-mkdir paal/boost
+#The boost dependency
+rm -r boost
 
 git clone --recursive https://github.com/boostorg/boost
-cd paal/boost
+cd boost
 ./bootstrap.sh
 ./b2 headers
 

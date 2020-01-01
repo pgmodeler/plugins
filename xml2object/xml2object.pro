@@ -15,7 +15,7 @@ PGMODELER_SRC_DIR=../../
  error("qmake aborted.")
 }
 
-include(../plugins.pro)
+include(../../pgmodeler.pri)
 
 CONFIG += plugin qt uic4
 QT += core gui uitools
