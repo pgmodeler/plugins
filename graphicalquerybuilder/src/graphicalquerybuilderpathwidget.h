@@ -17,7 +17,7 @@
 */
 
 /**
-\ingroup libpgmodeler_ui
+\ingroup plugins/graphicalquerybuilder
 \class QueryBuilderPathWidget
 \brief Join path widget for the graphical query builder.
 	allows for visualisation of paths.
@@ -32,27 +32,24 @@
 #include "modelwidget.h"
 #include "basetable.h"
 #include <QWidget>
-#include "paal/data_structures/metric/graph_metrics.hpp"
-#include "paal/steiner_tree/dreyfus_wagner.hpp"
+
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+#include "graphicalquerybuilderjoinsolver.h"
+
+#include <QMetaType>
+typedef QMultiMap<int,
+QPair<
+	  QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
+	  QVector<QPair<BaseRelationship*, int>
+>>> paths;
+Q_DECLARE_METATYPE(paths);
+#endif
 
 class GraphicalQueryBuilderCoreWidget;
 
 class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQueryBuilderPathWidget {
 
-	//Aliases for boost and paal structures.
-	using EdgeProp = boost::property<boost::edge_weight_t, int>;
-	using Graph = boost::adjacency_list<
-		boost::vecS, boost::vecS, boost::undirectedS,
-		boost::property<boost::vertex_color_t, int>, EdgeProp>;
-	using Edge = QPair<int, int>;
-	using GraphMT = paal::data_structures::graph_metric<Graph, int>;
-	using Terminals = std::vector<int>;
-	using edge_parallel_category = boost::allow_parallel_edge_tag;
-	using CostMap=paal::data_structures::graph_metric<Graph,
-			int, paal::data_structures::graph_type::sparse_tag>;
-	using Path = QVector<Edge>;
-
-	private:
+private:
 		Q_OBJECT
 
 		//! \brief A pointer to the sibling widget
@@ -63,9 +60,18 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 
 		QMenu reset_menu;
 
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+		//! \brief The instance of the solver
+		GraphicalQueryBuilderJoinSolver *join_solver;
+
+		//! \brief Thread used to control the SQL-join computation
+		QThread *join_solver_thread;
+#endif
+
 		static constexpr unsigned Manual=0,
 		Automatic=1,
-		Parameters=2;
+		Parameters=2,
+		SolverStatus=3;
 
 		//! \brief Stores the selected path with two integers :
 		//! 1 mode manual/auto 2 number of auto path
@@ -74,7 +80,11 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 		//! \brief Captures the ENTER press to execute search
 		bool eventFilter(QObject *object, QEvent *event) override;
 
-	public:
+		void createThread(void);
+		void destroyThread(bool force);
+		void runSQLJoinSolver(void);
+
+public:
 		GraphicalQueryBuilderPathWidget(QWidget *parent = nullptr);
 
 		//! \brief Sets the database model to work on
@@ -88,13 +98,6 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 		//! \brief Insert in the manual tab the relations selected
 		void insertManualRels(QMap<int, BaseObjectView *> qrels);
 
-		//! \brief Insert in the auto tab the output of the inference engine
-		void insertAutoRels(QMultiMap<int,
-									QPair<
-										QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-										QVector<QPair<BaseRelationship*, int>>
-							>> &paths);
-
 		//! \brief Transmits the path selected to the query builder core widget
 		QMap<int, BaseRelationship *> getRelPath(void);
 
@@ -102,37 +105,41 @@ class GraphicalQueryBuilderPathWidget: public QWidget, public Ui::GraphicalQuery
 
 		int manualPathSize(void){return manual_path_tw->rowCount();};
 
-		//! \k+1 shortest paths.
-		//! This will compute all the possible paths between two points
-		//! for a given cost. Used a lot in findPath().
-		QVector<Path> getDetailedPaths(Edge edge,
-										QVector<int> terminals,
-										int cost,
-										CostMap &cost_map,
-										QHash<BaseTable*, int> &tables,
-										QHash<Edge, QPair<BaseRelationship*, int>> &edges_hash);
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+		void resetJoinSolverStatus(void);
+#endif
 
-
-	public slots:
-		//! \brief The main path inference engine, uses paal/boost
-		QMultiMap<int,
-				QPair<
-							QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-							QVector<QPair<BaseRelationship*, int>
-				>>> findPath(void);
-
+public slots:
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void resetAutoPath(){auto_path_tw->setRowCount(0);};
 
-	private slots:
+		//! \brief Insert in the auto tab the output of the inference engine
+		void insertAutoRels(paths paths_found);
+
+		void handlePathsFound(paths p);
+#endif
+private slots:
 		void resetPaths(void);
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void automaticPathSelected(int new_row, int new_column, int old_row=0, int old_column=0);
+		void updateProgress(short mode, int st_round, short powN, int st_comb, int st_found,
+							   int sp_current, int sp_current_on, int sp_found,
+							   int st_fround, int mult_entry, int mult_entry_on, int paths_found);
+		void stopSolver(void);
+#endif
 
-	signals:
-	void s_visibilityChanged(bool);
-	void s_automaticPathSelected(int);
+signals:
+		void s_visibilityChanged(bool);
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+		void s_automaticPathSelected(int);
+		void s_stopJoinSolverRequested(void);
+#endif
 
+	friend class GraphicalQueryBuilder;
 	friend class GraphicalQueryBuilderCoreWidget;
-
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+	friend class GraphicalQueryBuilderJoinSolver;
+#endif
 };
 
 #endif // GRAPHICALQUERYBUILDERPATHWIDGET_H

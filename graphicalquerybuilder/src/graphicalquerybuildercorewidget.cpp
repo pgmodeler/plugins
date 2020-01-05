@@ -142,7 +142,9 @@ void GraphicalQueryBuilderCoreWidget::resetQuery()
 	{
 		tab_wgt->setColumnCount(0);
 		gqb_j->resetManualPath();
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		gqb_j->resetAutoPath();
+#endif
 		gqb_j->path_sw->setCurrentIndex(0);
 		gqb_j->path_mode_set=qMakePair<int,int>(GraphicalQueryBuilderPathWidget::Manual,0);
 		rel_cnt_lbl->setVisible(false);
@@ -154,7 +156,9 @@ void GraphicalQueryBuilderCoreWidget::resetQuery()
 	else if(qobject_cast<QAction *>(sender()) == reset_menu.actions().at(2))
 	{
 		gqb_j->resetManualPath();
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		gqb_j->resetAutoPath();
+#endif
 		gqb_j->path_sw->setCurrentIndex(0);
 		gqb_j->path_mode_set=qMakePair<int,int>(GraphicalQueryBuilderPathWidget::Manual,0);
 		rel_cnt_lbl->setVisible(false);
@@ -219,15 +223,16 @@ void GraphicalQueryBuilderCoreWidget::insertSelection(void)
 
 void GraphicalQueryBuilderCoreWidget::showSQL(void)
 {
-	emit s_gqbSqlRequested(this->produceSQL(true, false));
+	emit s_gqbSqlRequested(this->produceSQL(true, false, true, false));
 }
 
-void GraphicalQueryBuilderCoreWidget::reloadSQL(GraphicalQueryBuilderSQLWidget * gqbs, bool schema_qualified, bool compact_sql)
+void GraphicalQueryBuilderCoreWidget::reloadSQL(GraphicalQueryBuilderSQLWidget * gqbs, bool join_in_where, bool schema_qualified, bool compact_sql)
 {
-	gqbs->displayQuery(this->produceSQL(schema_qualified, compact_sql));
+	gqbs->displayQuery(this->produceSQL(false, join_in_where, schema_qualified, compact_sql));
 }
 
-QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool compact_sql)
+QString GraphicalQueryBuilderCoreWidget::produceSQL(bool initial_warning, bool join_in_where_asked,
+													bool schema_qualified, bool compact_sql)
 {
 	QString select_cl="SELECT ", from_cl="FROM ", where_cl="WHERE ", group_cl="GROUP BY ", having_cl="HAVING ",
 			order_cl="ORDER BY ", result;
@@ -254,9 +259,12 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 
 		path=getQueryPath();
 
-		if(join_in_where)
+		if(join_in_where && initial_warning)
 			msg+="At least one <strong>cycle</strong> has been found in the join path : "
 				 "'<strong>join</strong> will happen <strong>in where</strong>'.<br/><br/>";
+
+		if(!join_in_where && join_in_where_asked)
+			join_in_where=true;
 
 		QVector < QPair< BaseTable *, QVector < QPair<Column *, Column *> > > >::iterator path_itr;
 		for (path_itr=path.begin(); path_itr!=path.end(); path_itr++)
@@ -273,7 +281,7 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 				if (join_in_where)
 				{
 					if(path_itr->first!=nullptr)
-						from_cl+= (compact_sql ? ",\n\t\t" : ", ") +
+						from_cl+= (compact_sql ? ", " : ",\n\t\t") +
 								(schema_qualified ? path_itr->first->getSchema()->getName() + "." : "" ) +
 								path_itr->first->getName();
 
@@ -281,17 +289,18 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 					{
 						//TODO manage disambiguation of schema/table/column names globally
 						if(col_itr->first->getName()!=col_itr->second->getName())
-							where_cl+=(where_cl=="WHERE "? "" : (schema_qualified? "\n\t\tAND " : "AND ") +
-									col_itr->first->getName() + "=" + col_itr->second->getName());
+							where_cl+=(where_cl=="WHERE " ? "" : (compact_sql ? " AND " : "\n\t\tAND ")) +
+									col_itr->first->getName() + "=" + col_itr->second->getName();
 						else if(col_itr->first->getParentTable()->getName()!=col_itr->second->getParentTable()->getName())
-							where_cl+=(where_cl=="WHERE "? "" : "\n\t\tAND ") +
+							where_cl+=(where_cl=="WHERE " ? "" : (compact_sql ? " AND " : "\n\t\tAND ")) +
 							  col_itr->first->getParentTable()->getName() + "." + col_itr->first->getName() + "=" +
 							  col_itr->second->getParentTable()->getName() + "." + col_itr->second->getName();
-						// /!\ else todo
+						// /!\ else TODO
 					}
 				}
 				else
 				{
+
 					from_cl+="\nJOIN " + (schema_qualified ? path_itr->first->getSchema()->getName() + "." : "") +
 								path_itr->first->getName() + (compact_sql ? " " : "\n");
 
@@ -316,7 +325,7 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 			from_cl+=(!disconnected_vertices.empty()?",\n":"\n");
 		if(!disconnected_vertices.empty())
 		{
-			if(required_vertices.size()!=1)
+			if(required_vertices.size()!=1 && initial_warning)
 				msg+="A valid join <strong>path</strong> has <strong>not</strong> been <strong>found</strong> for some tables :<br/>"
 					 "these tables will be joined with a <strong>sheer cartesian product</strong>!<br/><br/>";
 
@@ -390,6 +399,9 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool schema_qualified, bool 
 				 having_cl +
 				 order_cl +
 				 ";";
+
+	if(!initial_warning)
+		msg=nullptr;
 
 	if(msg!=nullptr)
 	{
@@ -576,7 +588,7 @@ void GraphicalQueryBuilderCoreWidget::initializeColumn(int col_nb, BaseObject *b
 	tab_wgt->setCellWidget(tW_Order,col_nb,w3);
 
 	connect(w3_cb, QOverload<int>::of(&QComboBox::currentIndexChanged),[ &, w3](int index){
-		int wgt_col;
+		int wgt_col=0;
 		for (int col=0;col<tab_wgt->columnCount();col++)
 			if(tab_wgt->cellWidget(tW_Order,col)==w3)
 				wgt_col=col;
@@ -585,7 +597,7 @@ void GraphicalQueryBuilderCoreWidget::initializeColumn(int col_nb, BaseObject *b
 	});
 
 	connect(w3_sb, QOverload<int>::of(&QSpinBox::valueChanged), [&, w3](int new_value){
-		int wgt_col;
+		int wgt_col=0;
 		for (int col=0;col<tab_wgt->columnCount();col++)
 			if(tab_wgt->cellWidget(tW_Order,col)==w3)
 				wgt_col=col;
@@ -639,7 +651,7 @@ void GraphicalQueryBuilderCoreWidget::initializeColumn(int col_nb, BaseObject *b
 	{
 		//A column not selected cannot be grouped nor odered.
 		connect(w1_cb, &QCheckBox::stateChanged, [&, w1](int state){
-			int wgt_col;
+			int wgt_col=0;
 			for (int col=0;col<tab_wgt->columnCount();col++)
 				if(tab_wgt->cellWidget(tW_Selection,col)==w1)
 					wgt_col=col;

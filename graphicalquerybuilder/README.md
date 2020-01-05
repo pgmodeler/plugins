@@ -1,6 +1,6 @@
 A plugin for [pgModeler](https://www.pgmodeler.io), the ERD tool for PostgreSQL.
 
-This is still alpha, expect bugs, and please help fix them reporting at [github](https://github.com/pgmodeler/plugins/issues).
+The query builder v0.9.2 can now be considered in beta state, please help fix bugs reporting at [github](https://github.com/pgmodeler/plugins/issues).
 
 # Description
 
@@ -12,9 +12,6 @@ This plugins gives a shot at the Data Query Language SQL subset.
 It is aimed primarily at :
  - database analysts, IT or business advisors whom do not have high SQL skills. It may allow them to create queries from visual objects, and help them get on-board with SQL basics along the way.
  - folks with advanced SQL skills whom frequently write long, tedious and repetitive queries for their applications.
-
-![Overview](res/overview.png)
-![Overview_SQL](res/overview_sql.png)
 
 # Features
 ### Create SQL queries graphically.
@@ -47,25 +44,72 @@ A few white papers about SQL-join solvers :
 - https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/icde07steiner.pdf
 
 # Installation
-Run the setup.sh shell script. It will download the plugin dependencies, [Paal](http://paal.mimuw.edu.pl/) and [Boost](https://www.boost.org/) recursively (expect tons of MBs of network usage...), and will configure Qt build system for the plugin.
+## Core-only :
+There is __no need to do anything special__ to build the core of the query builder. Once you have cloned the plugin subproject into the root of the source-tree of pgmodeler, you can __run qmake normally__.
 
-`./setup.sh`
+## SQL-join solver :
+By default, the query builder is built without its SQL-join solver. The solver has a heavy dependency : the [Practical Aproximations Algorithms Library](http://paal.mimuw.edu.pl/) (paal), and paal depends itself onto the famous [C++ boost library](https://www.boost.org/) (paal might even get merged into it at some point).
 
-Move then the graphicalquerybuilder directory in the pgmodeler source tree, in its plugin directory.
+There are multiple ways of building the solver, between being _fully assisted_, or doing it _completely manually_.
+Consider that even if you want to get maximum guiding as we will see below (`qmake -r CONFIG+=INTERACTIVE_QMAKE`), it is better to follow next manual point for boost. (If you ask the guided way for boost, it will clone the entire boost repo.)
+
+##### Preparing the dependencies
+###### Boost
+You will need boost. The recommended path to get it is to use the one shipped in your system.
+
+- GNU/Linux - Get it from your package manager, for example `sudo apt install libbost-dev`.
+- Windows - Getting boost can be done from minGW repository. In Msys2's minGW64 console : `pacman -S mingw-w64-x86_64-boost`.
+- Mac - `brew install boost`
+
+You can otherwise install the pre-compiled libraries from https://boost.org, or, as is done in `setup.sh boost`, "build" boost from their git repo. This is a longer path. If you go the manual way, don't forget to add the path to boost in graphicalquerybuilder.pro.
+
+###### Paal
+Paal dependency will get cloned from its repository, and slightly tweaked (see what `setup.sh paal` does).
+For paal you'd better follow the assisted way.
+
+##### Preparing the build system
+To tell qmake that you want to build the solver, you can either :
+- set the variables in graphicalquerybuilder.conf before running qmake. This simply consists in replacing "y" by "n". E.g., from pgmodeler source root
+    - you want to build the solver, `sed -i.bak s/GQB_JOIN_SOLVER=\"n\"/GQB_JOIN_SOLVER=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
+    - you have boost installed, `sed -i.bak s/BOOST_INSTALLED=\"n\"/BOOST_INSTALLED=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
+- get assisted throughout the setup adding the flag INTERACTIVE_QMAKE (the g++ flags down here can come in handy aswell). Still from pgmodeler source root :
+
+`$QT_ROOT/bin/qmake -r CONFIG+=INTERACTIVE_QMAKE QMAKE_CXXFLAGS_WARN_ON="-Wall \-Wno-deprecated-declarations \-Wno-deprecated-copy" CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
+                         PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
+`
 Finally compile pgmodeler, referring to the [installation documentation](https://www.pgmodeler.io/support/installation).
 
-Building the whole pgModeler project from scratch, on a GNU/Linux station, should work with :
+##### Summing it up
+If you have already configured your environment to build pgmodeler once, building the whole pgModeler project with the query builder core + solver, on a GNU/Linux station, should work with :
 ```
+#Getting ready-to-go-boost
+sudo apt install libbost-dev
+
+#Getting the sources
 git clone https://www.github.com/pgmodeler/pgmodeler
+#Might need to git checkout the correct branch while all is not in master
 cd pgmodeler
-INSTALLATION_ROOT=$PWD "_or wherever out-of-tree you want to_"
+INSTALLATION_ROOT=$PWD #or wherever out-of-tree you want to
 git clone https://www.github.com/pgmodeler/plugins
+#Same as above
+
+#Getting paal
+HERE=$PWD
 cd plugins/graphicalquerybuilder
-./setup.sh
-QT_ROOT= "_type your Qt path here, where bin and include folders are_"
+./setup.sh paal
+cd -
+
+#Tweaking the conf file
+sed -i.bak s/GQB_JOIN_SOLVER=\"n\"/GQB_JOIN_SOLVER=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf
+sed -i.bak s/BOOST_INSTALLED=\"n\"/BOOST_INSTALLED=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf
+
+#Running qmake
+QT_ROOT= #type your Qt path here, where bin and include folders are
 $QT_ROOT/bin/qmake -r CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
-     PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
-make -j"_enter your CPU core nb here_" && make install
+                         PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
+
+#Building
+make && make install #Don't forget you can speed things up with parallelism :) make -j"nb of CPU cores"
 ```
 
 # Contributing

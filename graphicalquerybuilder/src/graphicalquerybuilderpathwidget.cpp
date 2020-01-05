@@ -19,24 +19,6 @@
 #include "graphicalquerybuilderpathwidget.h"
 #include "graphicalquerybuildercorewidget.h"
 
-#include "pgmodeleruins.h"
-
-#include <boost/range/algorithm/copy.hpp>
-#include <iostream>
-
-using EdgeProp = boost::property<boost::edge_weight_t, int>;
-typedef boost::adjacency_list<
-	boost::vecS, boost::vecS, boost::undirectedS,
-	boost::property<boost::vertex_color_t, int>, EdgeProp>  Graph ;
-using Edge = QPair<int, int>;
-using GraphMT = paal::data_structures::graph_metric<Graph, int>;
-using Terminals = std::vector<int>;
-using edge_parallel_category = boost::allow_parallel_edge_tag;
-using CostMap=paal::data_structures::graph_metric<Graph,
-						int, paal::data_structures::graph_type::sparse_tag>;
-using Path = QVector<Edge>;
-
-
 GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent) : QWidget(parent)
 {
 	setupUi(this);
@@ -54,32 +36,83 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 	man_tb->setChecked(true);
 	find_paths_tb->setVisible(false);
 	options_tb->setVisible(false);
+	status_tb->setVisible(false);
 
-	connect(man_tb, &QToolButton::clicked, [&](){
-		path_sw->setCurrentIndex(Manual);
-		man_tb->setChecked(true);
-		auto_tb->setChecked(false);
-		find_paths_tb->setVisible(false);
-		options_tb->setChecked(false);
-		options_tb->setVisible(false);
-		set_path_tb->setVisible(true);
+
+	man_tb->setVisible(false);
+	auto_tb->setVisible(false);
+	reset_tb->setVisible(false);
+	set_path_tb->setVisible(false);
+
+	connect(manual_path_tw, &QTableWidget::itemDoubleClicked, [&](QTableWidgetItem *item){
+		model_wgt->getObjectsScene()->clearSelection();
+		QList<BaseObjectView *> obj;
+		obj.push_back(
+			dynamic_cast<BaseObjectView *>(
+				reinterpret_cast<BaseRelationship *>(
+					manual_path_tw->item(item->row(),0)->data(Qt::UserRole).value<void *>())
+						->getOverlyingObject()));
+		for(const auto &ob:obj)
+			ob->setSelected(true);
+		//model_wgt->getViewport()->centerOn(dynamic_cast<RelationshipView *>(obj.front())->getLabel(0));
 	});
 
-	connect(auto_tb, &QToolButton::clicked, [&](){
-		path_sw->setCurrentIndex(Automatic);
-		auto_tb->setChecked(true);
-		man_tb->setChecked(false);
-		find_paths_tb->setVisible(true);
-		options_tb->setVisible(true);
-		options_tb->setChecked(false);
-		set_path_tb->setVisible(true);
+
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+	join_solver_thread=nullptr;
+	man_tb->setVisible(true);
+	auto_tb->setVisible(true);
+	reset_tb->setVisible(true);
+	set_path_tb->setVisible(true);
+
+		connect(man_tb, &QToolButton::toggled, [&](bool change){
+			if(change)
+			{
+				path_sw->setCurrentIndex(Manual);
+				auto_tb->setChecked(false);
+				find_paths_tb->setVisible(false);
+				options_tb->setChecked(false);
+				options_tb->setVisible(false);
+				status_tb->setChecked(false);
+				status_tb->setVisible(false);
+				set_path_tb->setVisible(true);
+			}
+		});
+
+		connect(auto_tb, &QToolButton::toggled, [&](bool change){
+		if(change)
+		{
+			path_sw->setCurrentIndex(Automatic);
+			man_tb->setChecked(false);
+			find_paths_tb->setVisible(true);
+            options_tb->setVisible(true);
+			options_tb->setChecked(false);
+			status_tb->setChecked(false);
+			status_tb->setVisible(true);
+			set_path_tb->setVisible(true);
+		}
 	});
-	
-	connect(options_tb, &QToolButton::clicked, [&](){
-		path_sw->setCurrentIndex(Parameters);
-		auto_tb->setChecked(false);
-		set_path_tb->setVisible(false);
-		find_paths_tb->setVisible(false);
+
+	connect(options_tb, &QToolButton::toggled, [&](bool change){
+		if(change)
+		{
+			path_sw->setCurrentIndex(Parameters);
+			auto_tb->setChecked(false);
+			status_tb->setChecked(false);
+			set_path_tb->setVisible(false);
+			find_paths_tb->setVisible(true);
+		}
+	});
+
+	connect(status_tb, &QToolButton::toggled, [&](bool change){
+		if(change)
+		{
+			path_sw->setCurrentIndex(SolverStatus);
+			auto_tb->setChecked(false);
+			options_tb->setChecked(false);
+			set_path_tb->setVisible(false);
+			find_paths_tb->setVisible(false);
+		}
 	});
 
 	connect(set_path_tb, &QToolButton::clicked, [&](){
@@ -88,6 +121,7 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 			path_mode_set=qMakePair<int,int>(Manual,0);
 			gqb_c->updateRelLabel();
 		}
+
 		else if(path_sw->currentIndex()==Automatic && auto_path_tw->currentRow()!=-1)
 		{
 			path_mode_set=qMakePair<int,int>(Automatic, auto_path_tw->currentRow());
@@ -101,28 +135,20 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 		}
 	});
 
-	connect(manual_path_tw, &QTableWidget::itemDoubleClicked, [&](QTableWidgetItem *item){
-		model_wgt->getObjectsScene()->clearSelection();
-		QList<BaseObjectView *> obj;
-		obj.push_back(
-			dynamic_cast<BaseObjectView *>(
-				reinterpret_cast<BaseRelationship *>(
-					manual_path_tw->item(item->row(),0)->data(Qt::UserRole).value<void *>())
-						->getOverlyingObject()));
-		for(const auto &ob:obj)
-			ob->setSelected(true);
-//		model_wgt->getViewport()->centerOn(dynamic_cast<RelationshipView *>(obj.front())->getLabel(0));
+	connect(find_paths_tb, &QToolButton::clicked, [&](){
+		if(gqb_c->tab_wgt->columnCount()<=1) return;
+		options_tb->setChecked(false);
+		//status_tb->setChecked(false);   TODO rework : SIGNAL path_sw indexchanged -> manage sw buttons states
+		//auto_tb->setChecked(false);
+		runSQLJoinSolver();
 	});
 
-	connect(find_paths_tb, &QToolButton::clicked, [&](){
-		if(gqb_c->tab_wgt->columnCount()==0) return;
-		auto path=findPath();
-		this->resetAutoPath();
-		this->insertAutoRels(path);
+	connect(stop_solver_pb, &QPushButton::clicked, [&](){
+		emit s_stopJoinSolverRequested();
 	});
 
 	connect(exact_cb, &QCheckBox::clicked, [&](bool clicked){
-		sp_limit_sb->setEnabled(!clicked);
+		sp_max_cost_sb->setEnabled(!clicked);
 		st_limit_sb->setEnabled(!clicked);
 	});
 
@@ -150,6 +176,7 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 	});
 
 	connect(auto_path_tw, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(automaticPathSelected(int, int, int, int)));
+#endif
 }
 
 bool GraphicalQueryBuilderPathWidget::eventFilter(QObject *object, QEvent *event)
@@ -229,554 +256,14 @@ QMap<int, BaseRelationship *> GraphicalQueryBuilderPathWidget::getRelPath(void)
 	return rel_path_res;
 }
 
-/*
- * The point of this gigantic function is to explore
- * the search space of how to join input tables. We play on both Dreyfus Wagner variations,
- * and shortest-paths variations.
- *		result = [k+1 Dreyfus-Wagner] x [k+1 shortest paths]
- *
- * The result container is as follows :
- * a QMultimap can have various keys with the same value,
- * it is useful since we can have many paths that have a same total weight.
- * So each entry is a unique path, and the key is the total path weight.
- * The multimap value is a pair :
- *   - a pair of vectors of basetables part of the path -
- *			1 steiner points, and 2 non-terminal non-steiner points,
- *   - a vector of paths (1 object 2 relation weight).
- */
-QMultiMap<int,
-		  QPair<
-				QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-				QVector<QPair<BaseRelationship*, int>
-		>>> GraphicalQueryBuilderPathWidget::findPath(void)
+
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+void GraphicalQueryBuilderPathWidget::insertAutoRels(paths paths_found)
 {
+	this->resetAutoPath();
 
-	//-------------------------------------------------------------------------------------------------
-	/*
-	 * Summary :
-	 * I.	Initialization
-	 * II.	Run the graph search
-	 * III.	Post-treatment and return the result
-	 */
-
-	//-------------------------------------------------------------------------------------------------
-	//I.	Initialize the algorithm input
-	//I.1	Initialize the containers
-	//The final result
-	QMultiMap<int,
-			QPair<
-					QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-					QVector<QPair<BaseRelationship*, int>
-			>>> super_res;
-
-	//The "final-1" result
-	QVector<QPair<
-				QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-				QVector<QPair<BaseRelationship*, int>>
-			>> result={
-		qMakePair<QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-		QVector<QPair<BaseRelationship*, int>>>(
-		{qMakePair<QVector<BaseTable*>, QVector<BaseTable*>>({nullptr}, {nullptr})},
-		{qMakePair<BaseRelationship*, int>(nullptr,0)})};
-
-	//Two containers that are the reverse of each other,
-	//dual-mapping table  object + table number in boost format
-	QHash<BaseTable*, int> tables;
-	QHash<int, BaseTable*> tables_r;
-
-	vector<Edge> edges;
-
-	//Hash table that binds an edge (a pair of integers) representation to a pair :
-	// 1 its BaseRelationship and 2 its weight
-	QHash<Edge, QPair<BaseRelationship*, int>> edges_hash;
-
-	//I.2.	Detect connected components
-	auto return_tuple=gqb_c->getConnectedComponents();
-	tables=std::move(get<0>(return_tuple));
-	edges=std::move(get<1>(return_tuple));
-	edges_hash=std::move(get<2>(return_tuple));
-
-	for (auto it=tables.begin();it!=tables.end();it++)
-		tables_r.insert(it.value(), it.key());
-
-	gqb_c->updateRequiredVertices();
-
-	int nb_required_vertices_connected=0;
-	for(const auto &req_vertex:gqb_c->required_vertices)
-		if(!gqb_c->disconnected_vertices.contains(req_vertex)) nb_required_vertices_connected+=1;
-
-	//if(nb_required_vertices_connected<2)
-	//	qDebug() << "<2";
-
-	//I.3.	Set relation costs
-	vector<int> weights;
-
-	QList<std::tuple<QString, QString, QString, int>> cost_list;
-	if(custom_costs_tw->rowCount()>0)
-		for(int i=0; i<custom_costs_tw->rowCount();i++)
-		{
-			cost_list.push_back(forward_as_tuple(
-						dynamic_cast<QComboBox *>(custom_costs_tw->cellWidget(i,0))->currentText(),
-						dynamic_cast<QComboBox *>(custom_costs_tw->cellWidget(i,1))->currentText(),
-						custom_costs_tw->item(i,2)->text(),
-						custom_costs_tw->item(i,3)->text().toInt()));
-		}
-	QRegExp regexp;
-	regexp.setPatternSyntax(QRegExp::Wildcard);
-
-	int weight;
-	for(auto edge:edges)
-	{
-		Edge reversed_edge=qMakePair<int,int>(edge.second, edge.first);
-
-		//Set default cost...
-		weight=default_cost_sb->value();
-
-		//...add cross-schema extra cost ...
-		if(tables_r.value(edge.first)->getSchema()!=
-			tables_r.value(edge.second)->getSchema())
-				weight+=cross_sch_cost_sb->value();
-
-		//... and custom extra costs.
-		for(const auto &custom_cost:cost_list)
-		{
-			regexp.setPattern(get<2>(custom_cost));
-			auto obj=std::move(get<0>(custom_cost));
-			auto att=std::move(get<1>(custom_cost));
-			if(obj=="Rel")
-			{
-				if(att=="Name")
-				{
-					if(regexp.indexIn(edges_hash.value(edge).first->getName())>=0)
-						weight+=get<3>(custom_cost);
-				}
-				else if(att=="Comment")
-				{
-					if(regexp.indexIn(edges_hash.value(edge).first->getComment())>=0)
-						weight+=get<3>(custom_cost);
-				}
-			}
-			else if(obj=="Constraint")
-			{
-				if(att=="Name")
-				{
-					if(regexp.indexIn(edges_hash.value(edge).first->getReferenceForeignKey()->getName())>=0)
-						weight+=get<3>(custom_cost);
-				}
-				else if(att=="Comment")
-				{
-					if(regexp.indexIn(edges_hash.value(edge).first->getReferenceForeignKey()->getComment())>=0)
-						weight+=get<3>(custom_cost);
-				}
-			}
-			else if (obj=="Table")
-			{
-				if(att=="Name")
-				{
-					if(regexp.indexIn(tables_r.value(edge.first)->getName())>=0 ||
-						regexp.indexIn(tables_r.value(edge.second)->getName())>=0)
-							weight+=get<3>(custom_cost);
-				}
-				else if(att=="Comment")
-				{
-					if(regexp.indexIn(tables_r.value(edge.first)->getComment())>=0 ||
-						regexp.indexIn(tables_r.value(edge.second)->getComment())>=0)
-							weight+=get<3>(custom_cost);
-				}
-			}
-			else if(obj=="Schema")
-			{
-				if(att=="Name")
-				{
-					if(regexp.indexIn(tables_r.value(edge.first)->getSchema()->getName())>=0 ||
-						regexp.indexIn(tables_r.value(edge.second)->getSchema()->getName())>=0)
-							weight+=get<3>(custom_cost);
-				}
-				else if(att=="Comment")
-				{
-					if(regexp.indexIn(tables_r.value(edge.first)->getSchema()->getComment())>=0 ||
-						regexp.indexIn(tables_r.value(edge.second)->getSchema()->getComment())>=0)
-							weight+=get<3>(custom_cost);
-				}
-			}
-		}
-//		qDebug() << edge << " " << weight;
-		weights.push_back(weight);
-		for(auto it=edges_hash.begin();it!=edges_hash.end();it++)
-			if(it.key()==edge||it.key()==reversed_edge)
-				it.value().second=weight;
-	}
-
-	//I.4.	Setup the boost graph and its paal metric
-	Graph g(edges.begin(), edges.end(), weights.begin(), tables.size());
-	auto gm = GraphMT(g);
-
-	//-------------------------------------------------------------------------------------------------
-	//II.	Setup Dreyfus Wagner terminals and non-terminals
-	QVector<int> terminals, nonterminals;
-	for(const auto &req_vertex:gqb_c->getRequiredVertices())
-		if(!gqb_c->disconnected_vertices.contains(req_vertex)) terminals.push_back(tables.value(req_vertex));
-	for(const auto &vertex:tables)
-		if(!terminals.contains(vertex))
-			nonterminals.push_back(vertex);
-
-	auto dw = paal::make_dreyfus_wagner(gm, terminals, nonterminals);
-	auto cost_map = dw.get_cost_map();
-
-	//Compute the maximum path length (poor-man way)
-	int max_cost=0;
-	for(int cost_row=0;cost_row<tables.size();cost_row++)
-	{
-		for(int cost_col=0;cost_col<tables.size();cost_col++)
-		{
-			max_cost+=cost_map(cost_row, cost_col);
-		}
-	}
-	max_cost=max_cost/2;
-
-	//-------------------------------------------------------------------------------------------------
-	//II.1.	If only two tables to join...
-	if(nb_required_vertices_connected==2)
-	{
-		//qDebug() << "=2 co:" << nb_required_vertices_connected << " disco:" << gqb_c->required_vertices.size()
-		//	- nb_required_vertices_connected;
-
-		int start, goal;
-
-		start=terminals[0];
-		goal=terminals[1];
-		terminals.pop_back();
-
-		auto edge=qMakePair<int, int>(start, goal);
-		int cost=cost_map(start, goal);
-
-		int paths_found=0;
-		while(paths_found<sp_limit_sb->value())
-		{
-			auto paths=getDetailedPaths(edge, terminals, cost++, cost_map,tables,edges_hash);
-
-			if(paths.empty() && cost>max_cost) break;
-			for(int i=0;i<paths.size();i++)
-			{
-				QVector<BaseTable*> tables_res={nullptr};
-				if(!exact_cb->isChecked() && paths_found==sp_limit_sb->value()) break;
-
-				if(i>0 || paths_found>0)
-					result.insert(paths_found,
-						(qMakePair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>(
-							 qMakePair<QVector<BaseTable*>,QVector<BaseTable*>>({nullptr}, {nullptr}),
-							 {qMakePair(nullptr,0)})));
-
-				for (const auto &sub_edge:paths[i])
-				{
-						result[paths_found].second.push_back(edges_hash.value(sub_edge));
-						auto tr1=tables_r.value(sub_edge.first);
-						if(!tables_res.contains(tr1) && !terminals.contains(sub_edge.first))
-						{
-							result[paths_found].first.second.push_back(tr1);
-							tables_res.push_back(tr1);
-						}
-						auto tr2=tables_r.value(sub_edge.second);
-						if(!tables_res.contains(tr2) && terminals.contains(sub_edge.second))
-						{
-							result[paths_found].first.second.push_back(tr2);
-							tables_res.push_back(tr2);
-						}
-				}
-
-				paths_found++;
-			}
-			if(exact_cb->isChecked()) break;
-		}
-	}
-
-	/*-------------------------------------------------------------------------------------------------
-	 * II.2.	...if 3 or more tables to join,
-	 * 			run Optimal-Dreyfus-Wagner algorithm.
-	 * 			Each edge returned by the algorithm being a "super edge" (say, a path embryo),
-	 * 			we will reconstruct its possible sub-paths.
-	 */
-	else if(nb_required_vertices_connected>2)
-	{
-		//qDebug() << ">2 co:" << nb_required_vertices_connected << " disco:" << \
-			//gqb_c->required_vertices.size() - nb_required_vertices_connected;
-
-		// II.2.a. Initialize containers and run Dreyfus-Wagner once
-		//A sub-result container, stores the two below + path weight.
-		//This will be a set of valid super edges, that will further grow into full paths.
-		QMap< QPair< QVector<int>, QVector<Edge> >, int > dw_results;
-		// A sub-sub-result container, stores steiner elements
-		QVector<int> dw_subresult1;
-		// A sub-sub-result container, stores "super edges"
-		QVector<Edge> dw_subresult2;
-
-		//Paal's optimal Dreyfus-Wagner algorithm, first call
-		dw.solve();
-
-		// print result
-		//std::cout << "Cost = " << dw.get_cost() << std::endl;
-		//std::cout << "Steiner points:" << std::endl;
-		//boost::copy(dw.get_steiner_elements(),
-		//		  std::ostream_iterator<int>(std::cout, "\n"));
-		//std::cout << std::endl;
-		//std::cout << "Edges:" << std::endl;
-
-		// II.2.b k+1 steiner trees
-		for (auto edge : dw.get_edges())
-		{
-			dw_subresult2.push_back(qMakePair<int,int>(edge.first, edge.second));
-			//std::cout << "(" << edge.first << "," << edge.second << ")"
-			//		  << std::endl;
-		}
-		for (auto se:dw.get_steiner_elements())
-			dw_subresult1.push_back(se);
-
-		dw_results.insert(qMakePair< QVector<int>, QVector<Edge> >(dw_subresult1, dw_subresult2),
-						  dw.get_cost());
-
-		QVector<int> steiners;
-		for(auto a:dw.get_steiner_elements())
-			if(!steiners.contains(a))
-				steiners.push_back(a);
-
-		QVector<QVector<int>> removed_steiners;
-		bool is_done=false;
-		int c_a=0, c_b=0, c_c=0;
-
-		/*
-		 * TODO IMPROVE THIS
-		 * This loop is an ugly hack to exlore the search space
-		 * and make a "k+1 steiner trees algo" not found in academia :
-		 * we recursively run 'Dreyfus-Wagner over all combinations of
-		 * {non-terminals}-{steiner-elements-already-found}'.
-		 * This can become EXTREMELY expensive really quick.
-		 */
-		while(!is_done &&
-			(exact_cb->isChecked() || dw_results.size()<st_limit_sb->value()))
-		{
-			c_a+=1;
-			is_done=true;
-
-			auto a=steiners.size();
-			auto b=pow(2,steiners.size());
-			bitset<32> my_bitset;
-			for(int i=0; i<b;i++)
-			{
-				my_bitset=bitset<32>(i);
-				QVector<int> remov_steiners;
-				for(int j=0; j<a;j++)
-				{
-					if(my_bitset[j])
-					{
-						if(!dw.m_non_terminals.contains(steiners[j]))
-							dw.m_non_terminals.push_back(steiners[j]);
-					}
-					else
-					{
-							dw.m_non_terminals.removeOne(steiners[j]);
-							remov_steiners.push_back(steiners[j]);
-					}
-				}
-				if(!removed_steiners.contains(remov_steiners))
-					removed_steiners.push_back(remov_steiners);
-				else {c_b+=1;
-					continue; }
-				dw.m_edges.clear();
-				dw.m_steiner_elements.clear();
-				dw.m_best_cand.clear();
-				dw.m_best_split.clear();
-
-				dw.solve();
-				c_c+=1;
-				//qDebug() << "st : " << c_c;
-				//std::cout << "Steiner points:" << std::endl;
-				//boost::copy(dw.get_steiner_elements(),
-				//		  std::ostream_iterator<int>(std::cout, "\n"));
-				//std::cout << std::endl;
-
-				dw_subresult1.clear();
-				dw_subresult2.clear();
-				for (auto edge : dw.get_edges())
-					dw_subresult2.push_back(qMakePair<int,int>(edge.first, edge.second));
-
-				for (auto se:dw.get_steiner_elements())
-					dw_subresult1.push_back(se);
-
-				for(auto a:dw.get_steiner_elements())
-					if(!steiners.contains(a))
-					{
-						steiners.push_back(a);
-						is_done=false;
-					}
-
-				dw_results.insert(qMakePair(dw_subresult1, dw_subresult2), dw.get_cost());
-			}
-		}
-
-		// II.2.c grow k+1-steiner-tree embryos into real paths.
-		//Yet another subres container, a more transient clone of dw_subresults,
-		//total path weight + weight&edge
-		QMultiMap<int, QPair< QVector<int>, QVector<Edge> > > dw_results_2;
-		for(auto it=dw_results.begin();it!=dw_results.end();it++)
-			dw_results_2.insert(it.value(), it.key());
-
-		//qDebug() << "type info : " << typeid(cost_map).name();
-		//using boost::typeindex::type_id_with_cvr;
-		//std::cout << type_id_with_cvr<decltype(cost_map)>().pretty_name() << std::endl;
-		//std::cout << typeid(cost_map).name() << std::endl;
-
-		result.clear();
-		int st_limit=1;
-		for(auto it=dw_results_2.begin(); it!=dw_results_2.end();it++)
-		{
-			//Another subres (...bear with us...), sub_res2 feeds into result.
-			QVector<QPair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>> sub_res2=
-				{qMakePair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>(
-					qMakePair<QVector<BaseTable*>,QVector<BaseTable*>>({nullptr},{nullptr}),
-					{qMakePair<BaseRelationship*, int>({nullptr},0)})};
-
-
-			if( (exact_cb->isChecked() && it.key()>dw_results_2.begin().key()) ||
-				st_limit++>st_limit_sb->value()) break;
-
-			
-			auto dw_edges=it.value().second;
-			//For each super-edge "in this k+1 DW branch", grow paths.
-			for (int i=0;i<dw_edges.size();i++)
-			{
-				//We reach the deepest subres containers, sub_res will feed into sub_res2
-				QVector<QPair<QPair<QVector<BaseTable*>,QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>> sub_res;
-				int paths_found=0;
-
-				Edge edge=qMakePair<int, int>(dw_edges[i].first, dw_edges[i].second);
-
-				int cost=cost_map(edge.first, edge.second);
-
-				while(paths_found<sp_limit_sb->value())
-				{
-					auto paths=getDetailedPaths(edge, terminals+it.value().first, cost++, cost_map,tables,edges_hash);
-
-					if(paths.empty() && cost>max_cost) break;
-					for(int j=0;j<paths.size();j++)
-					{
-						if(!exact_cb->isChecked() && paths_found==sp_limit_sb->value()) break;
-
-						sub_res.insert(sub_res.size(),
-									   qMakePair<QPair<QVector<BaseTable*>, QVector<BaseTable*>>, QVector<QPair<BaseRelationship*, int>>>(
-											qMakePair<QVector<BaseTable*>, QVector<BaseTable*>>({nullptr},{nullptr}),
-											{qMakePair<BaseRelationship*, int>({nullptr},0)}));
-
-						for(auto a:it.value().first)
-							sub_res[sub_res.size()-1].first.first.push_back(tables_r.value(a));
-
-						QVector<int> tables_res;
-						for (const auto &sub_edge:paths[j])
-						{
-							if(!tables_res.contains(sub_edge.first) && !it.value().first.contains(sub_edge.first) &&
-								!terminals.contains(sub_edge.first))
-							{
-									sub_res[sub_res.size()-1].first.second.push_back(tables_r.value(sub_edge.first));
-									tables_res.push_back(sub_edge.first);
-							}
-							if(!tables_res.contains(sub_edge.second) && !it.value().first.contains(sub_edge.second) &&
-								!terminals.contains(sub_edge.second))
-							{
-									sub_res[sub_res.size()-1].first.second.push_back(tables_r.value(sub_edge.second));
-									tables_res.push_back(sub_edge.second);
-							}
-
-							sub_res[sub_res.size()-1].second.push_back(edges_hash.value(sub_edge));
-						}
-
-						paths_found++;
-					}
-
-					if(exact_cb->isChecked()) break;
-				}
-				//Multiplicate each detailed "Steiner" edge with one another
-				if(i==0) sub_res2=sub_res;
-				else
-				{
-					int r=0;
-					int result_size=sub_res2.size();
-					while(r<result_size)
-					{
-						auto path_to_fill = sub_res2[r];
-						for(int k=0; k<sub_res.size(); k++)
-						{
-							if(k>0)
-							{
-								sub_res2.insert(r+1, path_to_fill);
-								r++;
-								result_size++;
-							}
-							auto a_sub_res=sub_res[k];
-							a_sub_res.first.second.pop_front();
-							sub_res2[r].first.second+=a_sub_res.first.second;
-							a_sub_res.second.pop_front();
-							sub_res2[r].second+=a_sub_res.second;
-						}
-						r++;
-					}
-				}
-			}
-			result+=sub_res2;
-		}
-	}
-
-	//-------------------------------------------------------------------------------------------------
-	// III.	Finalize the result
-	//Add total cost per path and clean beginning
-	for(auto &sub_result:result)
-	{
-		int cost=0;
-		for(const auto &edge:sub_result.second)
-			cost+=edge.second;
-		sub_result.first.first.pop_front();
-		sub_result.first.second.pop_front();
-		sub_result.second.pop_front();
-		super_res.insert(cost, sub_result);
-	}
-
-	//Remove irrelevant superset results
-	auto it=super_res.begin();
-	while(it!=super_res.end())
-	{
-		auto it2=super_res.begin();
-		while(it2!=super_res.end())
-		{
-			if(it2==it)
-			{
-				it2++;
-				continue;
-			}
-
-			bool is_subset=true;
-			for(int k=0;k<it.value().second.size();k++)
-			{
-				if(!it2.value().second.contains(it.value().second[k]))
-				{
-					is_subset=false;
-					break;
-				}
-			}
-			if(is_subset) it2=super_res.erase(it2);
-			else it2++;
-		}
-		if(it!=super_res.end()) it++;
-	}
-
-	return super_res;
-}
-
-void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
-											QPair<
-														QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
-														QVector<QPair<BaseRelationship*, int>
-											>>> &paths)
-{
 	int i=-1;
-	for(auto it=paths.begin(); it!=paths.end();it++)
+	for(auto it=paths_found.begin(); it!=paths_found.end();it++)
 	{
 		i+=1;
 		auto_path_tw->insertRow(auto_path_tw->rowCount());
@@ -865,137 +352,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(QMultiMap<int,
 	auto_path_tw->horizontalHeader()->setVisible(true);
 	path_sw->setCurrentIndex(1);
 }
-
-QVector<Path> GraphicalQueryBuilderPathWidget::getDetailedPaths(Edge edge,
-								QVector<int> terminals,
-								int cost,
-								CostMap &cost_map,
-								QHash<BaseTable*, int> &tables,
-								QHash<Edge, QPair<BaseRelationship*, int>> &edges_hash)
-{
-	QVector<Path> result;
-	QVector<Edge> branches;
-	QVector<QVector<int>> result_predecessors; //a predecessor "supermap"
-	int start, source, target;
-	int result_size;
-
-	start=edge.first;
-	target=edge.second;
-	source=start;
-
-	bool done=false;
-
-	//Step once : find candidate sub-edges, each will start a path
-	for(int i=0;i<tables.size();i++)
-	{
-			Edge temp_edge=qMakePair<int,int>(source, i);
-			if(i!=source &&
-				cost_map(source,i)+cost_map(i,target)<=cost &&
-				edges_hash.contains(temp_edge) &&
-				cost_map(source, i) == edges_hash.value(temp_edge).second &&
-				(!terminals.contains(i) || i==target))
-			{
-					result.push_back({temp_edge});
-					result_predecessors.push_back({source});
-			}
-
-	}
-	result_size=result.size();
-
-	//Traverse all paths that we started, expanding if needed.
-	while(!done)
-	{
-		done=true;
-		int r=0;
-		//Step once all paths started
-		while(r<result_size)
-		{
-			branches.clear();
-			auto path_to_fill = result[r];
-			auto predecessors_to_fill = result_predecessors[r];
-			auto consumed_cost=0;
-			for(int c=0;c<result[r].size();c++)
-				consumed_cost+=cost_map(result[r][c].first,result[r][c].second);
-
-			source=result[r].last().second;
-			if(source!=target)
-			{
-				//Step this path, the n candidate sub-edges will be put in the branches vector,
-				//and generate n-1 new paths.
-				for(int i=0;i<tables.size();i++)
-				{
-						Edge temp_edge=qMakePair<int,int>(source, i);
-
-						if	(source!=i &&
-							 !result_predecessors[r].contains(i) &&
-							 cost_map(source,i)+cost_map(i,target)<=cost -consumed_cost &&
-							 edges_hash.contains(temp_edge) &&
-							 cost_map(source, i) == edges_hash.value(temp_edge).second &&
-							 (!terminals.contains(i) || i==target))
-								branches.push_back(temp_edge);
-				}
-
-				//There can be dead-ends : in such case remove the path embryo
-				if(branches.empty())
-				{
-					result.remove(r);
-					result_predecessors.remove(r);
-					r+=-1;
-					result_size+=-1;
-				}
-				else
-				{
-					//Add each sub-edge found in its own path
-					//(a new path is inserted each time, from second branch and up)
-					for(const auto &branch:branches)
-					{
-						if(branch==branches[0])
-						{
-							result[r].push_back(branch);
-							result_predecessors[r].push_back(branch.second);
-						}
-						else
-						{
-							//Clone the path into a new path...
-							result.insert(r+1,path_to_fill);
-							result_predecessors.insert(r+1,predecessors_to_fill);
-							//... slide counters...
-							r++;
-							result_size++;
-							//... and append the sub-edge
-							result[r].push_back(branch);
-							result_predecessors[r].push_back(branch.second);
-						}
-					}
-				}
-			}
-			r++;
-		}
-		//Check if we are done
-		for(const auto &path:result)
-		{
-			if(path.last().second!=target)
-			{
-				done=false;
-				break;
-			}
-		}
-	}
-
-	//Clean the result, remove paths which total cost is not the one asked
-
-	auto it=result.begin();
-	while(it!=result.end())
-	{
-		int path_cost=0;
-		for(auto &edge:*it)
-			path_cost+=cost_map(edge.first,edge.second);
-		if(path_cost!=cost)
-			result.erase(it);
-		else it++;
-	}
-	return result;
-}
+#endif
 
 void GraphicalQueryBuilderPathWidget::resetPaths(void)
 {
@@ -1010,8 +367,10 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 
 		gqb_c->updateRelLabel();
 
-		exact_cb->setChecked(false);
-		sp_limit_sb->setValue(5);
+		exact_cb->setChecked(true);
+		sp_max_cost_sb->setEnabled(false);
+		st_limit_sb->setEnabled(false);
+		sp_max_cost_sb->setValue(2);
 		st_limit_sb->setValue(5);
 
 		vis_only_cb->setChecked(false);
@@ -1020,6 +379,8 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 
 		custom_costs_tw->setRowCount(0);
 	}
+
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 	else if(qobject_cast<QAction *>(sender()) == reset_menu.actions().at(1))
 	{
 		manual_path_tw->setRowCount(0);
@@ -1036,8 +397,10 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 	}
 	else if(qobject_cast<QAction *>(sender()) == reset_menu.actions().at(3))
 	{
-		exact_cb->setChecked(false);
-		sp_limit_sb->setValue(5);
+		exact_cb->setChecked(true);
+		sp_max_cost_sb->setEnabled(false);
+		st_limit_sb->setEnabled(false);
+		sp_max_cost_sb->setValue(2);
 		st_limit_sb->setValue(5);
 
 		vis_only_cb->setChecked(false);
@@ -1046,9 +409,14 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 
 		custom_costs_tw->setRowCount(0);
 
+		resetJoinSolverStatus();
+		destroyThread(true);
+
 	}
+#endif
 }
 
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 void GraphicalQueryBuilderPathWidget::automaticPathSelected(int new_row, int new_column, int old_row, int old_column)
 {
 	auto dummy=new_row+new_column+old_column;
@@ -1062,3 +430,198 @@ void GraphicalQueryBuilderPathWidget::automaticPathSelected(int new_row, int new
 			old_tw2->setCurrentItem(nullptr);
 		}
 }
+
+void GraphicalQueryBuilderPathWidget::createThread(void)
+{
+	if(!join_solver_thread)
+	{
+		join_solver_thread=new QThread(this);
+		join_solver=new GraphicalQueryBuilderJoinSolver(this);
+		join_solver->moveToThread(join_solver_thread);
+
+		connect(join_solver_thread, &QThread::started, [&](){
+			path_sw->setCurrentIndex(SolverStatus);
+			join_solver_status_wgt->show();
+			join_solver->findPaths();
+		});
+
+		connect(this, SIGNAL(s_stopJoinSolverRequested()), join_solver, SLOT(handleJoinSolverStopRequest()),
+				Qt::DirectConnection);
+
+		connect(join_solver_thread, &QThread::finished, [&](){
+			join_solver_thread=nullptr;
+		});
+
+		qRegisterMetaType<paths>();
+		connect(join_solver,
+				SIGNAL(s_pathsFound(paths)),
+				this,
+				SLOT(handlePathsFound(paths)),
+				Qt::QueuedConnection);
+
+		connect(join_solver,
+				SIGNAL(s_progressUpdated(short, int, short, int, int, int, int, int, int, int, int, int)),
+				this,
+				SLOT(updateProgress(short, int, short, int, int, int, int, int, int, int, int, int)),
+				Qt::QueuedConnection);
+
+		connect(join_solver, SIGNAL(s_solverStopped()), this, SLOT(stopSolver()), Qt::QueuedConnection);
+	}
+}
+
+void GraphicalQueryBuilderPathWidget::handlePathsFound(paths p)
+{
+	insertAutoRels(p);
+	destroyThread(true);
+	stop_solver_pb->setEnabled(false);
+	auto_tb->toggle();
+}
+
+
+void GraphicalQueryBuilderPathWidget::destroyThread(bool force)
+{
+	if(join_solver_thread && (force)) //|| join_solver->getErrorCount()==0))
+	{
+		disconnect(join_solver_thread, &QThread::started, nullptr, nullptr);
+		disconnect(this, SIGNAL(s_stopJoinSolverRequested()), nullptr, nullptr);
+		disconnect(stop_solver_pb, &QPushButton::toggled, nullptr, nullptr);
+		disconnect(join_solver, SIGNAL(s_pathsFound(paths)), nullptr, nullptr);
+		disconnect(join_solver,
+				SIGNAL(s_progressUpdated(short, int, short, int, int, int, int, int, int, int, int, int)),
+				nullptr, nullptr);
+		disconnect(join_solver, SIGNAL(s_solverStopped()), nullptr, nullptr);
+
+		delete(join_solver);
+		join_solver_thread->quit();
+		//join_solver_thread->requestInterruption();
+	}
+}
+
+void GraphicalQueryBuilderPathWidget::runSQLJoinSolver(void)
+{
+	createThread();
+	resetJoinSolverStatus();
+	stop_solver_pb->setEnabled(true);
+	join_solver_thread->start();
+}
+
+
+void GraphicalQueryBuilderPathWidget::updateProgress(
+					short mode, int st_round, short powN, int st_comb, int st_found,
+					int sp_current, int sp_current_on, int sp_found,
+					int st_fround, int mult_entry, int mult_entry_on, int paths_found)
+{
+	if(!join_solver_thread || !join_solver_thread->isRunning() || join_solver->stop_solver_requested)
+		return;
+
+	switch(mode)
+	{
+	case 0: //Two tables to join
+		st_round_lbl->setEnabled(false);
+		powN_lbl->setEnabled(false);
+		st_comb_lbl->setEnabled(false);
+		st_comb_on_lbl->setEnabled(false);
+		st_found_lbl->setEnabled(false);
+		st_found_on_lbl->setEnabled(false);
+		I_prb->setEnabled(false);
+		sp_current_lbl->setText("1");
+		sp_current_on_lbl->setText("1");
+		II_prb->setEnabled(false);
+		sp_found_lbl->setText(QString::number(sp_found));
+		st_fround_lbl->setEnabled(false);
+		st_fround_on_lbl->setEnabled(false);
+		III_prb->setEnabled(false);
+		paths_found_lbl->setText(QString::number(paths_found));
+		break;
+
+	case 1: //k+1-Steiner round
+		st_round_lbl->setText(QString::number(st_round));
+		powN_lbl->setText(QString::number(powN));
+		st_comb_lbl->setText(QString::number(st_comb));
+		st_comb_on_lbl->setText(QString::number(pow(2,powN)) +
+							" (2^" + QString::number(powN) +")");
+		if(st_found_on_lbl->text()=="/") st_found_on_lbl->setText("/ "+QString::number(st_limit_sb->value()));
+		break;
+
+	case 2: //k+1-Steiner combination
+		st_comb_lbl->setText(QString::number(st_comb));
+		st_found_lbl->setText(QString::number(st_found));
+		I_prb->setValue(st_found*100/st_limit_sb->value());
+		break;
+
+	case 3: //super_edge round
+		sp_current_lbl->setText(QString::number(sp_current));
+		sp_current_on_lbl->setText("/ "+QString::number(sp_current_on));
+		II_prb->setValue(sp_current*100/sp_current_on);
+		break;
+
+	case 4: // sub-paths found
+		sp_found_lbl->setText(QString::number(sp_found));
+		break;
+
+	case 5: //multiplication a
+		st_fround_lbl->setText(QString::number(st_fround));
+		if(st_fround_on_lbl->text()=="/") st_fround_on_lbl->setText("/ "+st_found_lbl->text());
+		III_prb->setValue(st_fround*100/st_found_lbl->text().toInt());
+		break;
+
+	case 6: // multiplication b
+		mult_entry_on_lbl->setText(QString::number(mult_entry_on));
+		break;
+
+	case 7: // multiplication c
+		mult_entry_lbl->setText(QString::number(mult_entry));
+		break;
+
+	case 8: //multiplication d
+		paths_found_lbl->setText(QString::number(paths_found));
+	}
+}
+
+void GraphicalQueryBuilderPathWidget::resetJoinSolverStatus(void){
+	st_round_lbl->setEnabled(true);
+	st_round_lbl->setText("");
+
+	powN_lbl->setEnabled(true);
+	powN_lbl->setText("");
+
+	st_comb_lbl->setEnabled(true);
+	st_comb_lbl->setText("");
+
+	st_comb_on_lbl->setEnabled(true);
+	st_comb_on_lbl->setText("/");
+
+	st_found_lbl->setEnabled(true);
+	st_found_lbl->setText("");
+
+	st_found_on_lbl->setEnabled(true);
+	st_found_on_lbl->setText("/");
+
+	I_prb->setEnabled(true);
+	I_prb->setValue(0);
+
+	sp_current_lbl->setText("");
+	sp_current_on_lbl->setText("/");
+
+	II_prb->setEnabled(true);
+	II_prb->setValue(0);
+
+	sp_found_lbl->setText("");
+
+	st_fround_lbl->setEnabled(true);
+	st_fround_lbl->setText("");
+
+	st_fround_on_lbl->setEnabled(true);
+	st_fround_on_lbl->setText("/");
+
+	III_prb->setEnabled(true);
+	III_prb->setValue(0);
+
+	paths_found_lbl->setText("");
+}
+
+void GraphicalQueryBuilderPathWidget::stopSolver(){
+	destroyThread(true);
+	stop_solver_pb->setEnabled(false);
+}
+#endif

@@ -44,10 +44,13 @@ GraphicalQueryBuilderSQLWidget::GraphicalQueryBuilderSQLWidget(QWidget *parent):
 			dynamic_cast<BaseForm *>(this->parentWidget()->parentWidget())->done(2);
 			});
 		connect(schem_qualif_tb, &QToolButton::clicked, [&](bool clicked){
-			emit s_reloadSQL(this,clicked,(bool)this->code_options_cmb->currentIndex());
+			emit s_reloadSQL(this, join_in_where_chb->isChecked(), clicked, (bool)code_options_cmb->currentIndex());
 		});
 		connect(code_options_cmb, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index){
-			emit s_reloadSQL(this,this->schem_qualif_tb->isDown(),(bool)index);
+			emit s_reloadSQL(this, join_in_where_chb->isChecked(), schem_qualif_tb->isChecked(),(bool)index);
+		});
+		connect(join_in_where_chb, &QCheckBox::toggled, [&](bool change){
+			emit s_reloadSQL(this, change, schem_qualif_tb->isChecked(),(bool)code_options_cmb->currentIndex());
 		});
 
 
