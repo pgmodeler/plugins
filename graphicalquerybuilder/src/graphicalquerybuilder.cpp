@@ -64,28 +64,26 @@ void GraphicalQueryBuilder::showPluginInfo(void)
 	plugin_info_frm->show();
 }
 
-void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
+void GraphicalQueryBuilder::initPlugin(MainWindow *main_window)
 {
 	PgModelerPlugin::initPlugin(main_window);
-
-	MainWindow *mw = dynamic_cast<MainWindow *>(main_window);
 
 	QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
 	//Setup dock widgets
-	gqbc_parent = new QWidget(mw->h_splitter2);
+    gqbc_parent = new QWidget(main_window->h_splitter2);
 	gqbc_parent->setObjectName(QString::fromUtf8("gqbc_parent"));
 	sizePolicy1.setHeightForWidth(gqbc_parent->sizePolicy().hasHeightForWidth());
 	gqbc_parent->setSizePolicy(sizePolicy1);
-	mw->h_splitter2->addWidget(gqbc_parent);
+    main_window->h_splitter2->addWidget(gqbc_parent);
 
-	gqbj_parent = new QWidget(mw->v_splitter_oprs_objs);
+    gqbj_parent = new QWidget(main_window->v_splitter_oprs_objs);
 	gqbj_parent->setObjectName(QString::fromUtf8("gqbj_parent"));
 	sizePolicy2.setHeightForWidth(gqbj_parent->sizePolicy().hasHeightForWidth());
 	gqbj_parent->setSizePolicy(sizePolicy2);
 	gqbj_parent->setMinimumSize(QSize(270, 0));
-	mw->v_splitter_oprs_objs->addWidget(gqbj_parent);
+    main_window->v_splitter_oprs_objs->addWidget(gqbj_parent);
 
 	gqb_core_wgt=new GraphicalQueryBuilderCoreWidget;
 	gqb_path_wgt=new GraphicalQueryBuilderPathWidget;
@@ -103,7 +101,7 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	gqbc_parent->setLayout(hlayout);
 
 	//Setup the graphicalquerybuilder_core_widget pushbutton
-	QToolButton *tb = new QToolButton(mw->tool_btns_bar_wgt);
+    QToolButton *tb = new QToolButton(main_window->tool_btns_bar_wgt);
 
 	sizePolicy1.setHeightForWidth(tb->sizePolicy().hasHeightForWidth());
 	tb->setSizePolicy(sizePolicy1);
@@ -115,11 +113,11 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	tb->setCheckable(true);
 	tb->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-	mw->horiz_wgts_btns_layout->addWidget(tb);
+    main_window->horiz_wgts_btns_layout->addWidget(tb);
 	tb->setText("Query builder");
 
 	//Setup the graphicalquerybuilder_path_widget pushbutton
-	QToolButton *tb2 = new QToolButton(mw->tool_btns_bar_wgt);
+    QToolButton *tb2 = new QToolButton(main_window->tool_btns_bar_wgt);
 
 	sizePolicy1.setHeightForWidth(tb->sizePolicy().hasHeightForWidth());
 	tb2->setSizePolicy(sizePolicy1);
@@ -129,23 +127,23 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	tb2->setIconSize(QSize(22, 22));
 	tb2->setCheckable(true);
 	tb2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	mw->vert_wgts_btns_layout->addWidget(tb2);
+    main_window->vert_wgts_btns_layout->addWidget(tb2);
 	tb2->setText("GQB Path");
 
 
 	//The following signals deal with the visibility states.
 	connect(tb, SIGNAL(toggled(bool)), gqbc_parent, SLOT(setVisible(bool)));
 	connect(tb, SIGNAL(toggled(bool)), gqb_core_wgt, SLOT(setVisible(bool)));
-	connect(tb, SIGNAL(toggled(bool)), mw, SLOT(showBottomWidgetsBar(void)));
+    connect(tb, SIGNAL(toggled(bool)), main_window, SLOT(showBottomWidgetsBar(void)));
 	connect(gqb_core_wgt, SIGNAL(s_visibilityChanged(bool)), tb, SLOT(setChecked(bool)));
-	connect(gqb_core_wgt, SIGNAL(s_visibilityChanged(bool)), mw, SLOT(showBottomWidgetsBar()));
+    connect(gqb_core_wgt, SIGNAL(s_visibilityChanged(bool)), main_window, SLOT(showBottomWidgetsBar()));
 
 
 	connect(tb2, SIGNAL(toggled(bool)), gqbj_parent, SLOT(setVisible(bool)));
 	connect(tb2, SIGNAL(toggled(bool)), gqb_path_wgt, SLOT(setVisible(bool)));
-	connect(tb2, SIGNAL(toggled(bool)), mw, SLOT(showRightWidgetsBar(void)));
+    connect(tb2, SIGNAL(toggled(bool)), main_window, SLOT(showRightWidgetsBar(void)));
 	connect(gqb_path_wgt, SIGNAL(s_visibilityChanged(bool)), tb2, SLOT(setChecked(bool)));
-	connect(gqb_path_wgt, SIGNAL(s_visibilityChanged(bool)), mw, SLOT(showRightWidgetsBar()));
+    connect(gqb_path_wgt, SIGNAL(s_visibilityChanged(bool)), main_window, SLOT(showRightWidgetsBar()));
 
 	/*
 	 * There _seems_ to not exist bidirectional binding, even with the Qt property system
@@ -164,15 +162,7 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	//The "SQL mode"
 	connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 
-
-	connect(mw, &MainWindow::s_currentModelChanged, [&](ModelWidget *new_model){
-		this->current_model=new_model;
-		gqb_core_wgt->setModel(new_model);
-		gqb_path_wgt->setModel(new_model);
-		disconnect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), nullptr,nullptr);
-		if(new_model)
-			connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
-	});
+    connect(this->main_window, SIGNAL(s_currentModelChanged(ModelWidget*)), this, SLOT(handleModelChange(ModelWidget*)));
 
 	connect(gqb_core_wgt, SIGNAL(s_adjustViewportToItems(QList<BaseObjectView *>)),
 				this, SLOT(adjustViewportToItems(QList<BaseObjectView *>)));
@@ -191,6 +181,17 @@ void GraphicalQueryBuilder::initPlugin(QMainWindow *main_window)
 	gqb_core_wgt->setVisible(false);
 	gqb_path_wgt->setVisible(false);
 
+}
+
+void GraphicalQueryBuilder::handleModelChange(ModelWidget *new_model)
+{
+    this->current_model=new_model;
+    gqb_core_wgt->setModel(new_model);
+    gqb_path_wgt->setModel(new_model);
+    disconnect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), nullptr,nullptr);
+
+    if(new_model)
+        connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 }
 
 void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
