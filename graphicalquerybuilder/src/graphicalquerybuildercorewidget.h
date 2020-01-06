@@ -17,7 +17,7 @@
 */
 
 /**
-\ingroup libpgmodeler_ui
+\ingroup plugins/graphicalquerybuilder
 \class QueryBuilderCoreWidget
 \brief Implements a graphical query builder.
 */
@@ -88,7 +88,7 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 		void columnSelectChecked(int col, int state);
 
 		//! \brief Puts all the query element together and spouts the SQL
-		QString produceSQL(bool schema_qualified, bool compact_sql);
+		QString produceSQL(bool initial_warning, bool join_in_where_asked, bool schema_qualified, bool compact_sql);
 
 	public:
 		//! \brief Constants for the table widget line numbers
@@ -123,7 +123,7 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 
 		//! \brief Calls the SQL generation and a form to show the code
 		void showSQL(void);
-		void reloadSQL(GraphicalQueryBuilderSQLWidget * gqbs, bool schema_qualified, bool compact_sql);
+		void reloadSQL(GraphicalQueryBuilderSQLWidget * gqbs, bool join_in_where, bool schema_qualified, bool compact_sql);
 		void resetQuery();
 
 		//! \brief Syncronizes UI states between widgets
@@ -149,6 +149,9 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 		void s_adjustViewportToItems(QList<BaseObjectView *>);
 
 	friend class GraphicalQueryBuilderPathWidget;
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
+	friend class GraphicalQueryBuilderJoinSolver;
+#endif
 };
 
 #endif // GRAPHICALQUERYBUILDERCOREWIDGET_H

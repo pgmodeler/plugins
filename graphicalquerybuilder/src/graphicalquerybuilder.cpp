@@ -44,7 +44,7 @@ QString GraphicalQueryBuilder::getPluginTitle(void)
 
 QString GraphicalQueryBuilder::getPluginVersion(void)
 {
-	return(QString("0.9.0"));
+	return(QString("0.9.2"));
 }
 
 QString GraphicalQueryBuilder::getPluginAuthor(void)
@@ -218,8 +218,8 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 	querybuilder_sql_wgt->displayQuery(query_txt);
 
 	connect(querybuilder_sql_wgt, &GraphicalQueryBuilderSQLWidget::s_reloadSQL,
-		[&](GraphicalQueryBuilderSQLWidget * gqbs, bool schema_qualified, bool compact_sql){
-			gqb_core_wgt->reloadSQL(gqbs, schema_qualified, compact_sql);
+		[&](GraphicalQueryBuilderSQLWidget * gqbs, bool join_in_where, bool schema_qualified, bool compact_sql){
+			gqb_core_wgt->reloadSQL(gqbs, join_in_where, schema_qualified, compact_sql);
 		});
 
 	if(mw->hasDbsListedInSQLTool())

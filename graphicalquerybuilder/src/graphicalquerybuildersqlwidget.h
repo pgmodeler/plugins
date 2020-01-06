@@ -17,7 +17,7 @@
 */
 
 /**
-\ingroup libpgmodeler_ui
+\ingroup plugins/graphicalquerybuilder
 \class QueryBuilderSqlWidget
 \brief Implements the operations to visualize the sql of the graphical query.
 */
@@ -65,7 +65,7 @@ class GraphicalQueryBuilderSQLWidget: public BaseObjectWidget, public Ui::Graphi
 		void saveSQLCode(void);
 
 	signals:
-		void s_reloadSQL(GraphicalQueryBuilderSQLWidget * zis, bool schema_qualified, bool compact_sql);
+		void s_reloadSQL(GraphicalQueryBuilderSQLWidget * zis,bool join_in_where, bool schema_qualified, bool compact_sql);
 		void s_sendToManage(QString query);
 };
 
