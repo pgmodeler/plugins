@@ -32,6 +32,8 @@
 #include "paal/data_structures/metric/graph_metrics.hpp"
 #include "paal/steiner_tree/dreyfus_wagner.hpp"
 #include <QMetaType>
+
+//! \brief This needs registration to get communicated as argument between threads.
 typedef QMultiMap<int,
 QPair<
 	  QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
@@ -80,6 +82,18 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 	public:
 		GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget);
 
+		//! \brief Aliases for the progress reports
+		static constexpr unsigned
+			Progress_ShortPathMod0=0,	//Two tables to join
+			Progress_SteinerRound=1,	//k+1-Steiner round
+			Progress_SteinerComb=2,		//k+1-Steiner combination
+			Progress_SuperEdgeRound=3,
+			Progress_ShortPathMod1=4,	// sub-paths found
+			Progress_FinalRound1=5,		//multiplication a
+			Progress_FinalRound2=6,		//multiplication b
+			Progress_FinalRound3=7,		//multiplication c
+			Progress_FinalRound4=8;		//multiplication d
+
 		//! \k+1 shortest paths.
 		//! This will compute all the possible paths between two points
 		//! for a given cost. Used a lot in findPath().
@@ -96,17 +110,25 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 		//! \brief The main path inference engine, uses paal/boost
 		void findPaths(void);
 
+		//! \brief simply sets the attribute stop_solver_requested to true,
+		//! it will be checked regularly during the solver run.
 		void handleJoinSolverStopRequest(void);
 
 	private slots:
 
 	signals:
 
-		void s_progressUpdated(short mode, int st_round, short powN, int st_comb, int st_found,
-							   int sp_current, int sp_current_on, int sp_found,
-							   int st_fround, int mult_entry, int mult_entry_on, int paths_found);
+		//! \brief Progress reports, sent at various steps of the solver run,
+		//! to the pathwidget status tab.
+		void s_progressUpdated(short mode,
+							   short st_round, short powN, long long st_comb, int st_found,
+							   int sp_current, int sp_current_on, long long sp_found,
+							   int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found);
 
+		//! \brief Emitted when the solver is successful.
 		void s_pathsFound(paths paths_found);
+
+		//! \brief Emitted when the solver was canceled. It will allow thread->quit().
 		void s_solverStopped(void);
 
 	friend class GraphicalQueryBuilderPathWidget;

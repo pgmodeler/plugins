@@ -166,6 +166,8 @@ void GraphicalQueryBuilder::initPlugin(MainWindow *main_window)
 
 	connect(gqb_core_wgt, SIGNAL(s_adjustViewportToItems(QList<BaseObjectView *>)),
 				this, SLOT(adjustViewportToItems(QList<BaseObjectView *>)));
+	connect(gqb_path_wgt, SIGNAL(s_adjustViewportToItems(QList<BaseObjectView *>)),
+				this, SLOT(adjustViewportToItems(QList<BaseObjectView *>)));
 
 #ifndef QT_NO_TOOLTIP
 		tb->setToolTip(QApplication::translate("MainWindow", "Toggle the graphical query builder", nullptr));

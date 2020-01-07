@@ -303,6 +303,9 @@
                  <property name="text">
                   <string>    short. paths cost over minimum : </string>
                  </property>
+                 <property name="buddy">
+                  <cstring>sp_max_cost_sb</cstring>
+                 </property>
                 </widget>
                </item>
                <item row="3" column="2" rowspan="4" colspan="2">
@@ -315,6 +318,9 @@
                  </property>
                  <property name="text">
                   <string>    k+1 Steiner trees to : </string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>st_limit_sb</cstring>
                  </property>
                 </widget>
                </item>
@@ -498,6 +504,9 @@
                  <property name="text">
                   <string>Default cost :</string>
                  </property>
+                 <property name="buddy">
+                  <cstring>default_cost_sb</cstring>
+                 </property>
                 </widget>
                </item>
                <item row="5" column="0">
@@ -533,6 +542,9 @@
                  </property>
                  <property name="text">
                   <string>Cross-schema-rel extra cost : </string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>cross_sch_cost_sb</cstring>
                  </property>
                 </widget>
                </item>
@@ -1267,16 +1279,29 @@
  </widget>
  <tabstops>
   <tabstop>manual_path_tw</tabstop>
-  <tabstop>auto_path_tw</tabstop>
+  <tabstop>hide_tb</tabstop>
   <tabstop>man_tb</tabstop>
   <tabstop>auto_tb</tabstop>
   <tabstop>set_path_tb</tabstop>
   <tabstop>find_paths_tb</tabstop>
+  <tabstop>status_tb</tabstop>
   <tabstop>options_tb</tabstop>
   <tabstop>reset_tb</tabstop>
-  <tabstop>custom_costs_tw</tabstop>
-  <tabstop>hide_tb</tabstop>
+  <tabstop>auto_path_tw</tabstop>
   <tabstop>exact_cb</tabstop>
+  <tabstop>st_limit_sb</tabstop>
+  <tabstop>sp_max_cost_sb</tabstop>
+  <tabstop>vis_only_cb</tabstop>
+  <tabstop>default_cost_sb</tabstop>
+  <tabstop>cross_sch_cost_sb</tabstop>
+  <tabstop>add_custom_cost_tb</tabstop>
+  <tabstop>reset_custom_costs_tb</tabstop>
+  <tabstop>custom_costs_tw</tabstop>
+  <tabstop>disp_nam_cb</tabstop>
+  <tabstop>disp_sch_cb</tabstop>
+  <tabstop>disp_com_cb</tabstop>
+  <tabstop>display_tables_cb</tabstop>
+  <tabstop>stop_solver_pb</tabstop>
  </tabstops>
  <resources>
   <include location="../../../libpgmodeler_ui/res/resources.qrc"/>

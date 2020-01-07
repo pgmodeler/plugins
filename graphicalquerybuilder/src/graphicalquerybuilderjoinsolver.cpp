@@ -203,7 +203,6 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 				}
 			}
 		}
-//		qDebug() << edge << " " << weight;
 		weights.push_back(weight);
 		for(auto it=edges_hash.begin();it!=edges_hash.end();it++)
 			if(it.key()==edge||it.key()==reversed_edge)
@@ -272,6 +271,10 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 		QMap<Edge,QPair<QVector<Path>,QVector<QVector<int>>>> super_edge_map;
 
 		// Paal's optimal Dreyfus-Wagner algorithm, first call
+		emit s_progressUpdated(Progress_SteinerRound,
+							   1, 0, 0, 0,
+							   0, 0, 0,
+							   0, 0, 0, 0);
 		dw.solve();
 
 		int min_st_cost=dw.get_cost();
@@ -314,10 +317,13 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 			(gqb_p->exact_cb->isChecked() || dw_results.size()<gqb_p->st_limit_sb->value()))
 		{
 			c_a+=1;
-			emit s_progressUpdated(1, c_a+1, steiners.size(), 0, 1, 0, 0, 0, 0, 0, 0, 0);
+			emit s_progressUpdated(Progress_SteinerRound,
+								   c_a+1, steiners.size(), 0, 1,
+								   0, 0, 0,
+								   0, 0, 0, 0);
 
 			is_done=true;
-			int c_b=0;
+			long long c_b=0;
 
 			auto a=steiners.size();
 			auto b=pow(2,steiners.size());
@@ -375,7 +381,10 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 
 				dw_results.insert(qMakePair(dw_subresult1, dw_subresult2), dw.get_cost());
 				if(!stop_solver_requested)
-					emit s_progressUpdated(2, 0, 0, c_b, dw_results.size(), 0, 0, 0, 0, 0, 0, 0);
+					emit s_progressUpdated(Progress_SteinerComb,
+										   0, 0, c_b, dw_results.size(),
+										   0, 0, 0,
+										   0, 0, 0, 0);
 			}
 		}
 
@@ -395,7 +404,10 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 		int extra_budget= (gqb_p->exact_cb->isChecked()? 0 : gqb_p->sp_max_cost_sb->value());
 		for(auto it=super_edge_map.begin();it!=super_edge_map.end();it++)
 		{
-			emit s_progressUpdated(3, 0, 0, 0, 0, b_a++, super_edge_map.size(), 0, 0, 0, 0, 0);
+			emit s_progressUpdated(Progress_SuperEdgeRound,
+								   0, 0, 0, 0,
+								   b_a++, super_edge_map.size(), 0,
+								   0, 0, 0, 0);
 			int min_cost=cost_map(it.key().first, it.key().second);
 			it.value()=getDetailedPaths(it.key(), terminals, min_cost+extra_budget, cost_map,tables,edges_hash, 1);
 		}
@@ -405,7 +417,10 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 		for(auto it=dw_results_2.begin(); it!=dw_results_2.end();it++)
 		{
 			if(!stop_solver_requested)
-				emit s_progressUpdated(5, 0, 0, 0, 0, 0, 0, 0, b_b++, 0, 0, 0);
+				emit s_progressUpdated(Progress_FinalRound1,
+									   0, 0, 0, 0,
+									   0, 0, 0,
+									   b_b++, 0, 0, 0);
 
 			//TODO ? QP<QV,QV> -> QV<QP> to match others
 			QVector<QPair<QVector<Path>,QVector<QVector<int>>>> super_edge_accu;
@@ -549,10 +564,16 @@ QPair<QVector<Path>, QVector<QVector<int>>> GraphicalQueryBuilderJoinSolver::get
 			}
 		}
 
-		if(mode==0)
-			emit s_progressUpdated(0, 0, 0, 0, 0, 1, 1, result.size(), 0, 0, 0, result.size());
-		else if(mode==1)
-			emit s_progressUpdated(4, 0, 0, 0, 0, 0, 0, result.size(), 0, 0, 0, 0 );
+		if(mode==0) //Two tables to join
+			emit s_progressUpdated(Progress_ShortPathMod0,
+								   0, 0, 0,0,
+								   1, 1, (long long)result.size(),
+								   0, 0, 0, (long long)result.size());
+		else if(mode==1) //... more than two
+			emit s_progressUpdated(Progress_ShortPathMod1,
+								   0, 0, 0, 0,
+								   0, 0, (long long)result.size(),
+								   0, 0, 0, 0 );
 	}
 
 	for(auto &pre:result_predecessors)
@@ -586,7 +607,10 @@ void GraphicalQueryBuilderJoinSolver::cartesianProductOnSuperEdges(
 		{return a*b.second.size();};
 
 	const long long N = accumulate( v.begin(), v.end(), 1LL, product );
-	emit s_progressUpdated(6, 0, 0, 0, 0, 0, 0, 0, 0, 0, N, 0);
+	emit s_progressUpdated(Progress_FinalRound2,
+						   0, 0, 0, 0,
+						   0, 0, 0,
+						   0, 0, N, 0);
 
 	QVector<BaseTable *> steiners_gqb;
 	for(auto steiner_point:steiner_points)
@@ -601,7 +625,10 @@ void GraphicalQueryBuilderJoinSolver::cartesianProductOnSuperEdges(
 		QVector<int> uu;
 		Path vv;
 
-		emit s_progressUpdated(7, 0, 0, 0, 0, 0, 0, 0, 0, n, 0, 0);
+		emit s_progressUpdated(Progress_FinalRound3,
+							   0, 0, 0, 0,
+							   0, 0, 0,
+							   0, n, 0, 0);
 
 		//First cartesian product : on inner tables involved for each super-edge
 		bool candidate_refused=false;
@@ -650,7 +677,7 @@ void GraphicalQueryBuilderJoinSolver::cartesianProductOnSuperEdges(
 		auto comp = [](QPair<BaseRelationship *, int> &a,
 						QPair<BaseRelationship *, int> &b)
 			{return a.first<b.first;};
-		qSort(cp_sub_path.begin(), cp_sub_path.end(), comp);
+		std::sort(cp_sub_path.begin(), cp_sub_path.end(), comp);
 
 		for(auto it=super_res.begin();it!=super_res.end();it++)
 		{
@@ -676,7 +703,10 @@ void GraphicalQueryBuilderJoinSolver::cartesianProductOnSuperEdges(
 			for(const auto edge:cp_sub_path)
 				cost+=edge.second;
 			super_res.insert(cost, qMakePair(qMakePair(steiners_gqb, involved_tables_gqb), cp_sub_path));
-			emit s_progressUpdated(8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, super_res.size());
+			emit s_progressUpdated(Progress_FinalRound4,
+								   0, 0, 0, 0,
+								   0, 0, 0,
+								   0, 0, 0, (long long)super_res.size());
 		}
 	}
 }

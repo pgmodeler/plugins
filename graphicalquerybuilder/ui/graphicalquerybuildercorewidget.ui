@@ -469,6 +469,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>insert_btn</tabstop>
+  <tabstop>show_sql_btn</tabstop>
+  <tabstop>reset_btn</tabstop>
+  <tabstop>isolate_btn</tabstop>
+  <tabstop>path_btn</tabstop>
+  <tabstop>hide_tb</tabstop>
+  <tabstop>tab_wgt</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
  </resources>

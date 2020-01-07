@@ -122,9 +122,10 @@ private slots:
 		void resetPaths(void);
 #ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void automaticPathSelected(int new_row, int new_column, int old_row=0, int old_column=0);
-		void updateProgress(short mode, int st_round, short powN, int st_comb, int st_found,
-							   int sp_current, int sp_current_on, int sp_found,
-							   int st_fround, int mult_entry, int mult_entry_on, int paths_found);
+		void updateProgress(short mode,
+							short st_round, short powN, long long st_comb, int st_found,
+							int sp_current, int sp_current_on, long long sp_found,
+							int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found);
 		void stopSolver(void);
 #endif
 
@@ -133,6 +134,7 @@ signals:
 #ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void s_automaticPathSelected(int);
 		void s_stopJoinSolverRequested(void);
+		void s_adjustViewportToItems(QList<BaseObjectView *>);
 #endif
 
 	friend class GraphicalQueryBuilder;
