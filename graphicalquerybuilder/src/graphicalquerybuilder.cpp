@@ -38,7 +38,7 @@ GraphicalQueryBuilder::GraphicalQueryBuilder(void)
 
 QString GraphicalQueryBuilder::getPluginTitle(void)
 {
-	return(trUtf8("Graphical query builder"));
+	return(tr("Graphical query builder"));
 }
 
 
@@ -54,7 +54,7 @@ QString GraphicalQueryBuilder::getPluginAuthor(void)
 
 QString GraphicalQueryBuilder::getPluginDescription(void)
 {
-	return(trUtf8("Check documentation, source code and report bugs at : \
+	return(tr("Check documentation, source code and report bugs at : \
 				\n https://www.github.com/pgmodeler/plugins/graphicalquerybuilder \
 				\n https://www.gitlab.com/maxzor/pgmodeler_gqb"));
 }
@@ -196,18 +196,18 @@ void GraphicalQueryBuilder::handleModelChange(ModelWidget *new_model)
         connect(gqb_core_wgt, SIGNAL(s_gqbSqlRequested(QString)), this, SLOT(showGqbSql(QString)));
 }
 
-void GraphicalQueryBuilder::executePlugin(ModelWidget *model_wgt)
+void GraphicalQueryBuilder::executePlugin([[maybe_unused]]ModelWidget *model_wgt)
 {
 	if(is_plugin_active)
 	{
 		Messagebox msgbox;
-		msgbox.show(trUtf8("Plugin already loaded!"),
+		msgbox.show(tr("Plugin already loaded!"),
 								Messagebox::InfoIcon);
 		return;
 	}
 
 	Messagebox msgbox;
-	msgbox.show(trUtf8("Plugin successfully loaded!"),
+	msgbox.show(tr("Plugin successfully loaded!"),
 							Messagebox::InfoIcon);
 	is_plugin_active=true;
 }
@@ -236,12 +236,12 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 	current_model->openEditingForm(querybuilder_sql_wgt, Messagebox::OkButton);
 }
 
-void GraphicalQueryBuilder::adjustViewportToItems(QList<BaseObjectView *> items)
+void GraphicalQueryBuilder::adjustViewportToItems([[maybe_unused]]QList<BaseObjectView *> items)
 {
-	QRectF new_pov=items.front()->sceneBoundingRect();
-	for(const auto &item:items)
-		new_pov=new_pov.united(item->sceneBoundingRect());
-	current_model->getViewport()->fitInView(new_pov,Qt::KeepAspectRatio);
+
+	current_model->getViewport()->fitInView(
+				current_model->getObjectsScene()->itemsBoundingRect(true,true),
+				Qt::KeepAspectRatio);
 }
 
 

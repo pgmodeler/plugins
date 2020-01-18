@@ -152,10 +152,10 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 		st_limit_sb->setEnabled(!clicked);
 	});
 
-	reset_menu.addAction(trUtf8("All"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Manual"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Automatic"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Parameters"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("All"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Manual"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Automatic"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Parameters"), this, SLOT(resetPaths()));
 	reset_tb->setMenu(&reset_menu);
 
 	connect(add_custom_cost_tb, &QToolButton::clicked, [&](){
@@ -410,6 +410,9 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 
 		custom_costs_tw->setRowCount(0);
 
+		real_time_rendering_cb->setChecked(false);
+		rt_render_delay_sb->setValue(0);
+
 		resetJoinSolverStatus();
 		destroyThread(true);
 
@@ -437,7 +440,8 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 	if(!join_solver_thread)
 	{
 		join_solver_thread=new QThread(this);
-		join_solver=new GraphicalQueryBuilderJoinSolver(this);
+		join_solver=new GraphicalQueryBuilderJoinSolver(
+					this, join_solver_thread, real_time_rendering_cb->isChecked(), rt_render_delay_sb->value());
 		join_solver->moveToThread(join_solver_thread);
 
 		connect(join_solver_thread, &QThread::started, [&](){
@@ -447,7 +451,7 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 		});
 
 		connect(this, SIGNAL(s_stopJoinSolverRequested()), join_solver, SLOT(handleJoinSolverStopRequest()),
-				Qt::DirectConnection);
+				Qt::QueuedConnection);
 
 		connect(join_solver_thread, &QThread::finished, [&](){
 			join_solver_thread=nullptr;
@@ -474,11 +478,18 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 				Qt::QueuedConnection);
 
 		connect(join_solver, SIGNAL(s_solverStopped()), this, SLOT(stopSolver()), Qt::QueuedConnection);
+
+		qRegisterMetaType<bts>();
+		connect(join_solver, SIGNAL(s_progressTables(int, bts)),
+				this, SLOT(progressTables(int, bts)), Qt::QueuedConnection);
+		connect(join_solver_thread, &QThread::finished, [&](){progressTables(10,{nullptr});});
 	}
 }
 
 void GraphicalQueryBuilderPathWidget::handlePathsFound(paths p)
 {
+	if(III_prb->isEnabled())
+		III_prb->setValue(100);
 	insertAutoRels(p);
 	destroyThread(true);
 	stop_solver_pb->setEnabled(false);
@@ -578,6 +589,7 @@ void GraphicalQueryBuilderPathWidget::updateProgress(
 		break;
 
 	case GraphicalQueryBuilderJoinSolver::Progress_SuperEdgeRound: //super_edge round
+		I_prb->setValue(100);
 		sp_current_lbl->setText(QString::number(sp_current));
 		sp_current_on_lbl->setText("/ "+QString::number(sp_current_on));
 		II_prb->setValue(
@@ -590,6 +602,7 @@ void GraphicalQueryBuilderPathWidget::updateProgress(
 		break;
 
 	case GraphicalQueryBuilderJoinSolver::Progress_FinalRound1: //multiplication a
+		II_prb->setValue(100);
 		st_fround_lbl->setText(QString::number(st_fround));
 		if(st_fround_on_lbl->text()=="/") st_fround_on_lbl->setText("/ "+st_found_lbl->text());
 		III_prb->setValue(
@@ -648,6 +661,12 @@ void GraphicalQueryBuilderPathWidget::resetJoinSolverStatus(void){
 	st_fround_on_lbl->setEnabled(true);
 	st_fround_on_lbl->setText("/");
 
+	mult_entry_lbl->setEnabled(true);
+	mult_entry_lbl->setText("");
+
+	mult_entry_on_lbl->setEnabled(true);
+	mult_entry_on_lbl->setText("/");
+
 	III_prb->setEnabled(true);
 	III_prb->setValue(0);
 
@@ -658,4 +677,109 @@ void GraphicalQueryBuilderPathWidget::stopSolver(){
 	destroyThread(true);
 	stop_solver_pb->setEnabled(false);
 }
+
+void GraphicalQueryBuilderPathWidget::progressTables(int mode, bts t)
+{
+	for(auto &pix:pixs)
+	{
+		dynamic_cast<QGraphicsScene *>(model_wgt->getObjectsScene())->removeItem(pix);
+		delete pix;
+	}
+	pixs.clear();
+
+	//PT_SR=0,	//Steiner points
+	//PT_SP1=1,	//Source and target
+	//PT_SP2=2,	//Predecessor map
+	//PT_FR1=3,	//Steiner points
+	//PT_FR2=4;	//Involved tables non steiner
+	//(10 end)
+	switch(mode)
+	{
+	case 0: //Steiner points
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),QColor(50,205,50)));
+		}
+		break;
+	case 1: //Source and target
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			tr_pixs.push_back(addPix(rect.center(),QColor(255,140,0)));
+		}
+		break;
+	case 2: //Predecessor map
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),Qt::yellow));
+		}
+		break;
+	case 3: //Steiner points
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			tr_pixs.push_back(addPix(rect.center(),QColor(50,205,50)));
+		}
+		break;
+	case 4: //Involved tables non steiner
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),Qt::green));
+		}
+		break;
+	case 10:
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+	}
+
+	model_wgt->getObjectsScene()->update();
+}
+
+QGraphicsItem * GraphicalQueryBuilderPathWidget::addPix(QPointF pos, QColor col)
+{
+	QRadialGradient radialGrad(40, 40, 40);
+	radialGrad.setColorAt(0, col);
+	radialGrad.setColorAt(0.2, col);
+	radialGrad.setColorAt(1, Qt::transparent);
+	QPixmap pixmap(80, 80);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(radialGrad);
+	painter.drawEllipse(0, 0, 80, 80);
+	painter.end();
+
+	auto zis_pix=model_wgt->getObjectsScene()->addPixmap(pixmap);
+	zis_pix->setZValue(40);
+	zis_pix->setPos(pos.x()-40,pos.y()-40);
+	zis_pix->setVisible(true);
+	zis_pix->setEnabled(true);
+	zis_pix->setActive(true);
+	return zis_pix;
+}
+
 #endif

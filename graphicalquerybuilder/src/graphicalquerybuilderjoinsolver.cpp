@@ -38,14 +38,18 @@ using CostMap=paal::data_structures::graph_metric<Graph,
 
 using Path = QVector<Edge>;
 
-GraphicalQueryBuilderJoinSolver::GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget) : QObject()
+GraphicalQueryBuilderJoinSolver::GraphicalQueryBuilderJoinSolver(
+			GraphicalQueryBuilderPathWidget *widget, QThread *thread, bool real_time_rendering, int delay) : QObject()
 {
 	gqb_p=widget;
 	stop_solver_requested=false;
+	this_thread=thread;
+	this->real_time_rendering=real_time_rendering;
+	this->delay=delay;
 }
 
 
-void GraphicalQueryBuilderJoinSolver::findPaths(void)
+void GraphicalQueryBuilderJoinSolver::findPaths()
 {
 	/*
 	 * The point of this gigantic function is to explore
@@ -242,11 +246,11 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 		int extra_budget=(gqb_p->exact_cb->isChecked()? 0 : gqb_p->sp_max_cost_sb->value());
 		int cost=min_cost + extra_budget;
 
-		auto paths=getDetailedPaths(edge, terminals, cost, cost_map,tables,edges_hash, 0);
+		auto paths=getDetailedPaths(edge, terminals, cost, cost_map,tables,edges_hash, 0, tables_r);
 		QVector<QPair<QVector<Path>,QVector<QVector<int>>>> paths_wrapper={paths};
 		QVector<int> dummy;
 
-		cartesianProductOnSuperEdges(paths_wrapper,dummy,edges_hash,tables_r,super_res);
+		cartesianProductOnSuperEdges(paths_wrapper,dummy,edges_hash,tables_r, super_res);
 	}
 
 	/*-------------------------------------------------------------------------------------------------
@@ -293,6 +297,19 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 		}
 		for (auto se:dw.get_steiner_elements())
 			dw_subresult1.push_back(se);
+
+		if(!stop_solver_requested && real_time_rendering)
+		{
+			QVector<BaseTable *> dw_srbt1;
+			for(const auto &i:dw_subresult1)
+				dw_srbt1.push_back(tables_r.value(i));
+			emit s_progressTables(PT_SR, dw_srbt1);
+			auto timer=new QTimer(this);
+			timer->setSingleShot(true);
+			timer->start(delay);
+			while(timer->isActive())
+				this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+		}
 
 		dw_results.insert(qMakePair< QVector<int>, QVector<Edge> >(dw_subresult1, dw_subresult2),
 						  dw.get_cost());
@@ -372,6 +389,20 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 				for (auto se:dw.get_steiner_elements())
 					dw_subresult1.push_back(se);
 
+				if(!stop_solver_requested && real_time_rendering &&
+				   !dw_results.contains(qMakePair(dw_subresult1, dw_subresult2)))
+				{
+					QVector<BaseTable *> dw_srbt1;
+					for(const auto &i:dw_subresult1)
+						dw_srbt1.push_back(tables_r.value(i));
+					emit s_progressTables(PT_SR, dw_srbt1);
+					auto timer=new QTimer(this);
+					timer->setSingleShot(true);
+					timer->start(delay);
+					while(timer->isActive())
+						this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+				}
+
 				for(auto a:dw.get_steiner_elements())
 					if(!steiners.contains(a))
 					{
@@ -409,13 +440,38 @@ void GraphicalQueryBuilderJoinSolver::findPaths(void)
 								   b_a++, super_edge_map.size(), 0,
 								   0, 0, 0, 0);
 			int min_cost=cost_map(it.key().first, it.key().second);
-			it.value()=getDetailedPaths(it.key(), terminals, min_cost+extra_budget, cost_map,tables,edges_hash, 1);
+
+			if(!stop_solver_requested && real_time_rendering)
+			{
+				emit s_progressTables(PT_SP1,{tables_r.value(it.key().first),tables_r.value(it.key().second)});
+				auto timer=new QTimer(this);
+				timer->setSingleShot(true);
+				timer->start(delay);
+				while(timer->isActive())
+					this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+			}
+
+			it.value()=getDetailedPaths(it.key(), terminals, min_cost+extra_budget, cost_map,
+										tables, edges_hash, 1, tables_r);
 		}
 
 		// For each Steiner tree
 		int b_b=1;
 		for(auto it=dw_results_2.begin(); it!=dw_results_2.end();it++)
 		{
+			if(!stop_solver_requested && real_time_rendering)
+			{
+				QVector<BaseTable *> dw_srbt1;
+				for(const auto &i:it.value().first)
+					dw_srbt1.push_back(tables_r.value(i));
+				emit s_progressTables(PT_FR1, dw_srbt1);
+				auto timer=new QTimer(this);
+				timer->setSingleShot(true);
+				timer->start(delay);
+				while(timer->isActive())
+					this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+			}
+
 			if(!stop_solver_requested)
 				emit s_progressUpdated(Progress_FinalRound1,
 									   0, 0, 0, 0,
@@ -447,7 +503,8 @@ QPair<QVector<Path>, QVector<QVector<int>>> GraphicalQueryBuilderJoinSolver::get
 								CostMap &cost_map,
 								QHash<BaseTable*, int> &tables,
 								QHash<Edge, QPair<BaseRelationship*, int>> &edges_hash,
-								int mode)
+								int mode,
+								QHash<int, BaseTable*> &tables_r)
 {
 	QVector<Path> result;
 	QVector<Edge> branches;
@@ -536,6 +593,19 @@ QPair<QVector<Path>, QVector<QVector<int>>> GraphicalQueryBuilderJoinSolver::get
 						{
 							result[r].push_back(branch);
 							result_predecessors[r].push_back(source);
+							if(!stop_solver_requested && real_time_rendering && branch.second==target)
+							{
+								QVector<BaseTable *> btv;
+								for(const auto &i:result_predecessors[r])
+									if(i!=result_predecessors[r].first())
+										btv.push_back(tables_r.value(i));
+								emit s_progressTables(PT_SP2,btv);
+								auto timer=new QTimer(this);
+								timer->setSingleShot(true);
+								timer->start(delay);
+								while(timer->isActive())
+									this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+							}
 						}
 						else
 						{
@@ -548,6 +618,19 @@ QPair<QVector<Path>, QVector<QVector<int>>> GraphicalQueryBuilderJoinSolver::get
 							//... and append the sub-edge
 							result[r].push_back(branch);
 							result_predecessors[r].push_back(source);
+							if(!stop_solver_requested && real_time_rendering && branch.second==target)
+							{
+								QVector<BaseTable *> btv;
+								for(const auto &i:result_predecessors[r])
+									if(i!=result_predecessors[r].first())
+										btv.push_back(tables_r.value(i));
+								emit s_progressTables(PT_SP2,btv);
+								auto timer=new QTimer(this);
+								timer->setSingleShot(true);
+								timer->start(delay);
+								while(timer->isActive())
+									this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+							}
 						}
 					}
 				}
@@ -702,7 +785,19 @@ void GraphicalQueryBuilderJoinSolver::cartesianProductOnSuperEdges(
 			int cost=0;
 			for(const auto edge:cp_sub_path)
 				cost+=edge.second;
+
 			super_res.insert(cost, qMakePair(qMakePair(steiners_gqb, involved_tables_gqb), cp_sub_path));
+
+			if(!stop_solver_requested && real_time_rendering)
+			{
+				emit s_progressTables(PT_FR2, involved_tables_gqb);
+				auto timer=new QTimer(this);
+				timer->setSingleShot(true);
+				timer->start(delay);
+				while(timer->isActive())
+					this_thread->eventDispatcher()->processEvents(QEventLoop::AllEvents);
+			}
+
 			emit s_progressUpdated(Progress_FinalRound4,
 								   0, 0, 0, 0,
 								   0, 0, 0,

@@ -63,7 +63,7 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 		void executePlugin(ModelWidget *model_wgt);		
 		void initPlugin(MainWindow *main_window);
 
-    private slots:
+private slots:
         void handleModelChange(ModelWidget *new_model);
 
 	public slots:
@@ -73,7 +73,7 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 		void showGqbSql(QString query_txt);
 
 		//! \brief Zoom and scroll the GraphicsView to match the bounding rect of the items
-		void adjustViewportToItems(QList<BaseObjectView *> items);
+		void adjustViewportToItems([[maybe_unused]]QList<BaseObjectView *> items);
 };
 
 #endif

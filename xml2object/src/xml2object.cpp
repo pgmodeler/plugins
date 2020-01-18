@@ -35,7 +35,7 @@ Xml2Object::Xml2Object(void)
 
 QString Xml2Object::getPluginTitle(void)
 {
-	return(trUtf8("Xml2Object"));
+	return(tr("Xml2Object"));
 }
 
 QString Xml2Object::getPluginVersion(void)
@@ -50,7 +50,7 @@ QString Xml2Object::getPluginAuthor(void)
 
 QString Xml2Object::getPluginDescription(void)
 {
-	return(trUtf8("This plugin permits the creation of objects from XML code and inserting them on the currently opened model."));
+	return(tr("This plugin permits the creation of objects from XML code and inserting them on the currently opened model."));
 }
 
 void Xml2Object::showPluginInfo(void)
@@ -61,7 +61,7 @@ void Xml2Object::showPluginInfo(void)
 void Xml2Object::executePlugin(ModelWidget *model)
 {
 	if(!model)
-		throw Exception(trUtf8("This plugin must be executed with at least one model opened!"),ErrorCode::Custom,__PRETTY_FUNCTION__,__FILE__,__LINE__);
+		throw Exception(tr("This plugin must be executed with at least one model opened!"),ErrorCode::Custom,__PRETTY_FUNCTION__,__FILE__,__LINE__);
 
 	xml2obj_wgt.show(model->getDatabaseModel(), model->getOperationList());
 }

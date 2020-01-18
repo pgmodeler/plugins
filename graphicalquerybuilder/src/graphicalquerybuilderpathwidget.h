@@ -35,7 +35,6 @@
 
 #ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 #include "graphicalquerybuilderjoinsolver.h"
-
 #include <QMetaType>
 typedef QMultiMap<int,
 QPair<
@@ -43,6 +42,8 @@ QPair<
 	  QVector<QPair<BaseRelationship*, int>
 >>> paths;
 Q_DECLARE_METATYPE(paths);
+typedef QVector<BaseTable *> bts;
+Q_DECLARE_METATYPE(bts);
 #endif
 
 class GraphicalQueryBuilderCoreWidget;
@@ -66,6 +67,8 @@ private:
 
 		//! \brief Thread used to control the SQL-join computation
 		QThread *join_solver_thread;
+
+		QVector<QGraphicsItem *> pixs, tr_pixs;
 #endif
 
 		static constexpr unsigned Manual=0,
@@ -80,9 +83,12 @@ private:
 		//! \brief Captures the ENTER press to execute search
 		bool eventFilter(QObject *object, QEvent *event) override;
 
+#ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void createThread(void);
 		void destroyThread(bool force);
 		void runSQLJoinSolver(void);
+		QGraphicsItem * addPix(QPointF pos, QColor col);
+#endif
 
 public:
 		GraphicalQueryBuilderPathWidget(QWidget *parent = nullptr);
@@ -127,6 +133,7 @@ private slots:
 							int sp_current, int sp_current_on, long long sp_found,
 							int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found);
 		void stopSolver(void);
+		void progressTables(int mode, bts btss);
 #endif
 
 signals:

@@ -39,6 +39,8 @@ QPair<
 	  QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
 	  QVector<QPair<BaseRelationship*, int>
 >>> paths;
+typedef QVector<BaseTable *> bts;
+
 
 class GraphicalQueryBuilderPathWidget;
 
@@ -60,6 +62,10 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 	private:
 		Q_OBJECT
 
+		QThread *this_thread;
+		bool real_time_rendering;
+		int delay;
+
 		GraphicalQueryBuilderPathWidget *gqb_p;
 
 		//! \brief Indicates if the solver run was stopped by the user
@@ -80,7 +86,15 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 				);
 
 	public:
-		GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget);
+		GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget,
+										QThread *thread, bool real_time_rendering, int delay);
+
+		static constexpr unsigned
+		PT_SR=0,	//Steiner points
+		PT_SP1=1,	//Source and target
+		PT_SP2=2,	//Predecessor map
+		PT_FR1=3,	//Steiner points
+		PT_FR2=4;	//Involved tables non steiner
 
 		//! \brief Aliases for the progress reports
 		static constexpr unsigned
@@ -103,12 +117,13 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 										CostMap &cost_map,
 										QHash<BaseTable*, int> &tables,
 										QHash<Edge, QPair<BaseRelationship*, int>> &edges_hash,
-										int mode);
+										int mode,
+										QHash<int, BaseTable*> &tables_r);
 
 
 	public slots:
 		//! \brief The main path inference engine, uses paal/boost
-		void findPaths(void);
+		void findPaths();
 
 		//! \brief simply sets the attribute stop_solver_requested to true,
 		//! it will be checked regularly during the solver run.
@@ -124,6 +139,8 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 							   short st_round, short powN, long long st_comb, int st_found,
 							   int sp_current, int sp_current_on, long long sp_found,
 							   int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found);
+
+		void s_progressTables(int mode, bts btss);
 
 		//! \brief Emitted when the solver is successful.
 		void s_pathsFound(paths paths_found);
