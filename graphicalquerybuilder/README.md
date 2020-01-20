@@ -16,7 +16,8 @@ It is aimed primarily at :
 # Features
 ### Create SQL queries graphically.
 
-<img src="https://github.com/Maxzor/pgmodeler_plugins_media/blob/master/builder.gif" width="800" height="400" />
+<img src="https://github.com/Maxzor/pgmodeler_plugins_media/blob/master/builder.gif" width="600" height="300" />
+
 [Explanatory video](http://www.youtube.com/watch?v=6e66-fNhvAY)
 
 This is the traditional feature set, you can insert tables, columns, relations in the builder, group, sort them...
@@ -25,7 +26,8 @@ The plugin will then output the SQL, and allow you to save the code, or run it d
 
 ### Automatic-join mode.
 
-<img src="https://github.com/Maxzor/pgmodeler_plugins_media/blob/master/inference.gif" width="800" height="400" />
+<img src="https://github.com/Maxzor/pgmodeler_plugins_media/blob/master/inference.gif" width="600" height="300" />
+
 [Explanatory video](http://www.youtube.com/watch?v=_5QNFXA03Y4)
 
 This is a primer in the FLOSS world!
