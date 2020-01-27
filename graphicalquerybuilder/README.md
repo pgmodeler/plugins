@@ -6,9 +6,9 @@ The query builder v0.9.2 can now be considered in beta state, please help fix bu
 
 pgModeler has reached a certain level of maturity.
 
-While it has grown into a good database management software, it focuses primarily on conception and modelling, with its mastery of the Data Definition Language SQL subset, which help database architects get to a rigorous implementation.
+While it has grown into a good database management software, it focuses primarily on conception and modelling, with its mastery of the _Data Definition Language_ SQL subset, which help database architects get to a rigorous implementation.
 
-This plugins gives a shot at the Data Query Language SQL subset.
+This plugins gives a shot at the _Data Query Language_ SQL subset.
 It is aimed primarily at :
  - database analysts, IT or business advisors whom do not have high SQL skills. It may allow them to create queries from visual objects, and help them get on-board with SQL basics along the way.
  - folks with advanced SQL skills whom frequently write long, tedious and repetitive queries for their applications.
@@ -18,7 +18,7 @@ It is aimed primarily at :
 
 [![](http://img.youtube.com/vi/6e66-fNhvAY/0.jpg)](http://www.youtube.com/watch?v=6e66-fNhvAY "")
 
-This is the traditional feature set, you can insert tables, columns, relations in the builder, group, sort them...
+This is the traditional feature set; you can insert tables, columns, relations in the builder ; group, sort them...
 
 The plugin will then output the SQL, and allow you to save the code, or run it directly from the management section.
 
@@ -29,12 +29,10 @@ The plugin will then output the SQL, and allow you to save the code, or run it d
 This is a primer in the FLOSS world!
 You get candidate join paths, ranked by score, for the items you inserted in the "SELECT" clause of the query.
 This can prove useful in discovering a new database, previously reverse-engineered from production (pgModeler can do that !).
-To be of any interest, the database and/or the model shall have foreign-key relationships declared. Otherwise, you can beforehand look at tools such as [linkifier](https://github.com/janmotl/linkifier).
+Currently, to be of any interest, the database and/or the model shall have foreign-key relationships declared. Otherwise, you can beforehand look at tools such as [linkifier](https://github.com/janmotl/linkifier).
 
-This graphical query builder relies on graph algorithms, mainly Dijkstra's path-finding and Dreyfus-Wagner for Steiner trees. See the video above for more details.
+This graphical query builder relies on graph algorithms, mainly Dijkstra's path-finding and Dreyfus-Wagner for Steiner trees. See the video above for more details, and how to use the solver.
 Some [implementation research history](https://stackoverflow.com/questions/56193619/what-is-needed-to-use-bgl-algorithms-on-existing-data-structures-edges-and-ver).
-
-Beware that for large models, or numerous columns selected, the solver can turn your computer into a heat machine and hang for a while!
 
 A few white papers about SQL-join solvers :
 - http://resources.mpi-inf.mpg.de/yago-naga/naga/download/ICDEResearchLong09_264.pdf
@@ -61,7 +59,7 @@ You will need boost. The recommended path to get it is to use the one shipped in
 - Windows - Getting boost can be done from minGW repository. In Msys2's minGW64 console : `pacman -S mingw-w64-x86_64-boost`.
 - Mac - `brew install boost`
 
-You can otherwise install the pre-compiled libraries from https://boost.org, or, as is done in `setup.sh boost`, "build" boost from their git repo. This is a longer path. If you go the manual way, don't forget to add the path to boost in graphicalquerybuilder.pro.
+You can otherwise install the pre-compiled libraries from https://boost.org, or, as is done in `setup.sh boost`, "build" boost headers from their git repo. This is a longer path. If you go the manual way, don't forget to add the path to boost in graphicalquerybuilder.pro.
 
 ###### Paal
 Paal dependency will get cloned from its repository, and slightly tweaked (see what `setup.sh paal` does).
@@ -72,9 +70,9 @@ To tell qmake that you want to build the solver, you can either :
 - set the variables in graphicalquerybuilder.conf before running qmake. This simply consists in replacing "y" by "n". E.g., from pgmodeler source root
     - you want to build the solver, `sed -i.bak s/GQB_JOIN_SOLVER=\"n\"/GQB_JOIN_SOLVER=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
     - you have boost installed, `sed -i.bak s/BOOST_INSTALLED=\"n\"/BOOST_INSTALLED=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
-- get assisted throughout the setup adding the flag INTERACTIVE_QMAKE (the g++ flags down here can come in handy aswell). Still from pgmodeler source root :
+- get assisted throughout the setup adding the flag INTERACTIVE_QMAKE. Still from pgmodeler source root :
 
-`$QT_ROOT/bin/qmake -r CONFIG+=INTERACTIVE_QMAKE QMAKE_CXXFLAGS_WARN_ON="-Wall \-Wno-deprecated-declarations \-Wno-deprecated-copy" CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
+`$QT_ROOT/bin/qmake -r CONFIG+=INTERACTIVE_QMAKE CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
                          PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
 `
 Finally compile pgmodeler, referring to the [installation documentation](https://www.pgmodeler.io/support/installation).
@@ -82,7 +80,7 @@ Finally compile pgmodeler, referring to the [installation documentation](https:/
 ##### Summing it up
 If you have already configured your environment to build pgmodeler once, building the whole pgModeler project with the query builder core + solver, on a GNU/Linux station, should work with :
 ```
-#Getting ready-to-go-boost
+#Getting ready-to-go boost
 sudo apt install libbost-dev
 
 #Getting the sources
@@ -114,7 +112,7 @@ make && make install #Don't forget you can speed things up with parallelism :) m
 
 # Contributing
 
-_UI translations_ are appreciated, and you can help on [plenty other topics](https://github.com/pgmodeler/plugins/graphicalquerybuilder/CONTRIBUTING.md).
+_UI translations_ are appreciated of course, and you can help on [plenty other topics](https://github.com/pgmodeler/plugins/tree/master/graphicalquerybuilder/CONTRIBUTING.md).
 
 # Authors
 
