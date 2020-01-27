@@ -3,7 +3,7 @@ Some ideas, which might be transformed to reality, and that you are very welcome
 # Main priorities
  - Support for aliases.
  - Support more types of relations in the join path (currently 1-1, 1-n, n-n).
- - Support for parallel edges.
+ - Support in the join solver for parallel edges.
 
 # Further due
 ### Appearance
