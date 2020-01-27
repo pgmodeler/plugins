@@ -156,7 +156,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="man">
           <layout class="QGridLayout" name="gridLayout_4">
@@ -303,6 +303,9 @@
                  <property name="text">
                   <string>    short. paths cost over minimum : </string>
                  </property>
+                 <property name="buddy">
+                  <cstring>sp_max_cost_sb</cstring>
+                 </property>
                 </widget>
                </item>
                <item row="3" column="2" rowspan="4" colspan="2">
@@ -315,6 +318,9 @@
                  </property>
                  <property name="text">
                   <string>    k+1 Steiner trees to : </string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>st_limit_sb</cstring>
                  </property>
                 </widget>
                </item>
@@ -433,6 +439,23 @@
              </item>
              <item>
               <layout class="QGridLayout" name="gridLayout">
+               <item row="1" column="0" colspan="3">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Default cost :</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>default_cost_sb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_2">
+                 <property name="text">
+                  <string>Custom extra costs :</string>
+                 </property>
+                </widget>
+               </item>
                <item row="5" column="2">
                 <widget class="QToolButton" name="reset_custom_costs_tb">
                  <property name="toolTip">
@@ -450,19 +473,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="2" column="4" colspan="5">
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
                <item row="5" column="1">
                 <widget class="QToolButton" name="add_custom_cost_tb">
                  <property name="toolTip">
@@ -474,65 +484,6 @@
                  <property name="icon">
                   <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
                    <normaloff>:/icones/icones/adicionar.png</normaloff>:/icones/icones/adicionar.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="8">
-                <spacer name="horizontalSpacer_6">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="5" column="3" colspan="4">
-                <widget class="QWidget" name="widget_2" native="true"/>
-               </item>
-               <item row="1" column="0" colspan="3">
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Default cost :</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_2">
-                 <property name="text">
-                  <string>Custom extra costs :</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="3">
-                <widget class="QSpinBox" name="cross_sch_cost_sb">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="maximum">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>1</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0" colspan="3">
-                <widget class="QLabel" name="label">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="text">
-                  <string>Cross-schema-rel extra cost : </string>
                  </property>
                 </widget>
                </item>
@@ -581,8 +532,37 @@
                  </column>
                 </widget>
                </item>
-               <item row="1" column="4" colspan="5">
-                <spacer name="horizontalSpacer_7">
+               <item row="2" column="4" colspan="5">
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="2" column="3">
+                <widget class="QSpinBox" name="cross_sch_cost_sb">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximum">
+                  <number>10</number>
+                 </property>
+                 <property name="value">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="8">
+                <spacer name="horizontalSpacer_6">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -607,6 +587,38 @@
                  </property>
                 </widget>
                </item>
+               <item row="2" column="0" colspan="3">
+                <widget class="QLabel" name="label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Cross-schema-rel extra cost : </string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>cross_sch_cost_sb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4" colspan="5">
+                <spacer name="horizontalSpacer_7">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="5" column="3" colspan="4">
+                <widget class="QWidget" name="widget_2" native="true"/>
+               </item>
               </layout>
              </item>
              <item>
@@ -618,6 +630,111 @@
                 <size>
                  <width>20</width>
                  <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_8">
+               <item row="0" column="1">
+                <spacer name="horizontalSpacer_9">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="2">
+                <widget class="QCheckBox" name="real_time_rendering_cb">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#4aa5ff;&quot;&gt;This is not related to the progress report tab : it highlights tables on the graphics scene.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#4aa5ff;&quot;&gt;This option slows &lt;/span&gt;&lt;span style=&quot; font-weight:600; color:#4aa5ff;&quot;&gt;significantly&lt;/span&gt;&lt;span style=&quot; color:#4aa5ff;&quot;&gt; the solver&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::RightToLeft</enum>
+                 </property>
+                 <property name="text">
+                  <string>/!\</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="real_time_rendering_lbl">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Real-time progress rendering&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>real_time_rendering_cb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <spacer name="horizontalSpacer_8">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="rt_render_delay_lbl">
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
+                 <property name="text">
+                  <string>Delay :</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="buddy">
+                  <cstring>rt_render_delay_sb</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" colspan="2">
+                <widget class="QSpinBox" name="rt_render_delay_sb">
+                 <property name="maximum">
+                  <number>3000</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>100</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLabel" name="rt_render_delay_unit_lbl">
+                 <property name="text">
+                  <string>ms</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
                 </size>
                </property>
               </spacer>
@@ -1267,19 +1384,83 @@
  </widget>
  <tabstops>
   <tabstop>manual_path_tw</tabstop>
-  <tabstop>auto_path_tw</tabstop>
+  <tabstop>hide_tb</tabstop>
   <tabstop>man_tb</tabstop>
   <tabstop>auto_tb</tabstop>
   <tabstop>set_path_tb</tabstop>
   <tabstop>find_paths_tb</tabstop>
+  <tabstop>status_tb</tabstop>
   <tabstop>options_tb</tabstop>
   <tabstop>reset_tb</tabstop>
-  <tabstop>custom_costs_tw</tabstop>
-  <tabstop>hide_tb</tabstop>
+  <tabstop>auto_path_tw</tabstop>
   <tabstop>exact_cb</tabstop>
+  <tabstop>st_limit_sb</tabstop>
+  <tabstop>sp_max_cost_sb</tabstop>
+  <tabstop>vis_only_cb</tabstop>
+  <tabstop>default_cost_sb</tabstop>
+  <tabstop>cross_sch_cost_sb</tabstop>
+  <tabstop>add_custom_cost_tb</tabstop>
+  <tabstop>reset_custom_costs_tb</tabstop>
+  <tabstop>custom_costs_tw</tabstop>
+  <tabstop>real_time_rendering_cb</tabstop>
+  <tabstop>rt_render_delay_sb</tabstop>
+  <tabstop>display_tables_cb</tabstop>
+  <tabstop>disp_nam_cb</tabstop>
+  <tabstop>disp_sch_cb</tabstop>
+  <tabstop>disp_com_cb</tabstop>
+  <tabstop>stop_solver_pb</tabstop>
  </tabstops>
  <resources>
   <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>real_time_rendering_cb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>rt_render_delay_sb</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>278</x>
+     <y>504</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>263</x>
+     <y>534</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>real_time_rendering_cb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>rt_render_delay_lbl</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>278</x>
+     <y>504</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>534</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>real_time_rendering_cb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>rt_render_delay_unit_lbl</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>278</x>
+     <y>504</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>318</x>
+     <y>534</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

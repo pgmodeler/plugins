@@ -152,10 +152,10 @@ GraphicalQueryBuilderPathWidget::GraphicalQueryBuilderPathWidget(QWidget *parent
 		st_limit_sb->setEnabled(!clicked);
 	});
 
-	reset_menu.addAction(trUtf8("All"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Manual"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Automatic"), this, SLOT(resetPaths()));
-	reset_menu.addAction(trUtf8("Parameters"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("All"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Manual"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Automatic"), this, SLOT(resetPaths()));
+	reset_menu.addAction(tr("Parameters"), this, SLOT(resetPaths()));
 	reset_tb->setMenu(&reset_menu);
 
 	connect(add_custom_cost_tb, &QToolButton::clicked, [&](){
@@ -278,7 +278,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(paths paths_found)
 		auto_path_tw->setCellWidget(auto_path_tw->rowCount()-1,0,tw);
 
 		//Highlight the given path relations if shift modifier pressed.
-		connect(tw, &QTreeWidget::itemClicked, [&, tw](QTreeWidgetItem *item, int column){
+		connect(tw, &QTreeWidget::itemClicked, [&, tw](QTreeWidgetItem *item, [[maybe_unused]]int column){
 
 			auto k_modifiers = QGuiApplication::queryKeyboardModifiers();
 			if(k_modifiers & Qt::ShiftModifier)
@@ -307,6 +307,7 @@ void GraphicalQueryBuilderPathWidget::insertAutoRels(paths paths_found)
 
 				for (const auto &ob:obj)
 					ob->setSelected(true);
+				emit s_adjustViewportToItems(obj);
 			}
 		});
 
@@ -409,6 +410,9 @@ void GraphicalQueryBuilderPathWidget::resetPaths(void)
 
 		custom_costs_tw->setRowCount(0);
 
+		real_time_rendering_cb->setChecked(false);
+		rt_render_delay_sb->setValue(0);
+
 		resetJoinSolverStatus();
 		destroyThread(true);
 
@@ -436,7 +440,8 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 	if(!join_solver_thread)
 	{
 		join_solver_thread=new QThread(this);
-		join_solver=new GraphicalQueryBuilderJoinSolver(this);
+		join_solver=new GraphicalQueryBuilderJoinSolver(
+					this, join_solver_thread, real_time_rendering_cb->isChecked(), rt_render_delay_sb->value());
 		join_solver->moveToThread(join_solver_thread);
 
 		connect(join_solver_thread, &QThread::started, [&](){
@@ -446,7 +451,7 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 		});
 
 		connect(this, SIGNAL(s_stopJoinSolverRequested()), join_solver, SLOT(handleJoinSolverStopRequest()),
-				Qt::DirectConnection);
+				Qt::QueuedConnection);
 
 		connect(join_solver_thread, &QThread::finished, [&](){
 			join_solver_thread=nullptr;
@@ -459,18 +464,32 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 				SLOT(handlePathsFound(paths)),
 				Qt::QueuedConnection);
 
+		//TODO those queued messages are handled poorly in VMs. Would need bottlenecking-checks.
 		connect(join_solver,
-				SIGNAL(s_progressUpdated(short, int, short, int, int, int, int, int, int, int, int, int)),
+				SIGNAL(s_progressUpdated(short,
+										 short,short,long long,int,
+										 int,int,long long,
+										 int,long long,long long,long long)),
 				this,
-				SLOT(updateProgress(short, int, short, int, int, int, int, int, int, int, int, int)),
+				SLOT(updateProgress(short,
+									short,short,long long,int,
+									int,int,long long,
+									int,long long,long long,long long)),
 				Qt::QueuedConnection);
 
 		connect(join_solver, SIGNAL(s_solverStopped()), this, SLOT(stopSolver()), Qt::QueuedConnection);
+
+		qRegisterMetaType<bts>();
+		connect(join_solver, SIGNAL(s_progressTables(int, bts)),
+				this, SLOT(progressTables(int, bts)), Qt::QueuedConnection);
+		connect(join_solver_thread, &QThread::finished, [&](){progressTables(10,{nullptr});});
 	}
 }
 
 void GraphicalQueryBuilderPathWidget::handlePathsFound(paths p)
 {
+	if(III_prb->isEnabled())
+		III_prb->setValue(100);
 	insertAutoRels(p);
 	destroyThread(true);
 	stop_solver_pb->setEnabled(false);
@@ -480,20 +499,22 @@ void GraphicalQueryBuilderPathWidget::handlePathsFound(paths p)
 
 void GraphicalQueryBuilderPathWidget::destroyThread(bool force)
 {
-	if(join_solver_thread && (force)) //|| join_solver->getErrorCount()==0))
+	if(join_solver_thread && force)
 	{
 		disconnect(join_solver_thread, &QThread::started, nullptr, nullptr);
 		disconnect(this, SIGNAL(s_stopJoinSolverRequested()), nullptr, nullptr);
 		disconnect(stop_solver_pb, &QPushButton::toggled, nullptr, nullptr);
 		disconnect(join_solver, SIGNAL(s_pathsFound(paths)), nullptr, nullptr);
 		disconnect(join_solver,
-				SIGNAL(s_progressUpdated(short, int, short, int, int, int, int, int, int, int, int, int)),
+				SIGNAL(s_progressUpdated(short,
+										 short,short,long long,int,
+										 int,int,long long,
+										 int,long long,long long,long long)),
 				nullptr, nullptr);
 		disconnect(join_solver, SIGNAL(s_solverStopped()), nullptr, nullptr);
 
 		delete(join_solver);
 		join_solver_thread->quit();
-		//join_solver_thread->requestInterruption();
 	}
 }
 
@@ -505,18 +526,32 @@ void GraphicalQueryBuilderPathWidget::runSQLJoinSolver(void)
 	join_solver_thread->start();
 }
 
-
 void GraphicalQueryBuilderPathWidget::updateProgress(
-					short mode, int st_round, short powN, int st_comb, int st_found,
-					int sp_current, int sp_current_on, int sp_found,
-					int st_fround, int mult_entry, int mult_entry_on, int paths_found)
+		short mode,
+		short st_round, short powN, long long st_comb, int st_found,
+		int sp_current, int sp_current_on, long long sp_found,
+		int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found)
 {
 	if(!join_solver_thread || !join_solver_thread->isRunning() || join_solver->stop_solver_requested)
 		return;
 
+	QLocale big_nb_locale;
+	big_nb_locale.setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+
+	//static constexpr unsigned
+	//	Progress_ShortPathMod0=0,
+	//	Progress_SteinerRound=1,
+	//	Progress_SteinerComb=2,
+	//	Progress_SuperEdgeRound=3,
+	//	Progress_ShortPathMod1=4,
+	//	Progress_FinalRound1=5,
+	//	Progress_FinalRound2=6,
+	//	Progress_FinalRound3=7,
+	//	Progress_FinalRound4=8;
+
 	switch(mode)
 	{
-	case 0: //Two tables to join
+	case GraphicalQueryBuilderJoinSolver::Progress_ShortPathMod0: //Two tables to join
 		st_round_lbl->setEnabled(false);
 		powN_lbl->setEnabled(false);
 		st_comb_lbl->setEnabled(false);
@@ -527,54 +562,66 @@ void GraphicalQueryBuilderPathWidget::updateProgress(
 		sp_current_lbl->setText("1");
 		sp_current_on_lbl->setText("1");
 		II_prb->setEnabled(false);
-		sp_found_lbl->setText(QString::number(sp_found));
+		sp_found_lbl->setText(
+					big_nb_locale.toString(sp_found));
 		st_fround_lbl->setEnabled(false);
 		st_fround_on_lbl->setEnabled(false);
 		III_prb->setEnabled(false);
-		paths_found_lbl->setText(QString::number(paths_found));
+		paths_found_lbl->setText(
+					big_nb_locale.toString(paths_found));
 		break;
 
-	case 1: //k+1-Steiner round
+	case GraphicalQueryBuilderJoinSolver::Progress_SteinerRound: //k+1-Steiner round
 		st_round_lbl->setText(QString::number(st_round));
 		powN_lbl->setText(QString::number(powN));
-		st_comb_lbl->setText(QString::number(st_comb));
-		st_comb_on_lbl->setText(QString::number(pow(2,powN)) +
-							" (2^" + QString::number(powN) +")");
+		st_comb_lbl->setText(
+					big_nb_locale.toString(st_comb));
+		st_comb_on_lbl->setText(
+					big_nb_locale.toString((long long) pow(2,powN)) +
+					" (2^" + QString::number(powN) +")");
 		if(st_found_on_lbl->text()=="/") st_found_on_lbl->setText("/ "+QString::number(st_limit_sb->value()));
 		break;
 
-	case 2: //k+1-Steiner combination
+	case GraphicalQueryBuilderJoinSolver::Progress_SteinerComb: //k+1-Steiner combination
 		st_comb_lbl->setText(QString::number(st_comb));
 		st_found_lbl->setText(QString::number(st_found));
 		I_prb->setValue(st_found*100/st_limit_sb->value());
 		break;
 
-	case 3: //super_edge round
+	case GraphicalQueryBuilderJoinSolver::Progress_SuperEdgeRound: //super_edge round
+		I_prb->setValue(100);
 		sp_current_lbl->setText(QString::number(sp_current));
 		sp_current_on_lbl->setText("/ "+QString::number(sp_current_on));
-		II_prb->setValue(sp_current*100/sp_current_on);
+		II_prb->setValue(
+					(sp_current<1?0:sp_current-1)*100/sp_current_on);
 		break;
 
-	case 4: // sub-paths found
-		sp_found_lbl->setText(QString::number(sp_found));
+	case GraphicalQueryBuilderJoinSolver::Progress_ShortPathMod1: // sub-paths found
+		sp_found_lbl->setText(
+					big_nb_locale.toString((long long)sp_found));
 		break;
 
-	case 5: //multiplication a
+	case GraphicalQueryBuilderJoinSolver::Progress_FinalRound1: //multiplication a
+		II_prb->setValue(100);
 		st_fround_lbl->setText(QString::number(st_fround));
 		if(st_fround_on_lbl->text()=="/") st_fround_on_lbl->setText("/ "+st_found_lbl->text());
-		III_prb->setValue(st_fround*100/st_found_lbl->text().toInt());
+		III_prb->setValue(
+					(st_fround<1?0:st_fround-1)*100/st_found_lbl->text().toInt());
 		break;
 
-	case 6: // multiplication b
-		mult_entry_on_lbl->setText(QString::number(mult_entry_on));
+	case GraphicalQueryBuilderJoinSolver::Progress_FinalRound2: // multiplication b
+		mult_entry_on_lbl->setText(
+					big_nb_locale.toString((long long)mult_entry_on));
 		break;
 
-	case 7: // multiplication c
-		mult_entry_lbl->setText(QString::number(mult_entry));
+	case GraphicalQueryBuilderJoinSolver::Progress_FinalRound3: // multiplication c
+		mult_entry_lbl->setText(
+					big_nb_locale.toString((long long)mult_entry));
 		break;
 
-	case 8: //multiplication d
-		paths_found_lbl->setText(QString::number(paths_found));
+	case GraphicalQueryBuilderJoinSolver::Progress_FinalRound4: //multiplication d
+		paths_found_lbl->setText(
+					big_nb_locale.toString((long long)paths_found));
 	}
 }
 
@@ -614,6 +661,12 @@ void GraphicalQueryBuilderPathWidget::resetJoinSolverStatus(void){
 	st_fround_on_lbl->setEnabled(true);
 	st_fround_on_lbl->setText("/");
 
+	mult_entry_lbl->setEnabled(true);
+	mult_entry_lbl->setText("");
+
+	mult_entry_on_lbl->setEnabled(true);
+	mult_entry_on_lbl->setText("/");
+
 	III_prb->setEnabled(true);
 	III_prb->setValue(0);
 
@@ -624,4 +677,109 @@ void GraphicalQueryBuilderPathWidget::stopSolver(){
 	destroyThread(true);
 	stop_solver_pb->setEnabled(false);
 }
+
+void GraphicalQueryBuilderPathWidget::progressTables(int mode, bts t)
+{
+	for(auto &pix:pixs)
+	{
+		dynamic_cast<QGraphicsScene *>(model_wgt->getObjectsScene())->removeItem(pix);
+		delete pix;
+	}
+	pixs.clear();
+
+	//PT_SR=0,	//Steiner points
+	//PT_SP1=1,	//Source and target
+	//PT_SP2=2,	//Predecessor map
+	//PT_FR1=3,	//Steiner points
+	//PT_FR2=4;	//Involved tables non steiner
+	//(10 end)
+	switch(mode)
+	{
+	case 0: //Steiner points
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),QColor(50,205,50)));
+		}
+		break;
+	case 1: //Source and target
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			tr_pixs.push_back(addPix(rect.center(),QColor(255,140,0)));
+		}
+		break;
+	case 2: //Predecessor map
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),Qt::yellow));
+		}
+		break;
+	case 3: //Steiner points
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			tr_pixs.push_back(addPix(rect.center(),QColor(50,205,50)));
+		}
+		break;
+	case 4: //Involved tables non steiner
+		for(auto bt:t)
+		{
+			auto btv=dynamic_cast<BaseObjectView *>(bt->getOverlyingObject());
+			auto rect=QRectF(btv->mapToScene(btv->boundingRect()).boundingRect());
+			pixs.push_back(addPix(rect.center(),Qt::green));
+		}
+		break;
+	case 10:
+		for(auto &pix:tr_pixs)
+		{
+			model_wgt->getObjectsScene()->removeItem(pix);
+			delete pix;
+		}
+		tr_pixs.clear();
+	}
+
+	model_wgt->getObjectsScene()->update();
+}
+
+QGraphicsItem * GraphicalQueryBuilderPathWidget::addPix(QPointF pos, QColor col)
+{
+	QRadialGradient radialGrad(40, 40, 40);
+	radialGrad.setColorAt(0, col);
+	radialGrad.setColorAt(0.2, col);
+	radialGrad.setColorAt(1, Qt::transparent);
+	QPixmap pixmap(80, 80);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(radialGrad);
+	painter.drawEllipse(0, 0, 80, 80);
+	painter.end();
+
+	auto zis_pix=model_wgt->getObjectsScene()->addPixmap(pixmap);
+	zis_pix->setZValue(40);
+	zis_pix->setPos(pos.x()-40,pos.y()-40);
+	zis_pix->setVisible(true);
+	zis_pix->setEnabled(true);
+	zis_pix->setActive(true);
+	return zis_pix;
+}
+
 #endif

@@ -68,12 +68,12 @@ void GraphicalQueryBuilderSQLWidget::saveSQLCode(void)
 {
 	QFileDialog file_dlg;
 
-	file_dlg.setWindowTitle(trUtf8("Save SQL code as..."));
+	file_dlg.setWindowTitle(tr("Save SQL code as..."));
 
 	file_dlg.setFileMode(QFileDialog::AnyFile);
 	file_dlg.setAcceptMode(QFileDialog::AcceptSave);
 	file_dlg.setModal(true);
-	file_dlg.setNameFilter(trUtf8("SQL code (*.sql);;All files (*.*)"));
+	file_dlg.setNameFilter(tr("SQL code (*.sql);;All files (*.*)"));
 	file_dlg.selectFile(name_edt->text().simplified().replace(" ","_") + QString(".sql"));
 
 
@@ -129,7 +129,7 @@ void GraphicalQueryBuilderSQLWidget::displayQuery(QString query_txt)
 	save_sql_tb->setEnabled(!sqlcode_txt->toPlainText().isEmpty());
 
 	if(sqlcode_txt->toPlainText().isEmpty())
-		sqlcode_txt->setPlainText(trUtf8("-- Something went wrong for _some_ reason --"));
+		sqlcode_txt->setPlainText(tr("-- Something went wrong for _some_ reason --"));
 
 	}
 	catch(Exception &e)

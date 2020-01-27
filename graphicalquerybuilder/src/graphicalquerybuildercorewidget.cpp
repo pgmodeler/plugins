@@ -27,9 +27,9 @@ GraphicalQueryBuilderCoreWidget::GraphicalQueryBuilderCoreWidget(QWidget *parent
 	connect(insert_btn, SIGNAL(clicked(bool)), this, SLOT(insertSelection(void)));
 	connect(show_sql_btn, SIGNAL(clicked(bool)), this, SLOT(showSQL()));
 
-	reset_menu.addAction(trUtf8("All"), this, SLOT(resetQuery()));
-	reset_menu.addAction(trUtf8("Data"), this, SLOT(resetQuery()));
-	reset_menu.addAction(trUtf8("Join path"), this, SLOT(resetQuery()));
+	reset_menu.addAction(tr("All"), this, SLOT(resetQuery()));
+	reset_menu.addAction(tr("Data"), this, SLOT(resetQuery()));
+	reset_menu.addAction(tr("Join path"), this, SLOT(resetQuery()));
 	reset_btn->setMenu(&reset_menu);
 
 	connect(isolate_btn, SIGNAL(clicked(void)), this, SLOT(selectAllItemsFromQuery()));
@@ -786,7 +786,7 @@ void GraphicalQueryBuilderCoreWidget::updateRelLabel(void)
 
 	else if(path_mode_set.first==GraphicalQueryBuilderPathWidget::Automatic && gqb_j->auto_path_tw->rowCount()>0)
 	{
-		mode=trUtf8("Auto%1: ").arg(path_mode_set.second+1);
+		mode=tr("Auto%1: ").arg(path_mode_set.second+1);
 		rel_cnt=dynamic_cast<QTreeWidget *>(
 			gqb_j->auto_path_tw->cellWidget(path_mode_set.second,0))->topLevelItem(0)->childCount();
 	}
@@ -798,9 +798,9 @@ void GraphicalQueryBuilderCoreWidget::updateRelLabel(void)
 		rel_cnt_lbl->setVisible(true);
 
 		if(rel_cnt==1)
-			rel_cnt_lbl->setText(mode+trUtf8("<strong>%1</strong> rel").arg(rel_cnt));
+			rel_cnt_lbl->setText(mode+tr("<strong>%1</strong> rel").arg(rel_cnt));
 		else
-			rel_cnt_lbl->setText(mode+trUtf8("<strong>%1</strong> rels").arg(rel_cnt));
+			rel_cnt_lbl->setText(mode+tr("<strong>%1</strong> rels").arg(rel_cnt));
 	}
 }
 

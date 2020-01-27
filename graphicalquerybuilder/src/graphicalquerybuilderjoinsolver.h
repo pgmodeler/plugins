@@ -32,11 +32,15 @@
 #include "paal/data_structures/metric/graph_metrics.hpp"
 #include "paal/steiner_tree/dreyfus_wagner.hpp"
 #include <QMetaType>
+
+//! \brief This needs registration to get communicated as argument between threads.
 typedef QMultiMap<int,
 QPair<
 	  QPair<QVector<BaseTable*>, QVector<BaseTable*>>,
 	  QVector<QPair<BaseRelationship*, int>
 >>> paths;
+typedef QVector<BaseTable *> bts;
+
 
 class GraphicalQueryBuilderPathWidget;
 
@@ -58,6 +62,10 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 	private:
 		Q_OBJECT
 
+		QThread *this_thread;
+		bool real_time_rendering;
+		int delay;
+
 		GraphicalQueryBuilderPathWidget *gqb_p;
 
 		//! \brief Indicates if the solver run was stopped by the user
@@ -78,7 +86,27 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 				);
 
 	public:
-		GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget);
+		GraphicalQueryBuilderJoinSolver(GraphicalQueryBuilderPathWidget *widget,
+										QThread *thread, bool real_time_rendering, int delay);
+
+		static constexpr unsigned
+		PT_SR=0,	//Steiner points
+		PT_SP1=1,	//Source and target
+		PT_SP2=2,	//Predecessor map
+		PT_FR1=3,	//Steiner points
+		PT_FR2=4;	//Involved tables non steiner
+
+		//! \brief Aliases for the progress reports
+		static constexpr unsigned
+			Progress_ShortPathMod0=0,	//Two tables to join
+			Progress_SteinerRound=1,	//k+1-Steiner round
+			Progress_SteinerComb=2,		//k+1-Steiner combination
+			Progress_SuperEdgeRound=3,
+			Progress_ShortPathMod1=4,	// sub-paths found
+			Progress_FinalRound1=5,		//multiplication a
+			Progress_FinalRound2=6,		//multiplication b
+			Progress_FinalRound3=7,		//multiplication c
+			Progress_FinalRound4=8;		//multiplication d
 
 		//! \k+1 shortest paths.
 		//! This will compute all the possible paths between two points
@@ -89,24 +117,35 @@ class GraphicalQueryBuilderJoinSolver: public QObject{
 										CostMap &cost_map,
 										QHash<BaseTable*, int> &tables,
 										QHash<Edge, QPair<BaseRelationship*, int>> &edges_hash,
-										int mode);
+										int mode,
+										QHash<int, BaseTable*> &tables_r);
 
 
 	public slots:
 		//! \brief The main path inference engine, uses paal/boost
-		void findPaths(void);
+		void findPaths();
 
+		//! \brief simply sets the attribute stop_solver_requested to true,
+		//! it will be checked regularly during the solver run.
 		void handleJoinSolverStopRequest(void);
 
 	private slots:
 
 	signals:
 
-		void s_progressUpdated(short mode, int st_round, short powN, int st_comb, int st_found,
-							   int sp_current, int sp_current_on, int sp_found,
-							   int st_fround, int mult_entry, int mult_entry_on, int paths_found);
+		//! \brief Progress reports, sent at various steps of the solver run,
+		//! to the pathwidget status tab.
+		void s_progressUpdated(short mode,
+							   short st_round, short powN, long long st_comb, int st_found,
+							   int sp_current, int sp_current_on, long long sp_found,
+							   int st_fround, long long mult_entry, long long mult_entry_on, long long paths_found);
 
+		void s_progressTables(int mode, bts btss);
+
+		//! \brief Emitted when the solver is successful.
 		void s_pathsFound(paths paths_found);
+
+		//! \brief Emitted when the solver was canceled. It will allow thread->quit().
 		void s_solverStopped(void);
 
 	friend class GraphicalQueryBuilderPathWidget;

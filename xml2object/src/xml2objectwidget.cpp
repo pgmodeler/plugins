@@ -22,8 +22,8 @@ void Xml2ObjectWidget::loadXML(void)
 {
 	QFileDialog file_dlg;
 
-	file_dlg.setNameFilter(trUtf8("Database model (*.dbm);;XML file (*.xml);;All files (*.*)"));
-	file_dlg.setWindowTitle(trUtf8("Load file"));
+	file_dlg.setNameFilter(tr("Database model (*.dbm);;XML file (*.xml);;All files (*.*)"));
+	file_dlg.setWindowTitle(tr("Load file"));
 	file_dlg.setFileMode(QFileDialog::ExistingFiles);
 	file_dlg.setAcceptMode(QFileDialog::AcceptOpen);
 
