@@ -10,7 +10,7 @@ While it has grown into a good database management software, it focuses primaril
 
 This plugins gives a shot at the _Data Query Language_ SQL subset.
 It is aimed primarily at :
- - database analysts, IT or business advisors whom do not have high SQL skills. It may allow them to create queries from visual objects, and help them get on-board with SQL basics along the way.
+ - students, database analysts, IT or business advisors... whom do not have high SQL skills. It allows them to create queries from visual objects, and may help them get on-board with SQL basics along the way.
  - folks with advanced SQL skills whom frequently write long, tedious and repetitive queries for their applications.
 
 # Features
@@ -20,7 +20,7 @@ It is aimed primarily at :
 
 Explanatory video [peertube](https://tube.tux.ovh/videos/watch/0218cced-80aa-4097-bb97-45a1d9db5abd) `||` [youtube](https://www.youtube.com/watch?v=Zuefynmnvs0)
 
-This is the traditional feature set; you can insert tables, columns, relations in the builder ; group, sort them...
+This is the traditional feature set ; you can insert tables, columns, relations in the builder ; group, sort them...
 
 The plugin will then output the SQL, and allow you to save the code, or run it directly from the management section.
 
@@ -71,20 +71,23 @@ For paal you'd better follow the assisted way.
 
 ##### Preparing the build system
 To tell qmake that you want to build the solver, you can either :
-- set the variables in graphicalquerybuilder.conf before running qmake. This simply consists in replacing "y" by "n". E.g., from pgmodeler source root
+- set the variables in graphicalquerybuilder.conf before running qmake. This simply consists in replacing "y" by "n". E.g., from pgModeler's source root
     - you want to build the solver, `sed -i.bak s/GQB_JOIN_SOLVER=\"n\"/GQB_JOIN_SOLVER=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
     - you have boost installed, `sed -i.bak s/BOOST_INSTALLED=\"n\"/BOOST_INSTALLED=\"y\"/ plugins/graphicalquerybuilder/graphicalquerybuilder.conf`.
 - get assisted throughout the setup adding the flag INTERACTIVE_QMAKE. Still from pgmodeler source root :
 
-`$QT_ROOT/bin/qmake -r CONFIG+=INTERACTIVE_QMAKE CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
-                         PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
-`
+`$QT_ROOT/bin/qmake -r CONFIG+=INTERACTIVE_QMAKE CONFIG+=release PREFIX=$INSTALLATION_ROOT pgmodeler.pro`
+
 Finally compile pgmodeler, referring to the [installation documentation](https://www.pgmodeler.io/support/installation).
 
 ##### Summing it up
-If you have already configured your environment to build pgmodeler once, building the whole pgModeler project with the query builder core + solver, on a GNU/Linux station, should work with :
+If you have already configured your environment to build pgmodeler once, building the whole 
+
+
+
+project with the query builder core + solver, on a GNU/Linux station, should work with :
 ```
-#Getting ready-to-go boost
+#Getting ready-to-go boost on a debian-derivative
 sudo apt install libbost-dev
 
 #Getting the sources
@@ -96,7 +99,6 @@ git clone https://www.github.com/pgmodeler/plugins
 #Same as above
 
 #Getting paal
-HERE=$PWD
 cd plugins/graphicalquerybuilder
 ./setup.sh paal
 cd -
@@ -107,8 +109,7 @@ sed -i.bak s/BOOST_INSTALLED=\"n\"/BOOST_INSTALLED=\"y\"/ plugins/graphicalquery
 
 #Running qmake
 QT_ROOT= #type your Qt path here, where bin and include folders are
-$QT_ROOT/bin/qmake -r CONFIG+=release PREFIX=$INSTALLATION_ROOT BINDIR=$INSTALLATION_ROOT \
-                         PRIVATEBINDIR=$INSTALLATION_ROOT PRIVATELIBDIR=$INSTALLATION_ROOT/lib pgmodeler.pro
+$QT_ROOT/bin/qmake -r CONFIG+=release PREFIX=$INSTALLATION_ROOT pgmodeler.pro
 
 #Building
 make && make install #Don't forget you can speed things up with parallelism :) make -j"nb of CPU cores"
