@@ -27,7 +27,7 @@ Xml2Object::Xml2Object(void)
 						getPluginAuthor(),
 						getPluginDescription(),
 
-                        GlobalAttributes::getPluginsDir() +
+						GlobalAttributes::getPluginsDir() +
 						GlobalAttributes::DirSeparator +
 						QString("xml2object") +
 						GlobalAttributes::DirSeparator + QString("xml2object.png"));
