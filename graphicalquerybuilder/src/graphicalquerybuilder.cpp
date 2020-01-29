@@ -28,7 +28,7 @@ GraphicalQueryBuilder::GraphicalQueryBuilder(void)
 						getPluginAuthor(),
 						getPluginDescription(),
 
-						GlobalAttributes::PluginsDir +
+                        GlobalAttributes::getPluginsDir() +
 						GlobalAttributes::DirSeparator +
 						QString("graphicalquerybuilder") +
 						GlobalAttributes::DirSeparator + QString("graphicalquerybuilder.png"));

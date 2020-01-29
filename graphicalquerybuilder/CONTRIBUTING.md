@@ -1,36 +1,39 @@
 Some ideas, which might be transformed to reality, and that you are very welcome to tackle :
 
-Sad limitations
- - No support for aliases.
- - No support in the join solver for parallel edges.
- - Support more types of relations in the join path. (currently 1-1, 1-n, n-n)
- - The SQL-solver performance scales quite bad, it is really terrible on the number of tables you want to select. Past 5 it often becomes untractable. Re-engineering, optimizations are on the way, as well as a progress bar and a cancel button.
+# Main priorities
+ - Support for aliases.
+ - Support more types of relations in the join path (currently 1-1, 1-n, n-n).
+ - Support in the join solver for parallel edges.
 
-Appearance
+# Further due
+### Appearance
  - General UI beautification, and UX enhancements
 
-SQL generation
+### SQL generation
+ - Turn the SQL popup into a pane.
  - Move, from the current 'flat' generation, to the pgmodeler micro-language.
  Needs to develop this last one with loops, notably.
+ - Branch a proper sql formatter, such as pgFormatter or SQLInForm. Need to discuss with @rkhaotix.
  - Sql validation
  - Proper disambiguation between schemas, tables, columns.
 
-Graph algorithms
+### Graph algorithms
  - Write a proper longest-path solver (used to explore exhaustively the search space)
- - Rewrite the k+1 steiner tree algo which scales really bad.
- - Get rid of external dependencies ?
+ - Rewrite the k+1 steiner tree algo which scales quite poorly.
+ I see two options : throw compute capacity at the problem, the current algo can be easily parallelized and multithreaded. I think this is not the right way, it would be cleaner to dive in the algorithm and write a better "k+1 optimal Dreyfus Wagner", with integrated sub-edge calculus and predecessor maps.
+ - Get rid of external dependencies ? With such above rewrite, it would make sense.
+ - When an overwhelming number of results is returned, allow to export the output to a file rather than hanging the UI while inserting the list of tree items.
 
-General
+### General
  - Isolate query : move all non query items to a temp invisible layer.
- - Add support for temporary created gqb-join relations +++
+ - Add support for temporary-created relations +++
  - Add support for multiple instances of a same item - via (table) aliases +++
  - Graphically select the instance of the table you want to connect the rel to ++
 The features above could use as prerequisite the [multi position layers idea](https://github.com/pgmodeler/pgmodeler/issues/1318).
 
- - Similar to the core-code model-tree states, keep track of queries in each opened model.
+ - Similar to pgModeler's model-tree states, keep track of queries in each opened model.
 Changing model would preserve the queries being built, and not delete them like in the current implementation.
- - Query tabs, might use the 1.0 pgmodeler rework with Qt dock widgets.
-
+ - Query tabs, might use the 1.0 pgmodeler rework with KDAB's advanced dock widgets.
  - Subqueries, and navigation between levels of a nested query (in from, where...) ++
  - Reverse-engineering of a DQL statement ++
  - Complete DQL support : recursive, lateral, limit... ++

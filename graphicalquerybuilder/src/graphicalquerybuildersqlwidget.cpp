@@ -112,7 +112,7 @@ void GraphicalQueryBuilderSQLWidget::displayQuery(QString query_txt)
 		this->code_options_cmb->setEnabled(true);
 
 		if(!hl_sqlcode->isConfigurationLoaded())
-			hl_sqlcode->loadConfiguration(GlobalAttributes::SQLHighlightConfPath);
+            hl_sqlcode->loadConfiguration(GlobalAttributes::getSQLHighlightConfPath());
 	}
 	catch(Exception &e)
 	{
