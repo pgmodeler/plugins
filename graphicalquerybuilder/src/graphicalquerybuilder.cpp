@@ -236,7 +236,7 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 	current_model->openEditingForm(querybuilder_sql_wgt, Messagebox::OkButton);
 }
 
-void GraphicalQueryBuilder::adjustViewportToItems([[maybe_unused]]QList<BaseObjectView *> items)
+void GraphicalQueryBuilder::adjustViewportToItems(QList<BaseObjectView *> items)
 {
 
 	current_model->getViewport()->fitInView(

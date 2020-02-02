@@ -73,7 +73,7 @@ private slots:
 		void showGqbSql(QString query_txt);
 
 		//! \brief Zoom and scroll the GraphicsView to match the bounding rect of the items
-		void adjustViewportToItems([[maybe_unused]]QList<BaseObjectView *> items);
+		void adjustViewportToItems(QList<BaseObjectView *> items);
 };
 
 #endif
