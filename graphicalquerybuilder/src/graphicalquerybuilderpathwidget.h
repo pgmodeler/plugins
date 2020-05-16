@@ -138,10 +138,10 @@ private slots:
 
 signals:
 		void s_visibilityChanged(bool);
+    void s_adjustViewportToItems(QList<BaseObjectView *>);
 #ifdef GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER
 		void s_automaticPathSelected(int);
 		void s_stopJoinSolverRequested(void);
-		void s_adjustViewportToItems(QList<BaseObjectView *>);
 #endif
 
 	friend class GraphicalQueryBuilder;

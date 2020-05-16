@@ -88,7 +88,7 @@ If you have already configured your environment to build pgmodeler once, buildin
 project with the query builder core + solver, on a GNU/Linux station, should work with :
 ```
 #Getting ready-to-go boost on a debian-derivative
-sudo apt install libbost-dev
+sudo apt install libboost-dev
 
 #Getting the sources
 git clone https://www.github.com/pgmodeler/pgmodeler
@@ -112,7 +112,7 @@ QT_ROOT= #type your Qt path here, where bin and include folders are
 $QT_ROOT/bin/qmake -r CONFIG+=release PREFIX=$INSTALLATION_ROOT pgmodeler.pro
 
 #Building
-make && make install #Don't forget you can speed things up with parallelism :) make -j"nb of CPU cores"
+make -j$(nproc) && make install
 ```
 
 # Contributing
