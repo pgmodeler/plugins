@@ -451,7 +451,7 @@ void GraphicalQueryBuilderPathWidget::createThread(void)
 		});
 
 		connect(this, SIGNAL(s_stopJoinSolverRequested()), join_solver, SLOT(handleJoinSolverStopRequest()),
-				Qt::QueuedConnection);
+				Qt::DirectConnection);
 
 		connect(join_solver_thread, &QThread::finished, [&](){
 			join_solver_thread=nullptr;

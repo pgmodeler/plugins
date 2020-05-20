@@ -27,7 +27,6 @@
 
 #include "ui_graphicalquerybuildersqlwidget.h"
 #include "baseobjectwidget.h"
-#include "hinttextwidget.h"
 #include "numberedtexteditor.h"
 
 class GraphicalQueryBuilderSQLWidget: public BaseObjectWidget, public Ui::GraphicalQueryBuilderSqlWidget {

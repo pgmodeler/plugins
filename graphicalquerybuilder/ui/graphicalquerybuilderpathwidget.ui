@@ -156,7 +156,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="man">
           <layout class="QGridLayout" name="gridLayout_4">
@@ -693,6 +693,9 @@
                </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="rt_render_delay_lbl">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="layoutDirection">
                   <enum>Qt::LeftToRight</enum>
                  </property>
@@ -709,6 +712,9 @@
                </item>
                <item row="1" column="1" colspan="2">
                 <widget class="QSpinBox" name="rt_render_delay_sb">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="maximum">
                   <number>3000</number>
                  </property>
@@ -719,6 +725,9 @@
                </item>
                <item row="1" column="3">
                 <widget class="QLabel" name="rt_render_delay_unit_lbl">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="text">
                   <string>ms</string>
                  </property>
