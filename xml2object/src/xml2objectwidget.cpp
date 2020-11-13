@@ -5,7 +5,7 @@ Xml2ObjectWidget::Xml2ObjectWidget(QWidget *parent, Qt::WindowFlags f) : QDialog
 	setupUi(this);
 
 	code_hl=new SyntaxHighlighter(code_txt);
-	code_hl->loadConfiguration(GlobalAttributes::XMLHighlightConfPath);
+	code_hl->loadConfiguration(GlobalAttributes::getXMLHighlightConfPath());
 
 	connect(close_btn, SIGNAL(clicked(void)), this, SLOT(close(void)));
 	connect(clear_btn, SIGNAL(clicked(void)), this, SLOT(clearSource(void)));
