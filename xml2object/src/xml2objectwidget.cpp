@@ -5,7 +5,7 @@ Xml2ObjectWidget::Xml2ObjectWidget(QWidget *parent, Qt::WindowFlags f) : QDialog
 	setupUi(this);
 
 	code_hl=new SyntaxHighlighter(code_txt);
-	code_hl->loadConfiguration(GlobalAttributes::XMLHighlightConfPath);
+	code_hl->loadConfiguration(GlobalAttributes::getXMLHighlightConfPath());
 
 	connect(close_btn, SIGNAL(clicked(void)), this, SLOT(close(void)));
 	connect(clear_btn, SIGNAL(clicked(void)), this, SLOT(clearSource(void)));
@@ -22,8 +22,8 @@ void Xml2ObjectWidget::loadXML(void)
 {
 	QFileDialog file_dlg;
 
-	file_dlg.setNameFilter(trUtf8("Database model (*.dbm);;XML file (*.xml);;All files (*.*)"));
-	file_dlg.setWindowTitle(trUtf8("Load file"));
+	file_dlg.setNameFilter(tr("Database model (*.dbm);;XML file (*.xml);;All files (*.*)"));
+	file_dlg.setWindowTitle(tr("Load file"));
 	file_dlg.setFileMode(QFileDialog::ExistingFiles);
 	file_dlg.setAcceptMode(QFileDialog::AcceptOpen);
 
@@ -35,7 +35,7 @@ void Xml2ObjectWidget::loadXML(void)
 
 		if(!f.isOpen())
 			throw Exception(Exception::getErrorMessage(ErrorCode::FileDirectoryNotAccessed).arg(file_dlg.selectedFiles().at(0)),
-											ErrorCode::FileDirectoryNotAccessed,__PRETTY_FUNCTION__,__FILE__,__LINE__);
+							ErrorCode::FileDirectoryNotAccessed,__PRETTY_FUNCTION__,__FILE__,__LINE__);
 
 
 		code_txt->setPlainText(QString::fromUtf8(f.readAll()));

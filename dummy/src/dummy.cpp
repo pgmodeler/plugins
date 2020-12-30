@@ -28,7 +28,7 @@ Dummy::Dummy(void)
 						getPluginAuthor(),
 						getPluginDescription(),
 
-						GlobalAttributes::PluginsDir +
+						GlobalAttributes::getPluginsDir() +
 						GlobalAttributes::DirSeparator +
 						QString("dummy") +
 						GlobalAttributes::DirSeparator + QString("dummy.png"));
@@ -36,9 +36,8 @@ Dummy::Dummy(void)
 
 QString Dummy::getPluginTitle(void)
 {
-	return(trUtf8("Dummy"));
+	return(tr("Dummy"));
 }
-
 
 QString Dummy::getPluginVersion(void)
 {
@@ -52,7 +51,7 @@ QString Dummy::getPluginAuthor(void)
 
 QString Dummy::getPluginDescription(void)
 {
-	return(trUtf8("A dummy plugin only to test the pgModeler plugin structure."));
+	return(tr("A dummy plugin only to test the pgModeler plugin structure."));
 }
 
 void Dummy::showPluginInfo(void)
@@ -63,9 +62,9 @@ void Dummy::showPluginInfo(void)
 void Dummy::executePlugin(ModelWidget *)
 {
 	Messagebox msgbox;
-	msgbox.show(trUtf8("Plugin successfully loaded!"),
-				trUtf8("Plugin successfully loaded! Check the <a href='http://www.pgmodeler.com.br/wiki/doku.php?id=plugins'>plugins wiki page</a> to know how to create your own plugins."),
-							Messagebox::InfoIcon);
+	msgbox.show(tr("Plugin successfully loaded!"),
+				tr("Plugin successfully loaded! Check the <a href='http://www.pgmodeler.com.br/wiki/doku.php?id=plugins'>plugins wiki page</a> to know how to create your own plugins."),
+				Messagebox::InfoIcon);
 }
 
 QKeySequence Dummy::getPluginShortcut(void)
