@@ -10,37 +10,36 @@ UI_DIR = src
 
 windows: DESTDIR += $$PWD
 
-unix|windows: LIBS += -L$$OUT_PWD/../../libpgmodeler_ui/ -lpgmodeler_ui \
-                      -L$$OUT_PWD/../../libobjrenderer/ -lobjrenderer \
-                      -L$$OUT_PWD/../../libpgconnector/ -lpgconnector \
-                      -L$$OUT_PWD/../../libpgmodeler/ -lpgmodeler \
-                      -L$$OUT_PWD/../../libparsers/ -lparsers \
-                      -L$$OUT_PWD/../../libutils/ -lutils
+unix|windows: LIBS += $$LIBGUI_LIB \
+		      $$LIBCANVAS_LIB \
+		      $$LIBCONNECTOR_LIB \
+		      $$LIBCORE_LIB \
+		      $$LIBPARSERS_LIB \
+		      $$LIBUTILS_LIB
 
-INCLUDEPATH += $$PWD/../libpgmodeler_ui \
-               $$PWD/../libpgmodeler_ui/src \
-               $$PWD/../libobjrenderer/src \
-               $$PWD/../libpgconnector/src \
-               $$PWD/../libpgmodeler/src \
-               $$PWD/../libparsers/src \
-               $$PWD/../libutils/src
+INCLUDEPATH += $$LIBGUI_INC \
+	       $$LIBCANVAS_INC \
+	       $$LIBCONNECTOR_INC \
+	       $$LIBCORE_INC \
+	       $$LIBPARSERS_INC \
+	       $$LIBUTILS_INC
 
-DEPENDPATH += $$PWD/../libpgmodeler_ui \
-              $$PWD/../libobjrenderer \
-              $$PWD/../libpgconnector \
-              $$PWD/../libpgmodeler \
-              $$PWD/../libparsers \
-              $$PWD/../libutils
+DEPENDPATH += $$LIBGUI_ROOT \
+	      $$LIBCANVAS_ROOT \
+	      $$LIBCONNECTOR_ROOT \
+	      $$LIBCORE_ROOT \
+	      $$LIBPARSERS_ROOT \
+	      $$LIBUTILS_ROOT
 
 macx {
   OUTPUT_PLUGIN = $$PWD/$${TARGET}/lib$${TARGET}.dylib
   OLD_FW_REF = @loader_path/../Frameworks
   NEW_FW_REF = @loader_path/../../../Frameworks
 
-  QMAKE_POST_LINK += install_name_tool -change $$OLD_FW_REF/libutils.1.dylib $$NEW_FW_REF/libutils.1.dylib $$OUTPUT_PLUGIN ; \
-                     install_name_tool -change $$OLD_FW_REF/libparsers.1.dylib $$NEW_FW_REF/libparsers.1.dylib $$OUTPUT_PLUGIN ; \
-                     install_name_tool -change $$OLD_FW_REF/libpgmodeler.1.dylib $$NEW_FW_REF/libpgmodeler.1.dylib $$OUTPUT_PLUGIN ; \
-                     install_name_tool -change $$OLD_FW_REF/libpgmodeler_ui.1.dylib $$NEW_FW_REF/libpgmodeler_ui.1.dylib $$OUTPUT_PLUGIN ; \
-                     install_name_tool -change $$OLD_FW_REF/libpgconnector.1.dylib $$NEW_FW_REF/libpgconnector.1.dylib $$OUTPUT_PLUGIN ; \
-                     install_name_tool -change $$OLD_FW_REF/libobjrenderer.1.dylib $$NEW_FW_REF/libobjrenderer.1.dylib $$OUTPUT_PLUGIN
+  QMAKE_POST_LINK += install_name_tool -change $$OLD_FW_REF/$$LIBUTILS.1.dylib $$NEW_FW_REF/$$LIBUTILS.1.dylib $$OUTPUT_PLUGIN ; \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBPARSERS.1.dylib $$NEW_FW_REF/$$LIBPARSERS.1.dylib $$OUTPUT_PLUGIN ; \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBCORE.1.dylib $$NEW_FW_REF/$$LIBCORE.1.dylib $$OUTPUT_PLUGIN ; \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBGUI.1.dylib $$NEW_FW_REF/$$LIBGUI.1.dylib $$OUTPUT_PLUGIN ; \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBCONNECTOR.1.dylib $$NEW_FW_REF/$$LIBCONNECTOR.1.dylib $$OUTPUT_PLUGIN ; \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBCANVAS.1.dylib $$NEW_FW_REF/$$LIBCANVAS.1.dylib $$OUTPUT_PLUGIN
 }

@@ -2,7 +2,7 @@
 #define XML2OBJECT_WIDGET_H
 
 #include "ui_xml2objectwidget.h"
-#include "syntaxhighlighter.h"
+#include "utils/syntaxhighlighter.h"
 #include "databasemodel.h"
 #include "operationlist.h"
 
