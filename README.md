@@ -63,4 +63,5 @@ For the steps below, as a convenience, we have aliased some paths in order to sh
    
  If the build process succeeds, will you see that some files are installed in the plug-ins root directory in your pgModeler installation. Now, just run pgModeler to test if the plug-ins are working properly. In case of any problem with any plug-in, pgModeler will refuse to load it and present a detailed error dialog. You can use the presented information to ask for help.
 
-**NOTE:** If want to build a third-party plug-in that isn't officially distributed, just put its code in the folder where all the other plug-ins' sources reside. Alternatively, you can copy the file ```plugins.pri``` to the folder were your plugin source code is and run the steps 3 and 4 inside it, not forgetting to replace the ```plugins.pro``` in the step 3 by the project settings (.pro) related to your plug-in.
+**NOTE:** If want to build a third-party plug-in that isn't officially distributed, just put its source code folder where all the other plug-ins' sources reside. 
+From that plug-in source code folder, run the steps 3 and 4, not forgetting to replace the ```plugins.pro```, in the step 3, by the project settings (.pro) related to the plug-in.
