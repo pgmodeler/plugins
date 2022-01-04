@@ -15,17 +15,19 @@ pgModeler plug-ins can be build in two different ways:
 Standalone build
 ----------------
 
-In this procedure we assume that you already have the Qt framework installed, a clean installation of pgModeler with unrestricted access to its libraries (.so, .dylib or .dll). So, in order to build a single plug-in and make it recognizable by pgModeler you'll need first to download the tool's source code. Just make sure to download the source related to the same version as your pgModeler installation or the building process may fail. Second, clone this repository anywhere in your system since it's from there that we'll run the steps to achieve our goal. 
+In this procedure we assume that you already have the Qt framework installed, a clean installation of pgModeler, and unrestricted access to its libraries (.so, .dylib or .dll). So, in order to build a single plug-in and make it recognizable by pgModeler you'll need first to download the tool's source code. Just make sure to download the source related to the same version as your pgModeler installation or the building process may fail. Second, clone this repository anywhere in your system since it's from there that we'll run the steps to achieve our goal. 
 
-For the steps bellow, as a convenience, we have aliased some paths in order to shorten the commands executed, make sure to replace them by the real paths according to your system.
+For the steps below, as a convenience, we have aliased some paths in order to shorten the commands executed, make sure to replace them by the real paths according to your system.
 
-1. Cloning the source code. Alternatively, you can download a [tarball or zip package](https://github.com/pgmodeler/pgmodeler/tags) and extract it anywhere:
+1. Cloning the source code:
+
+    _Alternatively, you can download a [tarball or zip package](https://github.com/pgmodeler/pgmodeler/tags) and extract it anywhere, skipping to step 2._
 
     ```
     git clone https://github.com/pgmodeler/pgmodeler.git
     ```
     
-    a) Checkout the tag related to the pgModeler installed on your system. Supposing that you version in your system is 0.9.4, the checkout command must be:
+    a) Checkout the tag related to the pgModeler installed on your system. Supposing that the version in your system is 0.9.4, the checkout command must be:
 
     ```
     git checktout v0.9.4
@@ -61,3 +63,4 @@ For the steps bellow, as a convenience, we have aliased some paths in order to s
    
  If the build process succeeds, will you see that some files are installed in the plug-ins root directory in your pgModeler installation. Now, just run pgModeler to test if the plug-ins are working properly. In case of any problem with any plug-in, pgModeler will refuse to load it and present a detailed error dialog. You can use the presented information to ask for help.
 
+**NOTE:** If want to build a third-party plug-in that isn't officially distributed, just put its code in the folder where all the other plug-ins' sources reside. Alternatively, you can copy the file ```plugins.pri``` to the folder were your plugin source code is and run the steps 3 and 4 inside it, not forgetting to replace the ```plugins.pro``` in the step 3 by the project settings (.pro) related to your plug-in.
