@@ -34,10 +34,10 @@ defined(PGMODELER_PLUGINS, var):{
     # Rewritting the output path for plugins so they can be installed in the custom prefix provided by the user
     PLUGINSDIR=$$PGMODELER_PLUGINS
 
+    unix:LIB_SUFFIX=lib
     macx:LIB_EXT=dylib
     !macx|!windows:LIB_EXT=so
     windows:LIB_EXT=dll
-	unix:LIB_SUFFIX=lib
 
     !defined(PGMODELER_LIBS, var):error("A valid path to the pgModeler libraries must be provided using PGMODELER_LIBS=[path]! Aborting.")
     !exists($$PGMODELER_LIBS/$${LIB_SUFFIX}core.$${LIB_EXT}):error("The provided libraries path $$PGMODELER_LIBS doesn't seem to store pgModeler's libraries! Aborting.")
