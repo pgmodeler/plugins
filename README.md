@@ -1,7 +1,7 @@
 Introduction
 ------------
 
-This is the official repository of pgModeler plug-ins, it intends to keep a library of extensions created by third-party contributions.
+This is the official repository of pgModeler plug-ins, it intends to keep a library of extensions created by third-party contributions. If you have the interest to create some fancy feature for pgModeler without modify the core code, you can use the [plug-ins development infrastructure](https://www.pgmodeler.io/support/docs/81-extending-features-with-plug-ins?v=0.9.4).
 
 Building plug-ins
 -----------------
