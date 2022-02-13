@@ -17,7 +17,7 @@
 */
 
 #include "graphicalquerybuildercorewidget.h"
-#include "pgmodeleruins.h"
+#include "coreutilsns.h"
 
 GraphicalQueryBuilderCoreWidget::GraphicalQueryBuilderCoreWidget(QWidget *parent) : QWidget(parent)
 {

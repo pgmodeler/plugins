@@ -31,43 +31,43 @@ OBJECTS_DIR = obj
 UI_DIR = src
 
 HEADERS += src/graphicalquerybuilder.h \
-			src/graphicalquerybuildercorewidget.h \
-			src/graphicalquerybuilderpathwidget.h \
-			src/graphicalquerybuildersqlwidget.h
+           src/graphicalquerybuildercorewidget.h \
+           src/graphicalquerybuilderpathwidget.h \
+           src/graphicalquerybuildersqlwidget.h
 
 SOURCES += src/graphicalquerybuilder.cpp \
-			src/graphicalquerybuildercorewidget.cpp \
-			src/graphicalquerybuilderpathwidget.cpp \
-			src/graphicalquerybuildersqlwidget.cpp
+           src/graphicalquerybuildercorewidget.cpp \
+           src/graphicalquerybuilderpathwidget.cpp \
+           src/graphicalquerybuildersqlwidget.cpp
 
 FORMS += ui/graphicalquerybuildercorewidget.ui \
-			ui/graphicalquerybuilderpathwidget.ui \
-			ui/graphicalquerybuildersqlwidget.ui
+         ui/graphicalquerybuilderpathwidget.ui \
+         ui/graphicalquerybuildersqlwidget.ui
 
 windows: DESTDIR += $$PWD
 
-unix|windows: LIBS += -L$$OUT_PWD/../../libpgmodeler_ui/ -lpgmodeler_ui \
-					  -L$$OUT_PWD/../../libobjrenderer/ -lobjrenderer \
-					  -L$$OUT_PWD/../../libpgconnector/ -lpgconnector \
-					  -L$$OUT_PWD/../../libpgmodeler/ -lpgmodeler \
-					  -L$$OUT_PWD/../../libparsers/ -lparsers \
-					  -L$$OUT_PWD/../../libutils/ -lutils
+unix|windows: LIBS += -L$$OUT_PWD/../../libgui \
+                      -L$$OUT_PWD/../../libcanvas \
+                      -L$$OUT_PWD/../../libconnector \
+                      -L$$OUT_PWD/../../libcore \
+                      -L$$OUT_PWD/../../libparsers \
+                      -L$$OUT_PWD/../../libutils
 
-INCLUDEPATH += $$PWD/../../libpgmodeler_ui \
-			   $$PWD/../../libpgmodeler_ui/src \
-			   $$PWD/../../libobjrenderer/src \
-			   $$PWD/../../libpgconnector/src \
-			   $$PWD/../../libpgmodeler/src \
-			   $$PWD/../../libparsers/src \
-			   $$PWD/../../libutils/src \
+INCLUDEPATH += $$PWD/../../libgui \
+               $$PWD/../../libgui/src \
+               $$PWD/../../libcanvas/src \
+               $$PWD/../../libconnector/src \
+               $$PWD/../../libcore/src \
+               $$PWD/../../libparsers/src \
+               $$PWD/../../libutils/src
 
 
-DEPENDPATH += $$PWD/../../libpgmodeler_ui \
-			  $$PWD/../../libobjrenderer \
-			  $$PWD/../../libpgconnector \
-			  $$PWD/../../libpgmodeler \
-			  $$PWD/../../libparsers \
-			  $$PWD/../../libutils \
+DEPENDPATH += $$PWD/../../libgui \
+              $$PWD/../../libcanvas \
+              $$PWD/../../libconnector \
+              $$PWD/../../libcore \
+              $$PWD/../../libparsers \
+              $$PWD/../../libutils
 
 #------------------------------------------------------------------------------------------------
 LB=$$escape_expand(\n)

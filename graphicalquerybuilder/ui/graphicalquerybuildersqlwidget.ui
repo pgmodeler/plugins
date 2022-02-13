@@ -126,8 +126,8 @@
         <string>Manage</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/managedb.png</normaloff>:/icones/icones/managedb.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/managedb.png</normaloff>:/icons/icons/managedb.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -149,8 +149,8 @@
         <string>Save SQL</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/salvar.png</normaloff>:/icones/icones/salvar.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/save.png</normaloff>:/icons/icons/save.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -178,7 +178,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
+  <include location="../../../libs/libgui/res/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
