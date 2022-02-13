@@ -107,7 +107,8 @@ void GraphicalQueryBuilder::initPlugin(MainWindow *main_window)
 	tb->setSizePolicy(sizePolicy1);
 	tb->setFocusPolicy(Qt::TabFocus);
 	QIcon icon39;
-	icon39.addFile(QString::fromUtf8(":/icones/icones/visaoarvore.png"), QSize(), QIcon::Normal, QIcon::Off);
+    icon39.addPixmap(GuiUtilsNs::getIconPath("treeview"));
+    //icon39.addFile(QString::fromUtf8(":/icones/icones/treeview.png"), QSize(), QIcon::Normal, QIcon::Off);
 	tb->setIcon(icon39);
 	tb->setIconSize(QSize(22, 22));
 	tb->setCheckable(true);
@@ -122,8 +123,8 @@ void GraphicalQueryBuilder::initPlugin(MainWindow *main_window)
 	sizePolicy1.setHeightForWidth(tb->sizePolicy().hasHeightForWidth());
 	tb2->setSizePolicy(sizePolicy1);
 	tb2->setFocusPolicy(Qt::TabFocus);
-	icon39.addFile(QString::fromUtf8(":/icones/icones/visaoarvore.png"), QSize(), QIcon::Normal, QIcon::Off);
-	tb2->setIcon(icon39);
+    icon39.addPixmap(GuiUtilsNs::getIconPath("treeview"));
+    tb2->setIcon(icon39);
 	tb2->setIconSize(QSize(22, 22));
 	tb2->setCheckable(true);
 	tb2->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);

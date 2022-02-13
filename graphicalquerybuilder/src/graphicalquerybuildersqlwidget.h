@@ -26,8 +26,8 @@
 #define GRAPHICALQUERYBUILDERSQLWIDGET_H
 
 #include "ui_graphicalquerybuildersqlwidget.h"
-#include "baseobjectwidget.h"
-#include "numberedtexteditor.h"
+#include "dbobjects/baseobjectwidget.h"
+#include "widgets/numberedtexteditor.h"
 
 class GraphicalQueryBuilderSQLWidget: public BaseObjectWidget, public Ui::GraphicalQueryBuilderSqlWidget {
 	private:

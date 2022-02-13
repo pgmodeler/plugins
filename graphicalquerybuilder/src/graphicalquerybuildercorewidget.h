@@ -28,9 +28,8 @@
 #include "ui_graphicalquerybuildercorewidget.h"
 #include "graphicalquerybuilderpathwidget.h"
 #include "graphicalquerybuildersqlwidget.h"
-#include "pgmodelerns.h"
-#include "modelwidget.h"
-#include "sourcecodewidget.h"
+#include "widgets/modelwidget.h"
+#include "widgets/sourcecodewidget.h"
 #include "basetable.h"
 #include <QWidget>
 

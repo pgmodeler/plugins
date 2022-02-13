@@ -59,7 +59,7 @@
         <string>Load XML</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+        <iconset resource="../../../libgui/res/resources.qrc">
          <normaloff>:/icones/icones/abrir.png</normaloff>:/icones/icones/abrir.png</iconset>
        </property>
        <property name="iconSize">
@@ -85,7 +85,7 @@
         <string>Clear</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+        <iconset resource="../../../libgui/res/resources.qrc">
          <normaloff>:/icones/icones/limpartexto.png</normaloff>:/icones/icones/limpartexto.png</iconset>
        </property>
        <property name="toolButtonStyle">
@@ -105,7 +105,7 @@
         <string>Generate</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+        <iconset resource="../../../libgui/res/resources.qrc">
          <normaloff>:/icones/icones/novoobjeto.png</normaloff>:/icones/icones/novoobjeto.png</iconset>
        </property>
        <property name="iconSize">
@@ -131,7 +131,7 @@
         <string>Close</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+        <iconset resource="../../../libgui/res/resources.qrc">
          <normaloff>:/icones/icones/fechar1.png</normaloff>:/icones/icones/fechar1.png</iconset>
        </property>
        <property name="iconSize">
@@ -159,7 +159,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
+  <include location="../../../libgui/res/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

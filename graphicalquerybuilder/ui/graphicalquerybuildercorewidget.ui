@@ -38,7 +38,7 @@
    <string>PGM - GQB</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+   <iconset>
     <normaloff>:/imagens/imagens/pgmodeler_logo.png</normaloff>:/imagens/imagens/pgmodeler_logo.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -66,8 +66,8 @@
       <string>Join path</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-       <normaloff>:/icones/icones/visaoarvore.png</normaloff>:/icones/icones/visaoarvore.png</iconset>
+      <iconset resource="../../../libs/libgui/res/resources.qrc">
+       <normaloff>:/icons/icons/treeview.png</normaloff>:/icons/icons/treeview.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -107,8 +107,8 @@
       <string>Show SQL</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-       <normaloff>:/icones/icones/genericsql.png</normaloff>:/icones/icones/genericsql.png</iconset>
+      <iconset resource="../../../libs/libgui/res/resources.qrc">
+       <normaloff>:/icons/icons/genericsql.png</normaloff>:/icons/icons/genericsql.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -148,8 +148,8 @@
       <string>Reset</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-       <normaloff>:/icones/icones/limpartexto.png</normaloff>:/icones/icones/limpartexto.png</iconset>
+      <iconset resource="../../../libs/libgui/res/resources.qrc">
+       <normaloff>:/icons/icons/cleartext.png</normaloff>:/icons/icons/cleartext.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -237,7 +237,7 @@
        <set>AlignLeading|AlignVCenter</set>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/selecionar.png</normaloff>:/icones/icones/selecionar.png</iconset>
       </property>
      </row>
@@ -246,7 +246,7 @@
        <string>Schema</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/schema.png</normaloff>:/icones/icones/schema.png</iconset>
       </property>
      </row>
@@ -255,7 +255,7 @@
        <string>Table / View</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/table.png</normaloff>:/icones/icones/table.png</iconset>
       </property>
      </row>
@@ -264,7 +264,7 @@
        <string>Column</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/column.png</normaloff>:/icones/icones/column.png</iconset>
       </property>
      </row>
@@ -273,7 +273,7 @@
        <string>Alias</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/modificado.png</normaloff>:/icones/icones/modificado.png</iconset>
       </property>
      </row>
@@ -282,7 +282,7 @@
        <string>Where</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/buscar.png</normaloff>:/icones/icones/buscar.png</iconset>
       </property>
      </row>
@@ -291,7 +291,7 @@
        <string>Group by</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/column_grp.png</normaloff>:/icones/icones/column_grp.png</iconset>
       </property>
      </row>
@@ -300,7 +300,7 @@
        <string>Having</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/browsetable.png</normaloff>:/icones/icones/browsetable.png</iconset>
       </property>
      </row>
@@ -309,7 +309,7 @@
        <string>Order by</string>
       </property>
       <property name="icon">
-       <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+       <iconset>
         <normaloff>:/icones/icones/sortasc.png</normaloff>:/icones/icones/sortasc.png</iconset>
       </property>
      </row>
@@ -336,8 +336,8 @@
       <string>Insert selection</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-       <normaloff>:/icones/icones/adicionar.png</normaloff>:/icones/icones/adicionar.png</iconset>
+      <iconset resource="../../../libs/libgui/res/resources.qrc">
+       <normaloff>:/icons/icons/add.png</normaloff>:/icons/icons/add.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -371,7 +371,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+      <iconset>
        <normaloff>:/icones/icones/fechar1.png</normaloff>:/icones/icones/fechar1.png</iconset>
      </property>
      <property name="autoRaise">
@@ -437,8 +437,8 @@
       <string>Select all</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-       <normaloff>:/icones/icones/selecionar.png</normaloff>:/icones/icones/selecionar.png</iconset>
+      <iconset resource="../../../libs/libgui/res/resources.qrc">
+       <normaloff>:/icons/icons/select.png</normaloff>:/icons/icons/select.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -479,7 +479,7 @@
   <tabstop>tab_wgt</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
+  <include location="../../../libs/libgui/res/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

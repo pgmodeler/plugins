@@ -4,7 +4,7 @@ for var in "$@"
 do
 	#The paal dependency
 	if [[ $var == "paal" ]]; then
-		git clone http://siekiera.mimuw.edu.pl:8082/paal
+		git clone https://salsa.debian.org/maxzor/paal
 		cd paal
 		cp ../paal.pro .
 		cp ../dreyfus_wagner.hpp include/paal/steiner_tree/.
