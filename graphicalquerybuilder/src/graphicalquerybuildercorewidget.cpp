@@ -340,7 +340,7 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool initial_warning, bool j
 		}
 	}
 
-	map<int,int> group_by_cols,order_by_cols;
+	std::map<int,int> group_by_cols,order_by_cols;
 	for (int i=0; i<tab_wgt->columnCount();i++)
 	{
 		//'SELECT' clause
@@ -365,7 +365,7 @@ QString GraphicalQueryBuilderCoreWidget::produceSQL(bool initial_warning, bool j
 
 		//'ORDER BY' clause
 		if(qobject_cast<QComboBox *>(tab_wgt->cellWidget(tW_Order,i)->children()[1])->currentIndex()>0)
-			order_by_cols.insert(make_pair(
+			order_by_cols.insert(std::make_pair(
 				qobject_cast<QSpinBox *>(tab_wgt->cellWidget(tW_Order,i)->children()[2])->value(), i));
 	}
 
@@ -630,13 +630,13 @@ void GraphicalQueryBuilderCoreWidget::initializeColumn(int col_nb, BaseObject *b
 		tab_wgt->setItem(tW_Where, col_nb, tab_item);
 		auto currentFlags = tab_wgt->item(tW_Where,col_nb)->flags();
 		tab_wgt->item(tW_Where,col_nb)->setFlags(currentFlags & (~Qt::ItemIsEditable));
-		tab_wgt->item(tW_Where,col_nb)->setBackgroundColor(Qt::lightGray);
+		tab_wgt->item(tW_Where,col_nb)->setBackground(Qt::lightGray);
 
 		tab_item=new QTableWidgetItem;
 		tab_wgt->setItem(tW_Having, col_nb, tab_item);
 		currentFlags = tab_wgt->item(tW_Having,col_nb)->flags();
 		tab_wgt->item(tW_Having,col_nb)->setFlags(currentFlags & (~Qt::ItemIsEditable));
-		tab_wgt->item(tW_Having,col_nb)->setBackgroundColor(QColor(195,195,195));
+		tab_wgt->item(tW_Having,col_nb)->setBackground(QColor(195,195,195));
 
 		qobject_cast<QWidget *>(tab_wgt->cellWidget(tW_Group,col_nb))->setEnabled(false);
 		qobject_cast<QWidget *>(tab_wgt->cellWidget(tW_Order,col_nb))->setEnabled(false);
@@ -688,9 +688,9 @@ void GraphicalQueryBuilderCoreWidget::initializeColumn(int col_nb, BaseObject *b
 	}
 
 	//Paint the schema, table and column cells in a specific color
-	tab_wgt->item(tW_Schema,col_nb)->setBackgroundColor(QColor(225,255,255));
-	tab_wgt->item(tW_Table,col_nb)->setBackgroundColor(QColor(225,255,255));
-	tab_wgt->item(tW_Column,col_nb)->setBackgroundColor(QColor(225,255,255));
+	tab_wgt->item(tW_Schema,col_nb)->setBackground(QColor(225,255,255));
+	tab_wgt->item(tW_Table,col_nb)->setBackground(QColor(225,255,255));
+	tab_wgt->item(tW_Column,col_nb)->setBackground(QColor(225,255,255));
 
 	//Disable editing on schema/table/column
 	auto currentFlags = tab_wgt->item(tW_Schema,col_nb)->flags();
@@ -849,7 +849,7 @@ void GraphicalQueryBuilderCoreWidget::highlightQueryColumn(int col)
 //call to configure/reconfigure spinboxes further
 void GraphicalQueryBuilderCoreWidget::orderByCountChanged(int ob_col, int state)
 {
-	vector<int> ob_cols;
+	std::vector<int> ob_cols;
 	for(int col=0; col<tab_wgt->columnCount(); col++)
 		if(tW_Order==tW_Group ?
 				qobject_cast<QCheckBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[1])->isChecked() :
@@ -874,7 +874,7 @@ void GraphicalQueryBuilderCoreWidget::orderByCountChanged(int ob_col, int state)
 		configureOrderBySpinBoxes(ob_cols, ob_col, state);
 }
 
-void GraphicalQueryBuilderCoreWidget::configureOrderBySpinBoxes(vector<int> ob_cols, int ob_col, int state)
+void GraphicalQueryBuilderCoreWidget::configureOrderBySpinBoxes(std::vector<int> ob_cols, int ob_col, int state)
 {
 	if(state>0)
 	{
@@ -886,7 +886,7 @@ void GraphicalQueryBuilderCoreWidget::configureOrderBySpinBoxes(vector<int> ob_c
 	else
 	{
 		//map - key : value of the spinbox, value : number of the column
-		map<int, int> spin_values;
+		std::map<int, int> spin_values;
 		for(const auto &col:ob_cols)
 			spin_values.insert(std::pair<int, int>(
 				qobject_cast<QSpinBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[2])->value(), col));
@@ -913,13 +913,13 @@ void GraphicalQueryBuilderCoreWidget::configureOrderBySpinBoxes(vector<int> ob_c
 
 void GraphicalQueryBuilderCoreWidget::swapOrderBySpins(int ob_col, int new_value)
 {
-	vector<int> ob_cols;
+	std::vector<int> ob_cols;
 	for(int col=0; col<tab_wgt->columnCount(); col++)
 		if(col!=ob_col &&
 					qobject_cast<QComboBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[1])->currentIndex()!=0)
 				ob_cols.push_back(col);
 
-	map<int, int> spin_values;
+	std::map<int, int> spin_values;
 	for(const auto &col:ob_cols)
 	{
 		spin_values.insert(std::pair<int, int>(
@@ -947,7 +947,7 @@ void GraphicalQueryBuilderCoreWidget::columnSelectChecked(int col, int state)
 		qobject_cast<QCheckBox *>(tab_wgt->cellWidget(tW_Group,col)->children()[1])->setVisible(true);
 		tab_wgt->cellWidget(tW_Group,col)->setStyleSheet("background-color:rgb(255,255,255);");
 		tab_wgt->item(tW_Having,col)->setFlags(tab_wgt->item(tW_Having,col)->flags() | Qt::ItemIsEditable);
-		tab_wgt->item(tW_Having,col)->setBackgroundColor(Qt::white);
+		tab_wgt->item(tW_Having,col)->setBackground(Qt::white);
 		qobject_cast<QComboBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[1])->setVisible(true);
 		tab_wgt->cellWidget(tW_Order,col)->setStyleSheet("QWidget#ob_wgt { background-color:rgb(255,255,255) }");
 	}
@@ -959,7 +959,7 @@ void GraphicalQueryBuilderCoreWidget::columnSelectChecked(int col, int state)
 		tab_wgt->cellWidget(tW_Group,col)->setStyleSheet("background-color:rgb(195,195,195);");
 
 		tab_wgt->item(tW_Having,col)->setFlags(tab_wgt->item(tW_Having,col)->flags() & ~Qt::ItemIsEditable);
-		tab_wgt->item(tW_Having,col)->setBackgroundColor(QColor(195,195,195));
+		tab_wgt->item(tW_Having,col)->setBackground(QColor(195,195,195));
 		qobject_cast<QComboBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[1])->setCurrentIndex(0);
 		qobject_cast<QComboBox *>(tab_wgt->cellWidget(tW_Order,col)->children()[1])->setVisible(false);
 		tab_wgt->cellWidget(tW_Order,col)->setStyleSheet("QWidget#ob_wgt { background-color:rgb(195,195,195) }");
@@ -997,9 +997,7 @@ QVector <BaseTable *> GraphicalQueryBuilderCoreWidget::getRequiredVertices(void)
 	return required_vertices;
 }
 
-tuple<QHash<BaseTable*, int> ,vector<QPair<int, int>>,
-	QHash<QPair<int, int>, QPair<BaseRelationship*, int>>>
-		GraphicalQueryBuilderCoreWidget::getConnectedComponents(void)
+std::tuple<QHash<BaseTable *, int>, std::vector<QPair<int, int> >, QHash<QPair<int, int>, QPair<BaseRelationship *, int> > > GraphicalQueryBuilderCoreWidget::getConnectedComponents(void)
 {
 	//Custom-Depth-First-Search heap containers
 	required_vertices.clear();
@@ -1042,7 +1040,7 @@ tuple<QHash<BaseTable*, int> ,vector<QPair<int, int>>,
 
 	//See QueryBuilderPathWidget::findPath for detail about these containers
 	QHash<BaseTable*, int> result_first;
-	vector<QPair<int, int>> result_second;
+	std::vector<QPair<int, int>> result_second;
 	QHash<QPair<int, int>, QPair<BaseRelationship*, int>> result_third;
 	int i=0;
 	for(const auto &vertex:required_vertices)
