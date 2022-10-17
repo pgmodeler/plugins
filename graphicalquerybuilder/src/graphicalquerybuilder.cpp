@@ -230,7 +230,7 @@ void GraphicalQueryBuilder::showGqbSql(QString query_txt)
 		querybuilder_sql_wgt->enableManageBtn();
 		connect(querybuilder_sql_wgt, &GraphicalQueryBuilderSQLWidget::s_sendToManage ,this, [&, mw](QString query_text){
 			mw->addExecTabInSQLTool(query_text);
-			mw->switchView(2);
+			mw->switchView(MainWindow::ManageView);
 		});
 	}
 
