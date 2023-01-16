@@ -1,7 +1,7 @@
 /*
 # Projeto: Modelador de Banco de Dados PostgreSQL (pgModeler)
 #
-# Copyright 2006-2019 - Raphael Araújo e Silva <raphael@pgmodeler.io>
+# Copyright 2006-2023 - Raphael Araújo e Silva <raphael@pgmodeler.io>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,21 +17,21 @@
 */
 
 /**
-\ingroup dummy
-\class Dummy
+\ingroup sampleplugin
+\class SamplePlugin
 \brief Example plugin for pgModeler (does not execute any complex operation)
 */
 
-#ifndef DUMMY_H
-#define DUMMY_H
+#ifndef SAMPLE_PLUGIN_H
+#define SAMPLE_PLUGIN_H
 
 #include "pgmodelerplugin.h"
 
-class Dummy: public QObject, public PgModelerPlugin {
+class SamplePlugin: public QObject, public PgModelerPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "br.com.pgmodeler.PgModelerPlugin" FILE "dummy.json")
+		Q_PLUGIN_METADATA(IID "br.com.pgmodeler.PgModelerPlugin" FILE "sampleplugin.json")
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerPlugin)
@@ -39,7 +39,7 @@ class Dummy: public QObject, public PgModelerPlugin {
 		QAction *config_action, *toolbar_action, *model_action;
 
 	public:
-		Dummy();
+		SamplePlugin();
 
 		void initPlugin(MainWindow *main_wnd);
 
