@@ -36,18 +36,29 @@ class Dummy: public QObject, public PgModelerPlugin {
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerPlugin)
 
-	public:
-		Dummy(void);
+		QAction *config_action, *toolbar_action, *model_action;
 
-		QString getPluginTitle(void);
-		QString getPluginVersion(void);
-		QString getPluginAuthor(void);
-		QString getPluginDescription(void);
-		QKeySequence getPluginShortcut(void);
-		void executePlugin(ModelWidget *);
+	public:
+		Dummy();
+
+		void initPlugin(MainWindow *main_wnd);
+
+		QString getPluginTitle();
+		QString getPluginVersion();
+		QString getPluginAuthor();
+		QString getPluginDescription();
+
+		QAction *getToolbarAction();
+		QAction *getModelAction();
+		QAction *getConfigAction();
 
 	public slots:
 		void showPluginInfo(void);
+
+	private slots:
+		void executeToolbarAction();
+		void executeModelAction();
+		void executeConfigAction();
 };
 
 #endif

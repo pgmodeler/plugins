@@ -26,12 +26,20 @@ Dummy::Dummy(void)
 	configurePluginInfo(getPluginTitle(),
 						getPluginVersion(),
 						getPluginAuthor(),
-						getPluginDescription(),
+						getPluginDescription());
 
-						GlobalAttributes::getPluginsDir() +
-						GlobalAttributes::DirSeparator +
-						QString("dummy") +
-						GlobalAttributes::DirSeparator + QString("dummy.png"));
+	config_action = new QAction();
+	toolbar_action = new QAction();
+	model_action = new QAction();
+
+	connect(config_action, &QAction::triggered, this, &Dummy::executeConfigAction);
+	connect(toolbar_action, &QAction::triggered, this, &Dummy::executeConfigAction);
+	connect(model_action, &QAction::triggered, this, &Dummy::executeConfigAction);
+}
+
+void Dummy::initPlugin(MainWindow *main_wnd)
+{
+	PgModelerPlugin::initPlugin(main_wnd);
 }
 
 QString Dummy::getPluginTitle(void)
@@ -59,15 +67,41 @@ void Dummy::showPluginInfo(void)
 	plugin_info_frm->show();
 }
 
-void Dummy::executePlugin(ModelWidget *)
+void Dummy::executeToolbarAction()
 {
 	Messagebox msgbox;
-	msgbox.show(tr("Plugin successfully loaded!"),
+	msgbox.show(tr("Toolbar action triggered!"),
 				tr("Plugin successfully loaded! Check the <a href='http://www.pgmodeler.com.br/wiki/doku.php?id=plugins'>plugins wiki page</a> to know how to create your own plugins."),
 				Messagebox::InfoIcon);
 }
 
-QKeySequence Dummy::getPluginShortcut(void)
+void Dummy::executeModelAction()
 {
-	return(QKeySequence(QString("Ctrl+J")));
+	Messagebox msgbox;
+	msgbox.show(tr("Model action triggered!"),
+				tr("Plugin successfully loaded! Check the <a href='http://www.pgmodeler.com.br/wiki/doku.php?id=plugins'>plugins wiki page</a> to know how to create your own plugins."),
+				Messagebox::InfoIcon);
+}
+
+void Dummy::executeConfigAction()
+{
+	Messagebox msgbox;
+	msgbox.show(tr("Configuration action triggered!"),
+				tr("Plugin successfully loaded! Check the <a href='http://www.pgmodeler.com.br/wiki/doku.php?id=plugins'>plugins wiki page</a> to know how to create your own plugins."),
+				Messagebox::InfoIcon);
+}
+
+QAction *Dummy::getToolbarAction()
+{
+	return toolbar_action;
+}
+
+QAction *Dummy::getModelAction()
+{
+	return model_action;
+}
+
+QAction *Dummy::getConfigAction()
+{
+	return config_action;
 }
