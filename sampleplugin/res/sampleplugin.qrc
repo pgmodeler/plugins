@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/sampleplugin">
+        <file>sampleplugin.png</file>
+    </qresource>
+</RCC>
