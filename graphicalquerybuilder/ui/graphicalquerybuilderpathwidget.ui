@@ -35,7 +35,7 @@
    <string>Model Objects</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+   <iconset>
     <normaloff>:/icones/icones/pgsqlModeler48x48.png</normaloff>:/icones/icones/pgsqlModeler48x48.png</iconset>
   </property>
   <property name="floating" stdset="0">
@@ -111,7 +111,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+         <iconset>
           <normaloff>:/icones/icones/fechar1.png</normaloff>:/icones/icones/fechar1.png</iconset>
         </property>
         <property name="autoRaise">
@@ -208,7 +208,7 @@
               <bool>false</bool>
              </attribute>
              <attribute name="verticalHeaderDefaultSectionSize">
-              <number>21</number>
+              <number>23</number>
              </attribute>
              <column>
               <property name="text">
@@ -263,7 +263,7 @@
               <bool>false</bool>
              </attribute>
              <attribute name="verticalHeaderDefaultSectionSize">
-              <number>21</number>
+              <number>23</number>
              </attribute>
              <column>
               <property name="text">
@@ -465,7 +465,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+                  <iconset>
                    <normaloff>:/icones/icones/limpartexto.png</normaloff>:/icones/icones/limpartexto.png</iconset>
                  </property>
                  <property name="popupMode">
@@ -482,7 +482,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+                  <iconset>
                    <normaloff>:/icones/icones/adicionar.png</normaloff>:/icones/icones/adicionar.png</iconset>
                  </property>
                 </widget>
@@ -972,7 +972,7 @@
                    <string>    Stop solver</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
+                   <iconset>
                     <normaloff>:/icones/icones/cancelar.png</normaloff>:/icones/icones/cancelar.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -1217,8 +1217,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/confirmar.png</normaloff>:/icones/icones/confirmar.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/confirm.png</normaloff>:/icons/icons/confirm.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1255,8 +1255,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/zoom_mais.png</normaloff>:/icones/icones/zoom_mais.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/morezoom.png</normaloff>:/icons/icons/morezoom.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1278,8 +1278,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/validade.png</normaloff>:/icones/icones/validade.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/validity.png</normaloff>:/icons/icons/validity.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1316,8 +1316,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/filter.png</normaloff>:/icones/icones/filter.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/filter.png</normaloff>:/icons/icons/filter.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1357,8 +1357,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../libpgmodeler_ui/res/resources.qrc">
-         <normaloff>:/icones/icones/limpartexto.png</normaloff>:/icones/icones/limpartexto.png</iconset>
+        <iconset resource="../../../libs/libgui/res/resources.qrc">
+         <normaloff>:/icons/icons/cleartext.png</normaloff>:/icons/icons/cleartext.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -1420,7 +1420,7 @@
   <tabstop>stop_solver_pb</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../libpgmodeler_ui/res/resources.qrc"/>
+  <include location="../../../libs/libgui/res/resources.qrc"/>
  </resources>
  <connections>
   <connection>

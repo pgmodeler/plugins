@@ -28,9 +28,8 @@
 #include "ui_graphicalquerybuildercorewidget.h"
 #include "graphicalquerybuilderpathwidget.h"
 #include "graphicalquerybuildersqlwidget.h"
-#include "pgmodelerns.h"
-#include "modelwidget.h"
-#include "sourcecodewidget.h"
+#include "widgets/modelwidget.h"
+#include "widgets/sourcecodewidget.h"
 #include "basetable.h"
 #include <QWidget>
 
@@ -83,7 +82,7 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 		void updateRequiredVertices(void);
 		QVector <BaseTable *> getRequiredVertices(void);
 
-		void configureOrderBySpinBoxes(vector<int> ob_cols, int ob_col, int state);
+		void configureOrderBySpinBoxes(std::vector<int> ob_cols, int ob_col, int state);
 		void swapOrderBySpins(int col, int new_value);
 		void columnSelectChecked(int col, int state);
 
@@ -131,7 +130,7 @@ class GraphicalQueryBuilderCoreWidget: public QWidget, public Ui::GraphicalQuery
 
 		//! \brief Custom algorithm that returns which tables
 		//! are accessible from a starting point, through traversable relations
-		tuple<QHash<BaseTable*, int> ,vector<QPair<int, int>>,
+		std::tuple<QHash<BaseTable*, int> ,std::vector<QPair<int, int>>,
 			QHash<QPair<int, int>, QPair<BaseRelationship*, int>>>
 				getConnectedComponents(void);
 

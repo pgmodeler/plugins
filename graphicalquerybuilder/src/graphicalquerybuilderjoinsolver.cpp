@@ -19,8 +19,6 @@
 #include "graphicalquerybuilderpathwidget.h"
 #include "graphicalquerybuildercorewidget.h"
 
-#include "pgmodeleruins.h"
-
 #include <boost/range/algorithm/copy.hpp>
 #include <iostream>
 #include <QtAlgorithms>

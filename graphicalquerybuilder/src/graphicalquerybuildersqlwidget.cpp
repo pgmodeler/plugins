@@ -17,9 +17,9 @@
 */
 
 #include "graphicalquerybuildersqlwidget.h"
-#include "taskprogresswidget.h"
-#include "pgmodeleruins.h"
-#include "sqltoolwidget.h"
+#include "widgets/taskprogresswidget.h"
+#include "guiutilsns.h"
+#include "tools/sqltoolwidget.h"
 #include "baseform.h"
 
 GraphicalQueryBuilderSQLWidget::GraphicalQueryBuilderSQLWidget(QWidget *parent): BaseObjectWidget(parent)
@@ -28,14 +28,14 @@ GraphicalQueryBuilderSQLWidget::GraphicalQueryBuilderSQLWidget(QWidget *parent):
 	{
 		Ui_GraphicalQueryBuilderSqlWidget::setupUi(this);
 		configureFormLayout(Ui_GraphicalQueryBuilderSqlWidget::gridLayout, ObjectType::BaseObject);
-		obj_icon_lbl->setPixmap(PgModelerUiNs::getIconPath("visaoarvore"));
+        obj_icon_lbl->setPixmap(GuiUtilsNs::getIconPath("treeview"));
 		this->name_edt->setText("Query builder output");
 
 		comment_lbl->setVisible(false);
 		comment_edt->setVisible(false);
 
 		hl_sqlcode=nullptr;
-		sqlcode_txt=PgModelerUiNs::createNumberedTextEditor(sqlcode_wgt);
+        sqlcode_txt=GuiUtilsNs::createNumberedTextEditor(sqlcode_wgt);
 		sqlcode_txt->setReadOnly(false);
 
 		connect(save_sql_tb, SIGNAL(clicked()), this, SLOT(saveSQLCode()));
@@ -90,7 +90,7 @@ void GraphicalQueryBuilderSQLWidget::saveSQLCode(void)
 				throw Exception(Exception::getErrorMessage(ErrorCode::FileDirectoryNotWritten).arg(file_dlg.selectedFiles().at(0)),
 												ErrorCode::FileDirectoryNotWritten,__PRETTY_FUNCTION__,__FILE__,__LINE__);
 
-			buf.append(sqlcode_txt->toPlainText());
+			buf.append(sqlcode_txt->toPlainText().toUtf8());
 			out.write(buf.data(), buf.size());
 			out.close();
 		}

@@ -1,7 +1,7 @@
 /*
 # Projeto: Modelador de Banco de Dados PostgreSQL (pgModeler)
 #
-# Copyright 2006-2019 - Raphael Araújo e Silva <raphael@pgmodeler.io>
+# Copyright 2006-2023 - Raphael Araújo e Silva <raphael@pgmodeler.io>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,40 +17,48 @@
 */
 
 /**
-\ingroup xml2object
-\class Xml2Object
+\ingroup sampleplugin
+\class SamplePlugin
 \brief Example plugin for pgModeler (does not execute any complex operation)
 */
 
-#ifndef XML2OBJECT_H
-#define XML2OBJECT_H
+#ifndef SAMPLE_PLUGIN_H
+#define SAMPLE_PLUGIN_H
 
 #include "pgmodelerplugin.h"
-#include "xml2objectwidget.h"
 
-class Xml2Object: public QObject, public PgModelerPlugin {
+class SamplePlugin: public QObject, public PgModelerPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "br.com.pgmodeler.PgModelerPlugin" FILE "xml2object.json")
+		Q_PLUGIN_METADATA(IID "br.com.pgmodeler.PgModelerPlugin" FILE "sampleplugin.json")
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerPlugin)
 
-		Xml2ObjectWidget xml2obj_wgt;
+		QAction *config_action, *toolbar_action, *model_action;
 
 	public:
-		Xml2Object(void);
+		SamplePlugin();
 
-		QString getPluginTitle(void);
-		QString getPluginVersion(void);
-		QString getPluginAuthor(void);
-		QString getPluginDescription(void);
-		QKeySequence getPluginShortcut(void);
-		void executePlugin(ModelWidget *);
+		void initPlugin(MainWindow *main_wnd);
+
+		QString getPluginTitle();
+		QString getPluginVersion();
+		QString getPluginAuthor();
+		QString getPluginDescription();
+
+		QAction *getToolbarAction();
+		QAction *getModelAction();
+		QAction *getConfigAction();
 
 	public slots:
 		void showPluginInfo(void);
+
+	private slots:
+		void executeToolbarAction();
+		void executeModelAction();
+		void executeConfigAction();
 };
 
 #endif
