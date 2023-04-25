@@ -31,6 +31,12 @@ SamplePlugin::SamplePlugin(void)
 	config_action = nullptr;
 	toolbar_action = nullptr;
 	model_action = nullptr;
+	dbexplorer_tb = nullptr;
+}
+
+SamplePlugin::~SamplePlugin()
+{
+	delete dbexplorer_tb;
 }
 
 void SamplePlugin::initPlugin(MainWindow *main_wnd)
@@ -41,9 +47,15 @@ void SamplePlugin::initPlugin(MainWindow *main_wnd)
 	toolbar_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
 	model_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
 
+	dbexplorer_tb = new QToolButton;
+	dbexplorer_tb->setIcon(QIcon(getPluginIcon(getPluginName())));
+	dbexplorer_tb->setText(tr("Sample plug-in"));
+	dbexplorer_tb->setToolTip(dbexplorer_tb->text());
+
 	connect(config_action, &QAction::triggered, this, &SamplePlugin::executeConfigAction);
 	connect(toolbar_action, &QAction::triggered, this, &SamplePlugin::executeToolbarAction);
 	connect(model_action, &QAction::triggered, this, &SamplePlugin::executeModelAction);
+	connect(dbexplorer_tb, &QToolButton::clicked, this, &SamplePlugin::executeDbExplorerAction);
 }
 
 QString SamplePlugin::getPluginTitle(void)
@@ -95,6 +107,14 @@ void SamplePlugin::executeConfigAction()
 				Messagebox::InfoIcon);
 }
 
+void SamplePlugin::executeDbExplorerAction()
+{
+	Messagebox msgbox;
+	msgbox.show(tr("Database explorer button triggered!"),
+				tr("This button triggers a specific operation when the user clicks it in any instance of database explorer."),
+				Messagebox::InfoIcon);
+}
+
 QAction *SamplePlugin::getToolbarAction()
 {
 	return toolbar_action;
@@ -108,4 +128,9 @@ QAction *SamplePlugin::getModelAction()
 QAction *SamplePlugin::getConfigAction()
 {
 	return config_action;
+}
+
+QToolButton *SamplePlugin::getDbExplorerButton()
+{
+	return dbexplorer_tb;
 }

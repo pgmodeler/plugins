@@ -38,8 +38,11 @@ class SamplePlugin: public QObject, public PgModelerPlugin {
 
 		QAction *config_action, *toolbar_action, *model_action;
 
+		QToolButton *dbexplorer_tb;
+
 	public:
 		SamplePlugin();
+		~SamplePlugin();
 
 		void initPlugin(MainWindow *main_wnd);
 
@@ -51,6 +54,7 @@ class SamplePlugin: public QObject, public PgModelerPlugin {
 		QAction *getToolbarAction();
 		QAction *getModelAction();
 		QAction *getConfigAction();
+		QToolButton *getDbExplorerButton();
 
 	public slots:
 		void showPluginInfo(void);
@@ -59,6 +63,7 @@ class SamplePlugin: public QObject, public PgModelerPlugin {
 		void executeToolbarAction();
 		void executeModelAction();
 		void executeConfigAction();
+		void executeDbExplorerAction();
 };
 
 #endif
