@@ -58,27 +58,27 @@ void SamplePlugin::initPlugin(MainWindow *main_wnd)
 	connect(dbexplorer_tb, &QToolButton::clicked, this, &SamplePlugin::executeDbExplorerAction);
 }
 
-QString SamplePlugin::getPluginTitle(void)
+QString SamplePlugin::getPluginTitle(void) const
 {
 	return(tr("Sample Plug-in"));
 }
 
-QString SamplePlugin::getPluginVersion(void)
+QString SamplePlugin::getPluginVersion(void) const
 {
 	return(QString("0.1.0"));
 }
 
-QString SamplePlugin::getPluginAuthor(void)
+QString SamplePlugin::getPluginAuthor(void) const
 {
 	return(QString("Raphael Araújo e Silva"));
 }
 
-QString SamplePlugin::getPluginDescription(void)
+QString SamplePlugin::getPluginDescription(void) const
 {
 	return(tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface."));
 }
 
-void SamplePlugin::showPluginInfo(void)
+void SamplePlugin::showPluginInfo(void) const
 {
 	plugin_info_frm->show();
 }
@@ -115,22 +115,22 @@ void SamplePlugin::executeDbExplorerAction()
 				Messagebox::InfoIcon);
 }
 
-QAction *SamplePlugin::getToolbarAction()
+QAction *SamplePlugin::getToolbarAction() const
 {
 	return toolbar_action;
 }
 
-QAction *SamplePlugin::getModelAction()
+QAction *SamplePlugin::getModelAction() const
 {
 	return model_action;
 }
 
-QAction *SamplePlugin::getConfigAction()
+QAction *SamplePlugin::getConfigAction() const
 {
 	return config_action;
 }
 
-QToolButton *SamplePlugin::getDbExplorerButton()
+QToolButton *SamplePlugin::getDbExplorerButton() const
 {
 	return dbexplorer_tb;
 }

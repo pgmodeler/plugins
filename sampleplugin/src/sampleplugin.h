@@ -40,24 +40,24 @@ class SamplePlugin: public QObject, public PgModelerPlugin {
 
 		QToolButton *dbexplorer_tb;
 
+		void initPlugin(MainWindow *main_wnd) override;
+
 	public:
 		SamplePlugin();
 		~SamplePlugin();
 
-		void initPlugin(MainWindow *main_wnd);
+		QString getPluginTitle() const override;
+		QString getPluginVersion() const override;
+		QString getPluginAuthor() const override;
+		QString getPluginDescription() const override;
 
-		QString getPluginTitle();
-		QString getPluginVersion();
-		QString getPluginAuthor();
-		QString getPluginDescription();
-
-		QAction *getToolbarAction();
-		QAction *getModelAction();
-		QAction *getConfigAction();
-		QToolButton *getDbExplorerButton();
+		QAction *getToolbarAction() const override;
+		QAction *getModelAction() const override;
+		QAction *getConfigAction() const override;
+		QToolButton *getDbExplorerButton() const override;
 
 	public slots:
-		void showPluginInfo(void);
+		void showPluginInfo(void) const override;
 
 	private slots:
 		void executeToolbarAction();
