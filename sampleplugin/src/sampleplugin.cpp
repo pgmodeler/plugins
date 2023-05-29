@@ -115,22 +115,18 @@ void SamplePlugin::executeDbExplorerAction()
 				Messagebox::InfoIcon);
 }
 
-QAction *SamplePlugin::getToolbarAction() const
+QAction *SamplePlugin::getAction(ActionId act_id) const
 {
+	if(act_id == ModelAction)
+		return model_action;
+
+	if(act_id == ConfigAction)
+		return config_action;
+
 	return toolbar_action;
 }
 
-QAction *SamplePlugin::getModelAction() const
-{
-	return model_action;
-}
-
-QAction *SamplePlugin::getConfigAction() const
-{
-	return config_action;
-}
-
-QToolButton *SamplePlugin::getDbExplorerButton() const
+QWidget *SamplePlugin::getWidget(WidgetId) const
 {
 	return dbexplorer_tb;
 }

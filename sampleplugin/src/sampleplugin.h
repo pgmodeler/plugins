@@ -51,10 +51,8 @@ class SamplePlugin: public QObject, public PgModelerPlugin {
 		QString getPluginAuthor() const override;
 		QString getPluginDescription() const override;
 
-		QAction *getToolbarAction() const override;
-		QAction *getModelAction() const override;
-		QAction *getConfigAction() const override;
-		QToolButton *getDbExplorerButton() const override;
+		QAction *getAction(ActionId act_id) const override;
+		QWidget *getWidget(WidgetId) const override;
 
 	public slots:
 		void showPluginInfo(void) const override;
