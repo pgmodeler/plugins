@@ -126,7 +126,7 @@ QAction *SamplePlugin::getAction(ActionId act_id) const
 	return toolbar_action;
 }
 
-QWidget *SamplePlugin::getWidget(WidgetId) const
+QToolButton *SamplePlugin::getToolButton() const
 {
 	return dbexplorer_tb;
 }
