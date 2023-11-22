@@ -52,16 +52,20 @@ class GraphicalQueryBuilder: public QObject, public PgModelerPlugin {
 	GraphicalQueryBuilderPathWidget *gqb_path_wgt;
 
 	public:
-		GraphicalQueryBuilder(void);
+		GraphicalQueryBuilder();
 
-		QString getPluginTitle(void);
-		QString getPluginVersion(void);
-		QString getPluginAuthor(void);
-		QString getPluginDescription(void);
-		QKeySequence getPluginShortcut(void);
-		bool hasMenuAction(void);
-		void executePlugin(ModelWidget *model_wgt);		
-		void initPlugin(MainWindow *main_window);
+		QString getPluginTitle() const override;
+		QString getPluginVersion() const override;
+		QString getPluginAuthor() const override;
+		QString getPluginDescription() const override;
+
+		QAction *getAction(ActionId act_id) const override;
+		QToolButton *getToolButton() const override;
+
+		QKeySequence getPluginShortcut();
+		bool hasMenuAction();
+		void executePlugin(ModelWidget *model_wgt);
+		void initPlugin(MainWindow *main_window) override;
 
 private slots:
         void handleModelChange(ModelWidget *new_model);
