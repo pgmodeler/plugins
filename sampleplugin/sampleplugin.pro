@@ -1,7 +1,7 @@
 include(../plugins.pri)
 
 TARGET = sampleplugin
-OTHER_FILES += sampleplugin/.json
+OTHER_FILES += sampleplugin.json
 TRANSLATIONS += $$PWD/lang/$$TARGET.en_US.ts
 
 RESOURCES += res/sampleplugin.qrc

@@ -16,7 +16,7 @@ defined(PGMODELER_PLUGINS, var):{
 }
 
 # If no custom path to pgModeler's source code is provided we assume that the plugin is being build together with pgModeler
-!defined(PGMODELER_PLUGINS, var):PGMODELER_SRC=../
+!defined(PGMODELER_PLUGINS, var):PGMODELER_SRC=$$absolute_path($$PWD/../)
 
 include($$PGMODELER_SRC/pgmodeler.pri)
 
@@ -44,12 +44,13 @@ defined(PGMODELER_PLUGINS, var):{
 
     # Configuring the subproject sources path according to the custom source code path
     LIBS_SRC=$$PGMODELER_SRC/libs/
-    LIBGUI_INC=$$LIBS_SRC/$$LIBGUI/src
+		LIBGUI_INC=$$LIBS_SRC/$$LIBGUI/src
     LIBCANVAS_INC=$$LIBS_SRC/$$LIBCANVAS/src
     LIBCONNECTOR_INC=$$LIBS_SRC/$$LIBCONNECTOR/src
     LIBCORE_INC=$$LIBS_SRC/$$LIBCORE/src
     LIBPARSERS_INC=$$LIBS_SRC/$$LIBPARSERS/src
     LIBUTILS_INC=$$LIBS_SRC/$$LIBUTILS/src
+		LIBCLI_INC=$$LIBS_SRC/$$LIBCLI/src
 
     # Adding the custom path to pgModeler libraries as a search path for linker
     LIBS+=-L$$PGMODELER_LIBS
@@ -60,21 +61,25 @@ unix|windows: LIBS += $$LIBGUI_LIB \
 		      $$LIBCONNECTOR_LIB \
 		      $$LIBCORE_LIB \
 		      $$LIBPARSERS_LIB \
-		      $$LIBUTILS_LIB
+					$$LIBUTILS_LIB \
+					$$LIBCLI_LIB
 
 INCLUDEPATH += $$LIBGUI_INC \
 	       $$LIBCANVAS_INC \
 	       $$LIBCONNECTOR_INC \
 	       $$LIBCORE_INC \
 	       $$LIBPARSERS_INC \
-		   $$LIBUTILS_INC
+				 $$LIBUTILS_INC \
+				 $$LIBCLI_INC
 
 DEPENDPATH += $$LIBGUI_ROOT \
 	      $$LIBCANVAS_ROOT \
 	      $$LIBCONNECTOR_ROOT \
 	      $$LIBCORE_ROOT \
 	      $$LIBPARSERS_ROOT \
-		  $$LIBUTILS_ROOT
+				$$LIBUTILS_ROOT \
+				$$LIBCLI_ROOT
+
 macx {
   OUTPUT_PLUGIN = $$PWD/$${TARGET}/lib$${TARGET}.dylib
   OLD_FW_REF = @loader_path/../Frameworks

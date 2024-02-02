@@ -10,4 +10,4 @@ SUBDIRS += sampleplugin samplecliplugin
 # Building instructions here:
 # >> https://github.com/pgmodeler/plugins/blob/develop/graphicalquerybuilder/README.md
 
-# SUBDIRS += gui/graphicalquerybuilder
+# SUBDIRS += graphicalquerybuilder

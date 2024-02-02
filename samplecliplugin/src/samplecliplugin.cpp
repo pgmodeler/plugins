@@ -17,7 +17,7 @@
 */
 
 #include "samplecliplugin.h"
-#include "exception.h"
+#include "pgmodelercliapp.h"
 
 SampleCliPlugin::SampleCliPlugin() : PgModelerCliPlugin()
 {
@@ -29,42 +29,47 @@ SampleCliPlugin::~SampleCliPlugin()
 
 }
 
-QString SampleCliPlugin::getPluginTitle(void) const
+QString SampleCliPlugin::getPluginTitle() const
 {
 	return(tr("Sample Plug-in"));
 }
 
-QString SampleCliPlugin::getPluginVersion(void) const
+QString SampleCliPlugin::getPluginVersion() const
 {
-	return(QString("0.1.0"));
+	return("0.1.0");
 }
 
-QString SampleCliPlugin::getPluginAuthor(void) const
+QString SampleCliPlugin::getPluginAuthor() const
 {
-	return(QString("Raphael Araújo e Silva"));
+	return("Raphael Araújo e Silva");
 }
 
-QString SampleCliPlugin::getPluginDescription(void) const
+QString SampleCliPlugin::getPluginDescription() const
 {
 	return(tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface."));
 }
 
 attribs_map SampleCliPlugin::getPluginShortOpts() const
 {
-	return {};
+	return {{ "--sample-cli", "-sc" }};
 }
 
 std::map<QString, bool> SampleCliPlugin::getPluginLongOpts() const
 {
-	return {};
+	return {{ "--sample-cli", true }};
 }
 
-PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId()
+attribs_map SampleCliPlugin::getOptsDescription() const
 {
-	return CustomMode;
+	return {{ "--sample-cli", tr("A description for an option used by the samplecliplugin.") }};
 }
 
-PgModelerCliPlugin::EventId SampleCliPlugin::getEventId()
+PgModelerCliPlugin::TaskId SampleCliPlugin::getTaskId() const
+{
+	return CustomTask;
+}
+
+PgModelerCliPlugin::EventId SampleCliPlugin::getEventId() const
 {
 	return None;
 }

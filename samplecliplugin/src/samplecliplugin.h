@@ -47,9 +47,10 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 
 		attribs_map getPluginShortOpts() const override;
 		std::map<QString, bool> getPluginLongOpts() const override;
+		attribs_map getOptsDescription() const override;
 
-		OperationId getOperationId() override;
-		EventId getEventId() override;
+		TaskId getTaskId() const override;
+		EventId getEventId() const override;
 
 		void executePlugin() override;
 };
