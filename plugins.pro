@@ -1,7 +1,7 @@
 include(plugins.pri)
 
 TEMPLATE = subdirs
-SUBDIRS += sampleplugin
+SUBDIRS += sampleplugin samplecliplugin
 
 # Graphical Query Builder plugin is temporarily disabled due to problems in compilation process.
 # Currently only the graphical query builder portion can be compiled. The path solver code is failing to build.
@@ -10,4 +10,4 @@ SUBDIRS += sampleplugin
 # Building instructions here:
 # >> https://github.com/pgmodeler/plugins/blob/develop/graphicalquerybuilder/README.md
 
-# SUBDIRS += graphicalquerybuilder
+# SUBDIRS += gui/graphicalquerybuilder

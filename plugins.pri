@@ -67,15 +67,14 @@ INCLUDEPATH += $$LIBGUI_INC \
 	       $$LIBCONNECTOR_INC \
 	       $$LIBCORE_INC \
 	       $$LIBPARSERS_INC \
-	       $$LIBUTILS_INC
+		   $$LIBUTILS_INC
 
 DEPENDPATH += $$LIBGUI_ROOT \
 	      $$LIBCANVAS_ROOT \
 	      $$LIBCONNECTOR_ROOT \
 	      $$LIBCORE_ROOT \
 	      $$LIBPARSERS_ROOT \
-	      $$LIBUTILS_ROOT
-
+		  $$LIBUTILS_ROOT
 macx {
   OUTPUT_PLUGIN = $$PWD/$${TARGET}/lib$${TARGET}.dylib
   OLD_FW_REF = @loader_path/../Frameworks
