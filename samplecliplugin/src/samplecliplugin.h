@@ -31,7 +31,7 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerPlugin" FILE "samplecliplugin.json")
+		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerCliPlugin" FILE "samplecliplugin.json")
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerCliPlugin)
@@ -45,14 +45,15 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 		QString getPluginAuthor() const override;
 		QString getPluginDescription() const override;
 
-		attribs_map getPluginShortOpts() const override;
-		std::map<QString, bool> getPluginLongOpts() const override;
+		attribs_map getShortOptions() const override;
+		std::map<QString, bool> getLongOptions() const override;
 		attribs_map getOptsDescription() const override;
 
-		TaskId getTaskId() const override;
-		EventId getEventId() const override;
+		OperationId getOperationId() const override;
 
-		void executePlugin() override;
+		void execBeforeOperation() override;
+		void execAfterOperation() override;
+		void execCustomOperation() override;
 };
 
 #endif

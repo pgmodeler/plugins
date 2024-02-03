@@ -31,7 +31,7 @@ SampleCliPlugin::~SampleCliPlugin()
 
 QString SampleCliPlugin::getPluginTitle() const
 {
-	return(tr("Sample Plug-in"));
+	return(tr("Sample plug-in"));
 }
 
 QString SampleCliPlugin::getPluginVersion() const
@@ -46,15 +46,15 @@ QString SampleCliPlugin::getPluginAuthor() const
 
 QString SampleCliPlugin::getPluginDescription() const
 {
-	return(tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface."));
+	return(tr("This sample plug-in has the sole purpose of serving as a template for the development of extended features \n  for pgModeler CLI  based on the plug-in interface."));
 }
 
-attribs_map SampleCliPlugin::getPluginShortOpts() const
+attribs_map SampleCliPlugin::getShortOptions() const
 {
 	return {{ "--sample-cli", "-sc" }};
 }
 
-std::map<QString, bool> SampleCliPlugin::getPluginLongOpts() const
+std::map<QString, bool> SampleCliPlugin::getLongOptions() const
 {
 	return {{ "--sample-cli", true }};
 }
@@ -64,17 +64,22 @@ attribs_map SampleCliPlugin::getOptsDescription() const
 	return {{ "--sample-cli", tr("A description for an option used by the samplecliplugin.") }};
 }
 
-PgModelerCliPlugin::TaskId SampleCliPlugin::getTaskId() const
+PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId() const
 {
-	return CustomTask;
+	return CustomCliOp;
 }
 
-PgModelerCliPlugin::EventId SampleCliPlugin::getEventId() const
+void SampleCliPlugin::execBeforeOperation()
 {
-	return None;
+
 }
 
-void SampleCliPlugin::executePlugin()
+void SampleCliPlugin::execAfterOperation()
 {
 
+}
+
+void SampleCliPlugin::execCustomOperation()
+{
+	cli_app->printText("Executing the samplecliplugin");
 }
