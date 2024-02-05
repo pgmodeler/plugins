@@ -61,6 +61,11 @@ std::map<QString, bool> SampleCliPlugin::getLongOptions() const
 	return {{ SampleCliOpt, false }};
 }
 
+QStringList SampleCliPlugin::getOpModeOptions() const
+{
+	return { SampleCliOpt };
+}
+
 attribs_map SampleCliPlugin::getOptsDescription() const
 {
 	return {{ SampleCliOpt, tr("A description for an option used by the samplecliplugin.") }};
@@ -73,15 +78,15 @@ PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId() const
 
 void SampleCliPlugin::runPreOperation()
 {
-	cli_app->printText("Executing the pre operation method of samplecliplugin");
+	cli_app->printText("Executing the runPreOperation() method of samplecliplugin");
 }
 
 void SampleCliPlugin::runOperation()
 {
-	cli_app->printText("Executing the main operation of samplecliplugin");
+	cli_app->printText("Executing the runOperation() method of samplecliplugin");
 }
 
 void SampleCliPlugin::runPostOperation()
 {
-	cli_app->printText("Executing the post operation method of samplecliplugin");
+	cli_app->printText("Executing the runPostOperation() method of samplecliplugin");
 }

@@ -49,8 +49,8 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 
 		attribs_map getShortOptions() const override;
 		std::map<QString, bool> getLongOptions() const override;
+		QStringList getOpModeOptions() const override;
 		attribs_map getOptsDescription() const override;
-
 		OperationId getOperationId() const override;
 
 		void runPreOperation() override;
