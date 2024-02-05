@@ -19,6 +19,8 @@
 #include "samplecliplugin.h"
 #include "pgmodelercliapp.h"
 
+const QString SampleCliPlugin::SampleCliOpt("--sample-cli");
+
 SampleCliPlugin::SampleCliPlugin() : PgModelerCliPlugin()
 {
 
@@ -51,17 +53,17 @@ QString SampleCliPlugin::getPluginDescription() const
 
 attribs_map SampleCliPlugin::getShortOptions() const
 {
-	return {{ "--sample-cli", "-sc" }};
+	return {{ SampleCliOpt, "-sc" }};
 }
 
 std::map<QString, bool> SampleCliPlugin::getLongOptions() const
 {
-	return {{ "--sample-cli", true }};
+	return {{ SampleCliOpt, false }};
 }
 
 attribs_map SampleCliPlugin::getOptsDescription() const
 {
-	return {{ "--sample-cli", tr("A description for an option used by the samplecliplugin.") }};
+	return {{ SampleCliOpt, tr("A description for an option used by the samplecliplugin.") }};
 }
 
 PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId() const
@@ -69,17 +71,17 @@ PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId() const
 	return CustomCliOp;
 }
 
-void SampleCliPlugin::execBeforeOperation()
+void SampleCliPlugin::runPreOperation()
 {
-
+	cli_app->printText("Executing the pre operation method of samplecliplugin");
 }
 
-void SampleCliPlugin::execAfterOperation()
+void SampleCliPlugin::runOperation()
 {
-
+	cli_app->printText("Executing the main operation of samplecliplugin");
 }
 
-void SampleCliPlugin::execCustomOperation()
+void SampleCliPlugin::runPostOperation()
 {
-	cli_app->printText("Executing the samplecliplugin");
+	cli_app->printText("Executing the post operation method of samplecliplugin");
 }

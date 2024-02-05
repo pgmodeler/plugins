@@ -37,6 +37,8 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 		Q_INTERFACES(PgModelerCliPlugin)
 
 	public:
+		static const QString SampleCliOpt;
+
 		SampleCliPlugin();
 		~SampleCliPlugin();
 
@@ -51,9 +53,9 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 
 		OperationId getOperationId() const override;
 
-		void execBeforeOperation() override;
-		void execAfterOperation() override;
-		void execCustomOperation() override;
+		void runPreOperation() override;
+		void runOperation() override;
+		void runPostOperation() override;
 };
 
 #endif
