@@ -25,16 +25,16 @@
 #ifndef SAMPLE_PLUGIN_H
 #define SAMPLE_PLUGIN_H
 
-#include "pgmodelerplugin.h"
+#include "pgmodelerguiplugin.h"
 
-class SamplePlugin: public QObject, public PgModelerPlugin {
+class SamplePlugin: public QObject, public PgModelerGuiPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerPlugin" FILE "sampleplugin.json")
+		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerGuiPlugin" FILE "sampleplugin.json")
 
 		//! \brief Declares the interface which is used to implement the plugin
-		Q_INTERFACES(PgModelerPlugin)
+		Q_INTERFACES(PgModelerGuiPlugin)
 
 		QAction *config_action, *toolbar_action, *model_action;
 
