@@ -90,5 +90,6 @@ macx {
 		     install_name_tool -change $$OLD_FW_REF/$$LIBCORE.1.dylib $$NEW_FW_REF/$$LIBCORE.1.dylib $$OUTPUT_PLUGIN ; \
 		     install_name_tool -change $$OLD_FW_REF/$$LIBGUI.1.dylib $$NEW_FW_REF/$$LIBGUI.1.dylib $$OUTPUT_PLUGIN ; \
 		     install_name_tool -change $$OLD_FW_REF/$$LIBCONNECTOR.1.dylib $$NEW_FW_REF/$$LIBCONNECTOR.1.dylib $$OUTPUT_PLUGIN ; \
-		     install_name_tool -change $$OLD_FW_REF/$$LIBCANVAS.1.dylib $$NEW_FW_REF/$$LIBCANVAS.1.dylib $$OUTPUT_PLUGIN
+				 install_name_tool -change $$OLD_FW_REF/$$LIBCANVAS.1.dylib $$NEW_FW_REF/$$LIBCANVAS.1.dylib $$OUTPUT_PLUGIN \
+		     install_name_tool -change $$OLD_FW_REF/$$LIBCLI.1.dylib $$NEW_FW_REF/$$LIBCLI.1.dylib $$OUTPUT_PLUGIN
 }
