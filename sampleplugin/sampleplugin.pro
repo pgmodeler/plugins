@@ -1,7 +1,6 @@
 include(../plugins.pri)
 
 TARGET = sampleplugin
-OTHER_FILES += sampleplugin.json
 TRANSLATIONS += $$PWD/lang/$$TARGET.en_US.ts
 
 RESOURCES += res/sampleplugin.qrc
@@ -12,6 +11,6 @@ SOURCES += src/sampleplugin.cpp
 
 target.path = $$PLUGINSDIR/$$TARGET
 resources.path = $$PLUGINSDIR/$$TARGET
-resources.files += lang sampleplugin.json
+resources.files += lang
 
 INSTALLS += target resources
