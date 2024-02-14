@@ -1,7 +1,7 @@
 include(../plugins.pri)
 
 TARGET = samplecliplugin
-TRANSLATIONS += $$PWD/lang/$$TARGET.en_US.ts
+TRANSLATIONS += $$PWD/lang/en_US.ts
 
 HEADERS += src/samplecliplugin.h
 
