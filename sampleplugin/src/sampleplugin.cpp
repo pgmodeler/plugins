@@ -41,7 +41,7 @@ SamplePlugin::~SamplePlugin()
 
 void SamplePlugin::initPlugin(MainWindow *main_wnd)
 {
-	PgModelerPlugin::initPlugin(main_wnd);
+	PgModelerGuiPlugin::initPlugin(main_wnd);
 
 	config_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
 	toolbar_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
