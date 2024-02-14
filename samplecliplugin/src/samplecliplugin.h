@@ -31,7 +31,7 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerCliPlugin" FILE "samplecliplugin.json")
+		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerCliPlugin")
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerCliPlugin)
