@@ -31,7 +31,7 @@ class SamplePlugin: public QObject, public PgModelerGuiPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "io.pgmodeler.PgModelerGuiPlugin")
+		Q_PLUGIN_METADATA(IID "PgModelerGuiPlugin")
 
 		//! \brief Declares the interface which is used to implement the plugin
 		Q_INTERFACES(PgModelerGuiPlugin)
