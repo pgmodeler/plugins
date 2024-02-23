@@ -19,49 +19,43 @@
 /**
 \ingroup sampleplugin
 \class SamplePlugin
-\brief Example plugin for pgModeler (does not execute any complex operation)
+\brief Example plugin for pgModeler CLI (does not execute any complex operation)
 */
 
-#ifndef SAMPLE_PLUGIN_H
-#define SAMPLE_PLUGIN_H
+#ifndef SAMPLE_CLI_PLUGIN_H
+#define SAMPLE_CLI_PLUGIN_H
 
-#include "pgmodelerguiplugin.h"
+#include "pgmodelercliplugin.h"
 
-class SamplePlugin: public QObject, public PgModelerGuiPlugin {
+class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 	private:
 		Q_OBJECT
 
-		Q_PLUGIN_METADATA(IID "PgModelerGuiPlugin")
+		Q_PLUGIN_METADATA(IID "PgModelerCliPlugin")
 
 		//! \brief Declares the interface which is used to implement the plugin
-		Q_INTERFACES(PgModelerGuiPlugin)
-
-		QAction *config_action, *toolbar_action, *model_action;
-
-		QToolButton *dbexplorer_tb;
-
-		void initPlugin(MainWindow *main_wnd) override;
+		Q_INTERFACES(PgModelerCliPlugin)
 
 	public:
-		SamplePlugin();
-		~SamplePlugin();
+		static const QString SampleCliOpt;
+
+		SampleCliPlugin();
+		~SampleCliPlugin();
 
 		QString getPluginTitle() const override;
 		QString getPluginVersion() const override;
 		QString getPluginAuthor() const override;
 		QString getPluginDescription() const override;
 
-		QAction *getAction(ActionId act_id) const override;
-		QToolButton *getToolButton() const override;
+		attribs_map getShortOptions() const override;
+		std::map<QString, bool> getLongOptions() const override;
+		QStringList getOpModeOptions() const override;
+		attribs_map getOptsDescription() const override;
+		OperationId getOperationId() const override;
 
-	public slots:
-		void showPluginInfo(void) const override;
-
-	private slots:
-		void executeToolbarAction();
-		void executeModelAction();
-		void executeConfigAction();
-		void executeDbExplorerAction();
+		void runPreOperation() override;
+		void runOperation() override;
+		void runPostOperation() override;
 };
 
 #endif

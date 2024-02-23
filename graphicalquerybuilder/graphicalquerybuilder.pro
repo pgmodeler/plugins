@@ -134,10 +134,10 @@ equals(GQB_JOIN_SOLVER, "y"){
 	DEFINES += "GRAPHICAL_QUERY_BUILDER_JOIN_SOLVER"
 	HEADERS += src/graphicalquerybuilderjoinsolver.h
 	SOURCES += src/graphicalquerybuilderjoinsolver.cpp
-	INCLUDEPATH += $$PWD/paal/include
-				   $$PWD/paal/boost
-	DEPENDPATH += $$PWD/paal/include
-				   $$PWD/paal/boost
+	INCLUDEPATH += $$absolute_path($$PWD/paal/include) \
+								 $$absolute_path($$PWD/paal/boost)
+	DEPENDPATH += $$absolute_path($$PWD/paal/include) \
+								$$absolute_path($$PWD/paal/boost)
 }
 #------------------------------------------------------------------------------------------------
 

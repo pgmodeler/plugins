@@ -1,13 +1,11 @@
 include(../plugins.pri)
 
-TARGET = sampleplugin
+TARGET = samplecliplugin
 TRANSLATIONS += $$PWD/lang/en_US.ts
 
-RESOURCES += res/sampleplugin.qrc
+HEADERS += src/samplecliplugin.h
 
-HEADERS += src/sampleplugin.h
-
-SOURCES += src/sampleplugin.cpp
+SOURCES += src/samplecliplugin.cpp
 
 target.path = $$PLUGINSDIR/$$TARGET
 resources.path = $$PLUGINSDIR/$$TARGET

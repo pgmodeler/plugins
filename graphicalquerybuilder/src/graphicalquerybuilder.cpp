@@ -20,46 +20,52 @@
 #include "exception.h"
 #include "messagebox.h"
 #include "mainwindow.h"
+#include "guiutilsns.h"
 
-GraphicalQueryBuilder::GraphicalQueryBuilder(void)
+GraphicalQueryBuilder::GraphicalQueryBuilder()
 {
 	configurePluginInfo(getPluginTitle(),
-						getPluginVersion(),
-						getPluginAuthor(),
-						getPluginDescription(),
-
-                        GlobalAttributes::getPluginsDir() +
-						GlobalAttributes::DirSeparator +
-						QString("graphicalquerybuilder") +
-						GlobalAttributes::DirSeparator + QString("graphicalquerybuilder.png"));
+											getPluginVersion(),
+											getPluginAuthor(),
+											getPluginDescription());
 
 	is_plugin_active=false;
 }
 
-QString GraphicalQueryBuilder::getPluginTitle(void)
+QString GraphicalQueryBuilder::getPluginTitle() const
 {
 	return(tr("Graphical query builder"));
 }
 
 
-QString GraphicalQueryBuilder::getPluginVersion(void)
+QString GraphicalQueryBuilder::getPluginVersion() const
 {
-	return(QString("0.9.2"));
+	return(QString("0.1.0"));
 }
 
-QString GraphicalQueryBuilder::getPluginAuthor(void)
+QString GraphicalQueryBuilder::getPluginAuthor() const
 {
 	return(QString("Maxime Chambonnet maxzor@maxzor.eu"));
 }
 
-QString GraphicalQueryBuilder::getPluginDescription(void)
+QString GraphicalQueryBuilder::getPluginDescription() const
 {
 	return(tr("Check documentation, source code and report bugs at : \
 				\n https://www.github.com/pgmodeler/plugins/graphicalquerybuilder \
 				\n https://www.gitlab.com/maxzor/pgmodeler_gqb"));
 }
 
-void GraphicalQueryBuilder::showPluginInfo(void)
+QAction *GraphicalQueryBuilder::getAction(ActionId act_id) const
+{
+	return nullptr;
+}
+
+QToolButton *GraphicalQueryBuilder::getToolButton() const
+{
+	return nullptr;
+}
+
+void GraphicalQueryBuilder::showPluginInfo()
 {
 	plugin_info_frm->show();
 }
@@ -246,12 +252,12 @@ void GraphicalQueryBuilder::adjustViewportToItems(QList<BaseObjectView *> items)
 }
 
 
-QKeySequence GraphicalQueryBuilder::getPluginShortcut(void)
+QKeySequence GraphicalQueryBuilder::getPluginShortcut()
 {
 	return(QKeySequence(QString("Ctrl+J")));
 }
 
-bool GraphicalQueryBuilder::hasMenuAction(void)
+bool GraphicalQueryBuilder::hasMenuAction()
 {
 	return(false);
 }
