@@ -31,47 +31,47 @@ SampleCliPlugin::~SampleCliPlugin()
 
 }
 
-QString SampleCliPlugin::getPluginTitle() const
+QString SampleCliPlugin::getPluginTitle()
 {
 	return(tr("Sample plug-in"));
 }
 
-QString SampleCliPlugin::getPluginVersion() const
+QString SampleCliPlugin::getPluginVersion()
 {
 	return("0.1.0");
 }
 
-QString SampleCliPlugin::getPluginAuthor() const
+QString SampleCliPlugin::getPluginAuthor()
 {
 	return("Raphael Araújo e Silva");
 }
 
-QString SampleCliPlugin::getPluginDescription() const
+QString SampleCliPlugin::getPluginDescription()
 {
 	return(tr("This sample plug-in has the sole purpose of serving as a template for the development of extended features \n  for pgModeler CLI  based on the plug-in interface."));
 }
 
-attribs_map SampleCliPlugin::getShortOptions() const
+attribs_map SampleCliPlugin::getShortOptions()
 {
 	return {{ SampleCliOpt, "-sc" }};
 }
 
-std::map<QString, bool> SampleCliPlugin::getLongOptions() const
+std::map<QString, bool> SampleCliPlugin::getLongOptions()
 {
 	return {{ SampleCliOpt, false }};
 }
 
-QStringList SampleCliPlugin::getOpModeOptions() const
+QStringList SampleCliPlugin::getOpModeOptions()
 {
 	return { SampleCliOpt };
 }
 
-attribs_map SampleCliPlugin::getOptsDescription() const
+attribs_map SampleCliPlugin::getOptsDescription()
 {
 	return {{ SampleCliOpt, tr("A description for an option used by the samplecliplugin.") }};
 }
 
-PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId() const
+PgModelerCliPlugin::OperationId SampleCliPlugin::getOperationId()
 {
 	return CustomCliOp;
 }

@@ -46,16 +46,16 @@ class SamplePlugin: public QObject, public PgModelerGuiPlugin {
 		SamplePlugin();
 		~SamplePlugin();
 
-		QString getPluginTitle() const override;
-		QString getPluginVersion() const override;
-		QString getPluginAuthor() const override;
-		QString getPluginDescription() const override;
+		QString getPluginTitle() override;
+		QString getPluginVersion() override;
+		QString getPluginAuthor() override;
+		QString getPluginDescription() override;
 
-		QAction *getAction(ActionId act_id) const override;
-		QToolButton *getToolButton() const override;
+		QAction *getAction(ActionId act_id) override;
+		QToolButton *getToolButton() override;
 
 	public slots:
-		void showPluginInfo(void) const override;
+		void showPluginInfo(void) override;
 
 	private slots:
 		void executeToolbarAction();
