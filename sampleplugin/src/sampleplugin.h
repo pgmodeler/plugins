@@ -52,6 +52,7 @@ class SamplePlugin: public QObject, public PgModelerGuiPlugin {
 		QString getPluginDescription() override;
 
 		QAction *getAction(ActionId act_id) override;
+		MenuSectionId getMenuSection() override;
 		QToolButton *getToolButton() override;
 
 	public slots:

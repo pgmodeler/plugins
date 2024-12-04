@@ -126,6 +126,11 @@ QAction *SamplePlugin::getAction(ActionId act_id)
 	return toolbar_action;
 }
 
+PgModelerGuiPlugin::MenuSectionId SamplePlugin::getMenuSection()
+{
+	return DefaultSection;
+}
+
 QToolButton *SamplePlugin::getToolButton()
 {
 	return dbexplorer_tb;
