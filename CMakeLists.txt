@@ -1,4 +1,6 @@
-find_package(Qt6 REQUIRED COMPONENTS UiTools)
+# Importing Qt6 components
+# Forcing a version >= 6.4.0. If no suitable version is found the script aborts
+find_package(Qt6 6.4.0 REQUIRED COMPONENTS UiTools)
 
 # By default, the AUTOUIC option makes the uic look for the .ui files
 # under the same folder as the sources. In this case, we force the uic
