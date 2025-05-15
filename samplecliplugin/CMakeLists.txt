@@ -1,8 +1,6 @@
-set(TARGET samplecliplugin)
+pgm_add_cli_plugin(samplecliplugin OFF)
 
-qt_add_plugin(${TARGET} SHARED)
-
-target_sources(${TARGET} PRIVATE
+target_sources(${PGM_TARGET} PRIVATE
     src/samplecliplugin.cpp src/samplecliplugin.h)
 
-pgm_install_plugin(${TARGET})
+pgm_install_plugin(${PGM_TARGET})

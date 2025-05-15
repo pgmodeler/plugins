@@ -1,9 +1,7 @@
-set(TARGET sampleplugin)
+pgm_add_cli_plugin(sampleplugin OFF)
 
-qt_add_plugin(${TARGET} SHARED)
-
-target_sources(${TARGET} PRIVATE
+target_sources(${PGM_TARGET} PRIVATE
     src/sampleplugin.cpp src/sampleplugin.h)
 
-pgm_set_plugin_res(${TARGET})
-pgm_install_plugin(${TARGET})
+pgm_set_plugin_res(${PGM_TARGET})
+pgm_install_plugin(${PGM_TARGET})
