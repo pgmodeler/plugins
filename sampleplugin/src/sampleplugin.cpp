@@ -88,7 +88,7 @@ void SamplePlugin::executeToolbarAction()
 	Messagebox msgbox;
 	msgbox.show(tr("Toolbar action triggered!"),
 				tr("This action triggers a specific operation when the user clicks the toolbar action."),
-				Messagebox::InfoIcon);
+				Messagebox::Info);
 }
 
 void SamplePlugin::executeModelAction()
@@ -96,7 +96,7 @@ void SamplePlugin::executeModelAction()
 	Messagebox msgbox;
 	msgbox.show(tr("Model action triggered!"),
 				tr("This action triggers a specific operation when the user clicks the action in the current model's context menu."),
-				Messagebox::InfoIcon);
+				Messagebox::Info);
 }
 
 void SamplePlugin::executeConfigAction()
@@ -104,7 +104,7 @@ void SamplePlugin::executeConfigAction()
 	Messagebox msgbox;
 	msgbox.show(tr("Configuration action triggered!"),
 				tr("This action triggers a specific operation when the user clicks the action in the plug-ins settings menu."),
-				Messagebox::InfoIcon);
+				Messagebox::Info);
 }
 
 void SamplePlugin::executeDbExplorerAction()
@@ -112,7 +112,7 @@ void SamplePlugin::executeDbExplorerAction()
 	Messagebox msgbox;
 	msgbox.show(tr("Database explorer button triggered!"),
 				tr("This button triggers a specific operation when the user clicks it in any instance of database explorer."),
-				Messagebox::InfoIcon);
+				Messagebox::Info);
 }
 
 QAction *SamplePlugin::getAction(ActionId act_id)
