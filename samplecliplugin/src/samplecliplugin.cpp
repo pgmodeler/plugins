@@ -21,34 +21,24 @@
 
 const QString SampleCliPlugin::SampleCliOpt("--sample-cli");
 
-SampleCliPlugin::SampleCliPlugin() : PgModelerCliPlugin()
-{
-
-}
-
-SampleCliPlugin::~SampleCliPlugin()
-{
-
-}
-
 QString SampleCliPlugin::getPluginTitle()
 {
-	return(tr("Sample plug-in"));
+	return { tr("Sample plug-in") };
 }
 
 QString SampleCliPlugin::getPluginVersion()
 {
-	return("0.1.0");
+	return { "0.1.0" };
 }
 
 QString SampleCliPlugin::getPluginAuthor()
 {
-	return("Raphael Araújo e Silva");
+	return { "Raphael Araújo e Silva" };
 }
 
 QString SampleCliPlugin::getPluginDescription()
 {
-	return(tr("This sample plug-in has the sole purpose of serving as a template for the development of extended features \n  for pgModeler CLI  based on the plug-in interface."));
+	return { tr("This sample plug-in has the sole purpose of serving as a template for the development of extended features \n  for pgModeler CLI  based on the plug-in interface.") };
 }
 
 attribs_map SampleCliPlugin::getShortOptions()

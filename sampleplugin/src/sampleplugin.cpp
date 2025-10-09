@@ -60,22 +60,22 @@ void SamplePlugin::initPlugin(MainWindow *main_wnd)
 
 QString SamplePlugin::getPluginTitle(void)
 {
-	return(tr("Sample Plug-in"));
+	return { tr("Sample Plug-in") };
 }
 
 QString SamplePlugin::getPluginVersion(void)
 {
-	return(QString("0.1.0"));
+	return { "0.1.0" };
 }
 
 QString SamplePlugin::getPluginAuthor(void)
 {
-	return(QString("Raphael Araújo e Silva"));
+	return { "Raphael Araújo e Silva" };
 }
 
 QString SamplePlugin::getPluginDescription(void)
 {
-	return(tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface."));
+	return { tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface.") };
 }
 
 void SamplePlugin::showPluginInfo(void)
