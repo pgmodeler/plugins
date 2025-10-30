@@ -39,8 +39,8 @@ class SampleCliPlugin: public QObject, public PgModelerCliPlugin {
 	public:
 		static const QString SampleCliOpt;
 
-		SampleCliPlugin();
-		~SampleCliPlugin();
+		SampleCliPlugin() = default;
+		~SampleCliPlugin() override = default;
 
 		QString getPluginTitle() override;
 		QString getPluginVersion() override;
