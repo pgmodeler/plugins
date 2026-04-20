@@ -44,15 +44,15 @@ class SamplePlugin: public QObject, public PgModelerGuiPlugin {
 
 	public:
 		SamplePlugin();
-		~SamplePlugin();
+		~SamplePlugin() override;
 
-		QString getPluginTitle() override;
-		QString getPluginVersion() override;
-		QString getPluginAuthor() override;
-		QString getPluginDescription() override;
+		QString getPluginTitle() const override;
+		QString getPluginVersion() const override;
+		QString getPluginAuthor() const override;
+		QString getPluginDescription() const override;
 
 		QAction *getAction(ActionId act_id) override;
-		MenuSectionId getMenuSection() override;
+		MenuSectionId getMenuSection() const override;
 		QToolButton *getToolButton() override;
 
 	public slots:

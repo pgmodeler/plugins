@@ -43,12 +43,12 @@ void SamplePlugin::initPlugin(MainWindow *main_wnd)
 {
 	PgModelerGuiPlugin::initPlugin(main_wnd);
 
-	config_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
-	toolbar_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
-	model_action = new QAction(QIcon(getPluginIcon(getPluginName())), tr("Sample plug-in"), this);
+	config_action = new QAction(getPluginIcon(getPluginName()), tr("Sample plug-in"), this);
+	toolbar_action = new QAction(getPluginIcon(getPluginName()), tr("Sample plug-in"), this);
+	model_action = new QAction(getPluginIcon(getPluginName()), tr("Sample plug-in"), this);
 
 	dbexplorer_tb = new QToolButton;
-	dbexplorer_tb->setIcon(QIcon(getPluginIcon(getPluginName())));
+	dbexplorer_tb->setIcon(getPluginIcon(getPluginName()));
 	dbexplorer_tb->setText(tr("Sample plug-in"));
 	dbexplorer_tb->setToolTip(dbexplorer_tb->text());
 
@@ -58,27 +58,27 @@ void SamplePlugin::initPlugin(MainWindow *main_wnd)
 	connect(dbexplorer_tb, &QToolButton::clicked, this, &SamplePlugin::executeDbExplorerAction);
 }
 
-QString SamplePlugin::getPluginTitle(void)
+QString SamplePlugin::getPluginTitle() const
 {
 	return { tr("Sample Plug-in") };
 }
 
-QString SamplePlugin::getPluginVersion(void)
+QString SamplePlugin::getPluginVersion() const
 {
 	return { "0.1.0" };
 }
 
-QString SamplePlugin::getPluginAuthor(void)
+QString SamplePlugin::getPluginAuthor() const
 {
-	return { "Raphael Araújo e Silva" };
+	return { "Nullptr Labs" };
 }
 
-QString SamplePlugin::getPluginDescription(void)
+QString SamplePlugin::getPluginDescription() const
 {
 	return { tr("This sample plug-in has the only purpose to serve as a template for the development of extended features for pgModeler based on the plug-in interface.") };
 }
 
-void SamplePlugin::showPluginInfo(void)
+void SamplePlugin::showPluginInfo()
 {
 	plugin_info_frm->show();
 }
@@ -126,7 +126,7 @@ QAction *SamplePlugin::getAction(ActionId act_id)
 	return toolbar_action;
 }
 
-PgModelerGuiPlugin::MenuSectionId SamplePlugin::getMenuSection()
+PgModelerGuiPlugin::MenuSectionId SamplePlugin::getMenuSection() const
 {
 	return DefaultSection;
 }
