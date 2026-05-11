@@ -85,34 +85,22 @@ void SamplePlugin::showPluginInfo()
 
 void SamplePlugin::executeToolbarAction()
 {
-	Messagebox msgbox;
-	msgbox.show(tr("Toolbar action triggered!"),
-				tr("This action triggers a specific operation when the user clicks the toolbar action."),
-				Messagebox::Info);
+	Messagebox::info(tr("This action triggers a specific operation when the user clicks the toolbar action."));
 }
 
 void SamplePlugin::executeModelAction()
 {
-	Messagebox msgbox;
-	msgbox.show(tr("Model action triggered!"),
-				tr("This action triggers a specific operation when the user clicks the action in the current model's context menu."),
-				Messagebox::Info);
+	Messagebox::info(tr("This action triggers a specific operation when the user clicks the action in the current model's context menu."));
 }
 
 void SamplePlugin::executeConfigAction()
 {
-	Messagebox msgbox;
-	msgbox.show(tr("Configuration action triggered!"),
-				tr("This action triggers a specific operation when the user clicks the action in the plug-ins settings menu."),
-				Messagebox::Info);
+	Messagebox::info(tr("This action triggers a specific operation when the user clicks the action in the plug-ins settings menu."));
 }
 
 void SamplePlugin::executeDbExplorerAction()
 {
-	Messagebox msgbox;
-	msgbox.show(tr("Database explorer button triggered!"),
-				tr("This button triggers a specific operation when the user clicks it in any instance of database explorer."),
-				Messagebox::Info);
+	Messagebox::info(tr("Database explorer button triggered!"));
 }
 
 QAction *SamplePlugin::getAction(ActionId act_id)
